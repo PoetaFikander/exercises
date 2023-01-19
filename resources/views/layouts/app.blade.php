@@ -15,6 +15,12 @@
 
     <!-- Scripts -->
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
+
+    <!-- My Scripts -->
+    {{--
+    <script src="{{ asset('js/main1.js') }}" defer></script>
+    --}}
+
 </head>
 <body>
 <div id="app">
@@ -89,7 +95,11 @@
     </main>
 </div>
 
-<script src="{{ asset('js/my.js') }}" defer></script>
+<script type="module">
+    @yield('js')
+</script>
+
+@yield('js-files')
 
 </body>
 </html>

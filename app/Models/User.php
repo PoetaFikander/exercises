@@ -21,6 +21,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'surname',
+        'phone',
+        'is_active',
+        'type_id',
+        'department_id',
+        'altum_id',
     ];
 
     /**
@@ -41,4 +47,15 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function type()
+    {
+        return $this->belongsTo(UserType::class);
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
 }

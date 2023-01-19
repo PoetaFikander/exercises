@@ -2,8 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
+use App\Models\Department;
 use App\Models\User;
+use App\Models\UserType;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -16,7 +22,7 @@ class UserController extends Controller
     {
         //
         $users = User::all();
-        return view('users.index',['users'=>$users]);
+        return view('users.index', ['users' => $users]);
     }
 
     /**
@@ -27,61 +33,87 @@ class UserController extends Controller
     public function create()
     {
         //
+        $types = UserType::all();
+        $departments = Department::all();
+        return view('users.create', ['types' => $types, 'departments' => $departments]);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
-        //
+        //dd($request);
+        $user = new User($request->validated());
+        $user->setAttribute('password', Str::random(32));
+        //dd($user->getAttributes());
+        $user->save();
+        return redirect(route('users.list'));
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param User $user
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(User $user)
     {
         //
+        $types = UserType::all();
+        $departments = Department::all();
+        return view('users.show', ['user'=>$user, 'types' => $types, 'departments' => $departments]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param User $user
+     * @return void
      */
-    public function edit($id)
+    public function edit(User $user)
     {
         //
+        $types = UserType::all();
+        $departments = Department::all();
+        return view('users.edit', ['user'=>$user, 'types' => $types, 'departments' => $departments]);
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param User $user
+     * @return void
      */
-    public function update(Request $request, $id)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        //
+        $user->fill($request->validated());
+        //dd($user);
+        $user->save();
+        return redirect(route('users.list'));
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param User $user
+     * @return void
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        //
+        try {
+            $user->delete();
+            return response()->json([
+                'status' => 'success'
+            ],200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'error',
+            ],500);
+        }
     }
 }

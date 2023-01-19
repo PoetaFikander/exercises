@@ -16,7 +16,17 @@ use App\Http\Controllers\UserController;
 
 
 Route::get('/users/list', [UserController::class, 'index'])->name('users.list')->middleware('auth');
-Route::delete('/users/delete/{user}',[UserController::class,'destroy'])->name('user.destroy');
+
+Route::get('/users/show/{user}', [UserController::class, 'show'])->name('users.show')->middleware('auth');
+
+Route::delete('/users/delete/{user}',[UserController::class,'destroy'])->name('user.destroy')->middleware('auth');
+
+Route::get('/users/edit/{user}', [UserController::class, 'edit'])->name('users.edit')->middleware('auth');
+Route::post('/users/update/{user}', [UserController::class, 'update'])->name('users.update')->middleware('auth');
+
+Route::get('/users/create', [UserController::class, 'create'])->name('users.create')->middleware('auth');
+Route::post('/users', [UserController::class, 'store'])->name('users.store')->middleware('auth');
+
 
 
 
