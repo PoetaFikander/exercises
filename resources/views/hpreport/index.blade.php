@@ -5,17 +5,29 @@
     <div class="container">
         <nav class="navbar navbar-expand-lg bg-light">
             <div class="container-fluid">
-                <a class="navbar-brand" href="#">Raport HP</a>
+                <a class="navbar-brand" href="{{ route('hpreport.index') }}">Raport HP</a>
 
                 <div class="collapse navbar-collapse">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
                         <li class="nav-item">
-                            <a class="nav-link active" href="{{ route('hpreport.articles') }}">Artykuły</a>
+                            <a class="nav-link active" href="{{ route('hpreport.articles.list') }}">Artykuły</a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link active" href="#">Zasoby</a>
+                            <a class="nav-link active" href="{{ route('hpreport.customers.list') }}">Kontrahenci</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ route('hpreport.articles.delivery') }}">Dostawy</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ route('hpreport.articles.sale') }}">Wydania</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ route('hpreport.reports.create') }}">Nowy raport</a>
                         </li>
 
                     </ul>
@@ -35,7 +47,10 @@
 @endsection
 
 @section('js-files')
-    {{-- <script src="{{ asset('js/users.js') }}" defer></script> --}}
+    {{--
+        <script src="{{ asset('js/hpreport.js') }}" defer></script>
+    --}}
+
 @endsection
 
 

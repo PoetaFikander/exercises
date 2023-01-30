@@ -16,21 +16,37 @@ use App\Http\Controllers\HpReportController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('exe');
 });
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
 //Route::resource('')
 
+    /*
+     * Raporty HP
+     */
     Route::get('/hpreport/index',[HpReportController::class,'index'])->name('hpreport.index');
-    Route::get('/hpreport/articles',[HpReportController::class,'articles'])->name('hpreport.articles');
 
+    //Route::get('/hpreport/report/{date?}',[HpReportController::class,'report'])->name('hpreport.report');
+    Route::get('/hpreport/reports/create',[HpReportController::class,'reportCreate'])->name('hpreport.reports.create');
+    Route::post('/hpreport/reports/create',[HpReportController::class,'reportCreate'])->name('hpreport.reports.create');
 
-    Route::get('/users/list', [UserController::class, 'index'])->name('users.list');
-    Route::get('/users/show/{user}', [UserController::class, 'show'])->name('users.show');
+    Route::post('/hpreport/reports/getweeks',[HpReportController::class,'getWeeks']);
+
+    Route::get('/hpreport/articles/list',[HpReportController::class,'articlesList'])->name('hpreport.articles.list');
+    Route::get('/hpreport/customers/list',[HpReportController::class,'customersList'])->name('hpreport.customers.list');
+
+    Route::get('/hpreport/articles/show/{id}',[HpReportController::class,'articlesShow'])->name('hpreport.articles.show');
+
+    Route::get('/hpreport/articles/delivery/{date?}',[HpReportController::class,'articlesDelivery'])->name('hpreport.articles.delivery');
+    Route::get('/hpreport/articles/sale/{date?}',[HpReportController::class,'articlesSale'])->name('hpreport.articles.sale');
+
 
     Route::middleware(['can:isAdmin'])->group(function () {
+        Route::get('/users/list', [UserController::class, 'index'])->name('users.list');
+        Route::get('/users/show/{user}', [UserController::class, 'show'])->name('users.show');
+
         Route::delete('/users/delete/{user}', [UserController::class, 'destroy'])->name('user.destroy');
         Route::get('/users/edit/{user}', [UserController::class, 'edit'])->name('users.edit');
         Route::post('/users/update/{user}', [UserController::class, 'update'])->name('users.update');

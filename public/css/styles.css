@@ -1,0 +1,33 @@
+html {
+    font-size: 0.9rem;
+}
+
+.thead-dark-grey th {
+    background-color: #adb5bd;
+}
+
+.octicon {
+    display: inline-block;
+    vertical-align: text-top;
+    fill: currentColor;
+}
+
+.modal-max {
+    max-width: 40% !important;
+    width: 40% !important;
+}
+
+.ellipis {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /*display: block;*/
+    white-space: nowrap;
+}
+
+.my-popover{
+    min-width:100px !important;
+    width:100% !important;
+    max-width:300px !important;
+    overflow-wrap:break-word !important;
+}

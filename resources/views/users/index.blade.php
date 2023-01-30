@@ -81,7 +81,9 @@
 @endsection
 
 @section('js-files')
+    {{--
     <script src="{{ asset('js/users.js') }}" defer></script>
+    --}}
 @endsection
 
 
