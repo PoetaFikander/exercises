@@ -137,31 +137,49 @@ $(document).ready(function () {
             select.html('');
             let items = data.weeks || [];
             let html = '';
-
             for (let n in items) {
                 let item = items[n];
-                //console.log(item.w_start);
                 html += '<option value="' + item.w_start + '">' + item.w_start + ' - ' + item.w_end + '</option>'
-                //html += '<tr><td>' + item.id + '</td><td>' + item.catalogueNumber + '</td><td>' + item.name + '</td></tr>'
             }
-            //console.log(html);
             select.append(html);
-
-        }, 'POST');
-
-        //console.log(dateFrom);
-        //location.href = '/hpreport/report/' + dateFrom;
+            let year = $('[data-toggle=h_r_c_for_year]').find(':selected').val();
+            let date = $('[data-toggle=h_r_c_for_week]').find(':selected').val();
+            uniXHR({year: year, date: date}, '/hpreport/reports/getreportsno', function (data) {
+                //console.log(data.lastReports);
+                let select = $('[data-toggle=h_r_c_for_reportid]');
+                // //console.log(select.attr('id'));
+                select.html('');
+                let items = data.lastReports || [];
+                let html = '';
+                for (let n in items) {
+                    let item = items[n];
+                    html += '<option value="' + item.report_id + '">' + item.report_no + '</option>'
+                }
+                select.append(html);
+            });
+        });
     });
 
-    // $('[data-toggle=h_r_for_week]').change(function () {
-    //     //console.log($(this));
-    //     let year = $('[data-toggle=h_r_for_year]').find(':selected').val();
-    //     //console.log(year);
-    //     let date = $(this).find(':selected').attr('data-from');
-    //     let dateFrom = year + date.substring(4);
-    //     //console.log(dateFrom);
-    //     location.href = '/hpreport/report/' + dateFrom;
-    // });
+    $('[data-toggle=h_r_c_for_week]').change(function () {
+        //console.log($(this));
+        let year = $('[data-toggle=h_r_c_for_year]').find(':selected').val();
+        //let date = $(this).find(':selected').attr('data-from');
+        let date = $(this).find(':selected').val();
+        //console.log(year);
+        uniXHR({year: year, date: date}, '/hpreport/reports/getreportsno', function (data) {
+            //console.log(data.lastReports);
+            let select = $('[data-toggle=h_r_c_for_reportid]');
+            // //console.log(select.attr('id'));
+            select.html('');
+            let items = data.lastReports || [];
+            let html = '';
+            for (let n in items) {
+                let item = items[n];
+                html += '<option value="' + item.report_id + '">' + item.report_no + '</option>'
+            }
+            select.append(html);
+        });
+    });
 
 });
 

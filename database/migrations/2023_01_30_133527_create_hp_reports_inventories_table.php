@@ -16,6 +16,8 @@ return new class extends Migration
         Schema::create('hp_reports_inventories', function (Blueprint $table) {
             $table->id();
             $table->integer('report_id')->default('0'); // id raportu
+            $table->integer('week_no')->default('0'); // nr tygodnia
+            $table->integer('year')->default('0'); // rok
             $table->integer('article_id')->default('0'); // id artikla w Altum
             $table->decimal('quantity', $precision = 19, $scale = 4);
             $table->dateTime('created_at', $precision = 0);

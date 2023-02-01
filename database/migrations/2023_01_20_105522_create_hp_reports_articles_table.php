@@ -15,11 +15,11 @@ return new class extends Migration
     {
         Schema::create('hp_reports_articles', function (Blueprint $table) {
             $table->id();
-            $table->integer('altum_id')->default('0'); // id artikla w Altum
+            $table->integer('article_id')->default('0'); // id artikla w Altum
             $table->string('code',50);
             $table->string('name',256);
             $table->string('catalogue_number',100)->default('');
-            $table->timestamps();
+            $table->dateTime('created_at', $precision = 0);
         });
     }
 

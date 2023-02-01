@@ -50,7 +50,7 @@ class HpReportRepository extends BaseRepository
     {
         $results = DB::connection('sqlsrv_altum')->select("
                 select 
-                    a.Id [altum_id]
+                    a.Id [article_id]
                     ,a.Code [code]
                     ,a.Name [name]
                     ,a.CatalogueNumber [catalogue_number]
@@ -65,18 +65,18 @@ class HpReportRepository extends BaseRepository
     public function compareArticles()
     {
         $results = DB::connection('sqlsrv_altum')->statement("
-                select altum_id into #t1
+                select article_id into #t1
                 from [projects].[dbo].[hp_reports_articles];
                 
                 insert into [projects].[dbo].[hp_reports_articles]
                 (
-                   [altum_id]
+                   [article_id]
                    ,[code]
                    ,[name]
                    ,[catalogue_number]
                 )
                 select 
-                    a.Id [altum_id]
+                    a.Id [article_id]
                     ,a.Code [code]
                     ,a.Name [name]
                     ,a.CatalogueNumber [catalogue_number]
@@ -84,14 +84,14 @@ class HpReportRepository extends BaseRepository
                 where 1=1
                     and a.Name like '%toner% HP %'
                     and a.Code like '%*R'
-                    and a.Id not in (select altum_id from #t1);
+                    and a.Id not in (select article_id from #t1);
                     
                 drop table #t1;
 	    ");
         return $results;
     }
 
-    public function getArticles()
+    public static function getArticles()
     {
         $results = DB::connection('sqlsrv')->select("
             select * from [dbo].[hp_reports_articles]
@@ -102,10 +102,53 @@ class HpReportRepository extends BaseRepository
     public function getArticle($id)
     {
         $results = DB::connection('sqlsrv')->select("
-            select * from [dbo].[hp_reports_articles] where altum_id = :id
+            select * from [dbo].[hp_reports_articles] where article_id = :id
 	    ", ['id' => $id]);
         return $results[0];
     }
+
+
+    public static function getHpReportMaxId()
+    {
+        $results = DB::connection('sqlsrv')->select("
+            select isnull(max(report_id),0) [maxReportId] from [dbo].[hp_reports]
+	    ");
+        return $results[0];
+    }
+
+
+    public static function getHpReport($reportId)
+    {
+        $results = DB::connection('sqlsrv')->select("
+            select * from [dbo].[hp_reports] where report_id = :reportid
+	    ", ['reportid' => $reportId]);
+        return $results;
+    }
+
+    public static function getHpReportsIdByDate($weekNo, $year)
+    {
+        $results = DB::connection('sqlsrv')->select("
+            select distinct report_id, report_no  from [dbo].[hp_reports] where week_no = :weekno and year = :year
+	    ", ['weekno' => $weekNo, 'year' => $year]);
+        return $results;
+    }
+
+    public static function getHpReportsInventoriesByReport($reportId)
+    {
+        $results = DB::connection('sqlsrv')->select("
+            select * from [dbo].[hp_reports_inventories] where report_id = :reportid
+	    ", ['reportid' => $reportId]);
+        return $results;
+    }
+
+    public static function getHpReportsInventories($weekNo, $year, $reportId)
+    {
+        $results = DB::connection('sqlsrv')->select("
+            select * from [dbo].[hp_reports_inventories] where week_no = :weekno and year = :year and report_id = :reportid
+	    ", ['weekno' => $weekNo, 'year' => $year, 'reportid' => $reportId]);
+        return $results;
+    }
+
 
     public function getArticleStocks($id)
     {
@@ -203,7 +246,7 @@ class HpReportRepository extends BaseRepository
                 ---------- kastomersi z kontraktami    
                 left join [projects].[dbo].[hp_reports_customers] hrc on hrc.altum_id = dc.Id
             where 1=1
-                and a.Id in (select altum_id from [projects].[dbo].[hp_reports_articles])
+                and a.Id in (select article_id from [projects].[dbo].[hp_reports_articles])
                 and ssh.DocumentTypesID = :doct
                 and ssh.StoreOperationDate Between CONVERT(DATETIME, :df) AND DATEADD(dd, 1, CONVERT(DATETIME, :dt))
             group by 
@@ -312,9 +355,9 @@ class HpReportRepository extends BaseRepository
                 ------------------------------
                 ,isnull(hrc.id,0) [contract_customer_id]
                 ----- kontrakty --------------
-           		,(select max(pah.InternalNumber) from pgiAgreements.Headers pah where pah.CustomerID = dc.Id) [contract_internal_number]
-        		,(select REPLACE(CONVERT(varchar,pah.DateOfStart,111),'/','') from pgiAgreements.Headers pah 
-			        where pah.InternalNumber = (select max(pah.InternalNumber) from pgiAgreements.Headers pah where pah.CustomerID = dc.Id)) 
+           		,isnull((select max(pah.InternalNumber) from pgiAgreements.Headers pah where pah.CustomerID = dc.Id),'') [contract_internal_number]
+        		,isnull((select REPLACE(CONVERT(varchar,pah.DateOfStart,111),'/','') from pgiAgreements.Headers pah 
+			        where pah.InternalNumber = (select max(pah.InternalNumber) from pgiAgreements.Headers pah where pah.CustomerID = dc.Id)),'') 
 			    [contract_start_date]
 		        ,isnull((select REPLACE(CONVERT(varchar,pah.DateOfEnd,111),'/','') from pgiAgreements.Headers pah 
 			        where pah.InternalNumber = (select max(pah.InternalNumber) from pgiAgreements.Headers pah where pah.CustomerID = dc.Id)),'')
@@ -333,7 +376,7 @@ class HpReportRepository extends BaseRepository
                 ---------- kastomersi z kontraktami    
                 left join [projects].[dbo].[hp_reports_customers] hrc on hrc.altum_id = dc.Id
             where 1=1
-                and a.Id in (select altum_id from [projects].[dbo].[hp_reports_articles])
+                and a.Id in (select article_id from [projects].[dbo].[hp_reports_articles])
                 and ssh.DocumentTypesID = :doct
                 and ssh.StoreOperationDate Between CONVERT(DATETIME, :df) AND DATEADD(dd, 1, CONVERT(DATETIME, :dt))
             group by 
@@ -348,7 +391,7 @@ class HpReportRepository extends BaseRepository
         return $results;
     }
 
-    public static function getArticlePurchases($dateFrom, $dateTo, $docType = 31, $customerType = 2)
+    public static function getArticlePurchases($dateFrom, $dateTo, $customerType = 2)
     {
         $results = DB::connection('sqlsrv_altum')->select("
             select
@@ -387,8 +430,8 @@ class HpReportRepository extends BaseRepository
                 ---------- kastomersi z kontraktami    
                 left join [projects].[dbo].[hp_reports_customers] hrc on hrc.altum_id = dc.Id
             where 1=1
-                and a.Id in (select altum_id from [projects].[dbo].[hp_reports_articles])
-                and ssh.DocumentTypesID = :doct
+                and a.Id in (select article_id from [projects].[dbo].[hp_reports_articles])
+                and ssh.DocumentTypesID in (5,31)
                 and ssh.StoreOperationDate Between CONVERT(DATETIME, :df) AND DATEADD(dd, 1, CONVERT(DATETIME, :dt))
             group by 
                 a.Id, a.Code, a.Name, a.CatalogueNumber
@@ -397,7 +440,7 @@ class HpReportRepository extends BaseRepository
                 ,dcd.Name1, dcd.TIN
                 ,ad.ApartmentNumber, ad.Street, ad.BuildingNumber, ad.ApartmentNumber, ad.City, ad.ZipCode, co.Code
             order by a.CatalogueNumber
-   	        ", ['doct' => $docType, 'cust' => $customerType, 'df' => $dateFrom, 'dt' => $dateTo]);
+   	        ", ['cust' => $customerType, 'df' => $dateFrom, 'dt' => $dateTo]);
         return $results;
     }
 }

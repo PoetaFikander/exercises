@@ -16,10 +16,10 @@
         @foreach($articles as $article)
                 <tr
                     data-toggle="articlesshow"
-                    data-id="{{ $article->altum_id }}"
+                    data-id="{{ $article->article_id }}"
                 >
                     <th scope="row">{{ $article->id }}</th>
-                    <td>{{ $article->altum_id }}</td>
+                    <td>{{ $article->article_id }}</td>
                     <td>{{ $article->code }}</td>
                     <td>{{ $article->name }}</td>
                     <td>{{ $article->catalogue_number }}</td>

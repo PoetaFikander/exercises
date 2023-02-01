@@ -33,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/hpreport/reports/create',[HpReportController::class,'reportCreate'])->name('hpreport.reports.create');
 
     Route::post('/hpreport/reports/getweeks',[HpReportController::class,'getWeeks']);
+    Route::post('/hpreport/reports/getreportsno',[HpReportController::class,'getReportsNo']);
 
     Route::get('/hpreport/articles/list',[HpReportController::class,'articlesList'])->name('hpreport.articles.list');
     Route::get('/hpreport/customers/list',[HpReportController::class,'customersList'])->name('hpreport.customers.list');

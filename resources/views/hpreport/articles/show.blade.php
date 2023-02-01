@@ -20,7 +20,7 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td class="fw-bold">{{ $article->altum_id }}</td>
+                    <td class="fw-bold">{{ $article->article_id }}</td>
                     <td class="fw-bold">{{ $article->code }}</td>
                     <td class="fw-bold">{{ $article->name }}</td>
                     <td class="fw-bold">{{ $article->catalogue_number }}</td>

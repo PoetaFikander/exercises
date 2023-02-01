@@ -32,6 +32,16 @@
                         </option>
                     @endforeach
                 </select>
+
+                <label class="my-1 me-2" for="for_reportid">Raport nr</label>
+                <select class="form-select my-1 me-sm-2 w-auto" id="for_reportno" name="for_reportid" data-toggle="h_r_c_for_reportid">
+                    @foreach($ad->lastReports as $report)
+                        <option value="{{ $report->report_id }}">
+                            {{ $report->report_no }}
+                        </option>
+                    @endforeach
+                </select>
+
                 <button type="submit" class="btn btn-primary">Generuj raport</button>
             </form>
 
