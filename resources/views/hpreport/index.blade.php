@@ -30,6 +30,10 @@
                             <a class="nav-link active" href="{{ route('hpreport.reports.create') }}">Nowy raport</a>
                         </li>
 
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ route('hpreport.reports.list') }}">Raporty</a>
+                        </li>
+
                     </ul>
                 </div>
             </div>

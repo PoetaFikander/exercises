@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 
-use App\Models\HpReportInventory;
+
 use App\Models\HpReportsInventory;
 use Illuminate\Http\Request;
 use App\Models\HpReport;
@@ -11,7 +11,7 @@ use App\Repositories\HpReportRepository;
 use App\Traits\GlobalTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
-
+use Exception;
 
 class HpReportController extends Controller
 {
@@ -52,7 +52,86 @@ class HpReportController extends Controller
         return view('hpreport.index');
     }
 
-    public function reportCreate(Request $request)
+    public function reportList(HpReportRepository $hprRepo)
+    {
+        $reports = $hprRepo->getHpReportList();
+        return view('hpreport.reports.list', ['reports' => $reports]);
+    }
+
+    public function reportShow(HpReportRepository $hprRepo, $id)
+    {
+        //
+        $report = $hprRepo->getHpReportForShow($id);
+        return view('hpreport.reports.show', ['report' => $report]);
+    }
+
+    public function reportEdit(HpReportRepository $hprRepo, $id)
+    {
+        //
+        //$report = $hprRepo->getHpReportForShow($id);
+        //return view('hpreport.reports.show', ['report' => $report]);
+    }
+
+    public function reportDestroy(HpReportRepository $hprRepo, $id)
+    {
+        try {
+            $hprRepo->destroyHpReport($id);
+            return response()->json([
+                'status' => 'success'
+            ],200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'error',
+            ],500);
+        }
+    }
+
+    public function reportCreate(HpReportRepository $hprRepo, Request $request)
+    {
+        // -------------------------------------
+        $report = array();
+        $method = $request->method();
+        // -------------------------------------
+        if ($method == 'GET') {
+            //
+            $date = date("Y-m-d"); // now
+            //$date = '2023-01-09'; // now
+        } else {
+            //var_dump($request->all());
+            $date = $request->input('for_week');
+        }
+
+        if ($method == 'POST') {
+            //-------- generuj raport
+            $date = $request->input('for_week');
+            $previousReportId = (int)$request->input('for_reportid');
+            $result = array();
+            if ($previousReportId >= 0) {
+                $result = $hprRepo->generateHpReport($date, $previousReportId);
+                $report = $hprRepo->getHpReportForShow($result->reportId);
+            }
+            //dd($result);
+        }
+        // =========================================================================================
+        $weekData = $hprRepo->getWeekData($date);
+        $weeks = $hprRepo->getWeeksOfYear($weekData->year);
+        $previousReports = $hprRepo->getPreviousHpReports($date);
+        // ------------------------------
+        $headers = isset($report[0]) ? $report[0] : array();
+        // ------------------------------
+        $articlesData = (object)[
+            'years' => $this->years,
+            'weekData' => $weekData,
+            'weeks' => $weeks,
+            'previousReports' => $previousReports,
+            'pReSelected' => end($previousReports), // raport - select option:selected
+            'headers' => $headers,
+            'report' => $report,
+        ];
+        return view('hpreport.reports.create', ['ad' => $articlesData]);
+    }
+
+    public function reportCreateBak(Request $request)
     {
         //var_dump($request->all());
         $data = array();
@@ -395,13 +474,14 @@ class HpReportController extends Controller
 
             }
 
+            //--------------- zapis
             if (isset($data[0])) {
 
-                foreach ($hpReportsInventories as $row){
+                foreach ($hpReportsInventories as $row) {
                     //HpReportsInventory::insert($row);
                 }
 
-                foreach ($data as $row){
+                foreach ($data as $row) {
                     //HpReport::insert($row);
                 }
 
@@ -431,108 +511,26 @@ class HpReportController extends Controller
         return view('hpreport.reports.create', ['ad' => $articlesData]);
     }
 
-
-    /*
-    public function report($date = null)
-    {
-        $date = '2023-01-23';
-        $weekDays = HpReportRepository::getFirstLastDayOfWeek($date);
-        $weeks = HpReportRepository::getWeeksOfYear($weekDays->year);
-
-        // lista sprzedanych artykułów - podsumowanie - grupowanie na poziomie kontrahenta
-        $sales = HpReportRepository::getArticleInOutReport($weekDays->w_start, $weekDays->w_end, 28, 0);
-        //dd($sales);
-
-        //$report_row = new HpReport();
-        //dd($report_row);
-        $report_id = 1;
-
-        $data = array();
-
-        foreach ($sales as $sale) {
-            array_push($data,
-                (object)array(
-
-                    //'report_id' => $report_id,
-
-                    'Start period' => $weekDays->w_start,
-                    'End period' => $weekDays->w_end,
-
-                    'HP Product Number' => $sale->catalogue_number,
-                    'Total Sellin Units' => 0,
-                    'Inventory Units' => 0,
-                    'Sales Units' => $sale->quantity,
-                    'Transaction Date' => $sale->store_operation_date,
-                    'Channel Partner to Customer Invoice ID' => $sale->document_no,
-
-                    'Sold-to Customer ID' => $sale->customer_code,
-                    'Sold To Customer Name' => $sale->customer_name,
-                    'Sold To Company Tax ID' => $sale->customer_tin,
-                    'Sold To Address Line 1' => $sale->customer_address,
-                    'Sold To City' => $sale->customer_city,
-                    'Sold To Postal Code' => $sale->customer_zipcode,
-                    'Sold To Country Code' => $sale->customer_countrycode,
-
-                    'Ship-to Customer ID' => $sale->customer_code,
-                    'Ship To Customer Name' => $sale->customer_name,
-                    'Ship To Company Tax ID' => $sale->customer_tin,
-                    'Ship To Address Line 1' => $sale->customer_address,
-                    'Ship To City' => $sale->customer_city,
-                    'Ship To Postal Code' => $sale->customer_zipcode,
-                    'Ship To Country Code' => $sale->customer_countrycode,
-
-                    'Contract ID' => $sale->contract_internal_number,
-                    'Contract start date' => $sale->contract_start_date,
-                    'Contract end date' => $sale->contract_end_date,
-                )
-            );
-        }
-
-        //dd($data);
-        $headers = isset($data[0]) ? $data[0] : array();
-
-        $sale = HpReportRepository::getArticleInOut($weekDays->w_start, $weekDays->w_end, 28, 0);
-        $articlesData = (object)[
-            'years' => $this->years,
-            'weekDays' => $weekDays,
-            'weeks' => $weeks,
-            'sale' => $sale,
-        ];
-        return view('hpreport.report', ['ad' => $articlesData, 'headers' => $headers, 'data' => $data]);
-    }
-    */
-
-
-    public function getWeeks(Request $request)
+    public function getWeeks(HpReportRepository $hprRepo, Request $request)
     {
         if (Auth::check() && $request->ajax()) {
             $json = json_decode(htmlspecialchars_decode($request->input('json')));
-            $weeks = HpReportRepository::getWeeksOfYear($json->year);
-            $json->weeks = $weeks;
+            $json->weeks = $hprRepo->getWeeksOfYear($json->year);
             return Response::json($json);
         } else {
-            //todo
-            //zrobić ogólną stronę błędów
+            //todo zrobić ogólną stronę błędów
             return view('auth.login');
         }
     }
 
-    public function getReportsNo(Request $request)
+    public function getReportsNo(HpReportRepository $hprRepo, Request $request)
     {
         if (Auth::check() && $request->ajax()) {
             $json = json_decode(htmlspecialchars_decode($request->input('json')));
-            $weekDays = HpReportRepository::getFirstLastDayOfWeek($json->date);
-            $lastReports = HpReportRepository::getHpReportsIdByDate($weekDays->w_no, $weekDays->year);
-            // jeżeli nie było poprzednich raportów
-            if (!(count((array)$lastReports) > 0)) {
-                array_push($lastReports, (object)array('report_id' => 0, 'report_no' => '0-' . $weekDays->w_no . '-' . $weekDays->year));
-            }
-            $json->weekDays = $weekDays;
-            $json->lastReports = $lastReports;
+            $json->previousReports = $hprRepo->getPreviousHpReports($json->date);
             return Response::json($json);
         } else {
-            //todo
-            //zrobić ogólną stronę błędów
+            //todo zrobić ogólną stronę błędów
             return view('auth.login');
         }
     }
@@ -553,14 +551,14 @@ class HpReportController extends Controller
     }
 
 
-    public function articlesDelivery($date = null)
+    public function articlesDelivery(HpReportRepository $hprRepo, $date = null)
     {
         if (is_null($date)) $date = date("Y-m-d"); // now
         //$docType = 31; // PZ
         $customerType = 2; // dostawca supplier
         //$articlesData = $this->getArticleInOut($date, $docType, $customerType);
         $weekDays = HpReportRepository::getFirstLastDayOfWeek($date);
-        $weeks = HpReportRepository::getWeeksOfYear($weekDays->year);
+        $weeks = $hprRepo->getWeeksOfYear($weekDays->year);
         $articles = HpReportRepository::getArticlePurchases($weekDays->w_start, $weekDays->w_end, $customerType);
         $articlesData = (object)[
             'years' => $this->years,
@@ -572,21 +570,21 @@ class HpReportController extends Controller
     }
 
 
-    public function articlesSale($date = null)
+    public function articlesSale(HpReportRepository $hprRepo,$date = null)
     {
         if (is_null($date)) $date = date("Y-m-d"); // now
         $docType = 28; // WZ
         $customerType = 0; // nabywca purchaser
-        $articlesData = $this->getArticleInOut($date, $docType, $customerType);
+        $articlesData = $this->getArticleInOut($hprRepo,$date, $docType, $customerType);
         return view('hpreport.articles.sale', ['ad' => $articlesData]);
     }
 
 
-    public function getArticleInOut($date, $docType, $customerType)
+    public function getArticleInOut($hprRepo, $date, $docType, $customerType)
     {
         //var_dump($date);
         $weekDays = HpReportRepository::getFirstLastDayOfWeek($date);
-        $weeks = HpReportRepository::getWeeksOfYear($weekDays->year);
+        $weeks = $hprRepo->getWeeksOfYear($weekDays->year);
         $articles = HpReportRepository::getArticleInOut($weekDays->w_start, $weekDays->w_end, $docType, $customerType);
         $articlesData = (object)[
             'years' => $this->years,

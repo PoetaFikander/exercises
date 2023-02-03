@@ -26,6 +26,12 @@ $(document).ready(function () {
         });
     };
 
+    //Lodash is a modern JavaScript utility library that can perform many JavaScript functionalities with very basic syntax.
+    const isObjectEmpty = (objectName) => {
+        return _.isEmpty(objectName);
+    };
+
+
     /** USERS -------------------------------------------------------------------- */
 
     /**
@@ -127,6 +133,7 @@ $(document).ready(function () {
         location.href = '/hpreport/articles/sale/' + dateFrom;
     });
 
+
     $('[data-toggle=h_r_c_for_year]').change(function () {
         //console.log($(this));
         let year = $(this).find(':selected').val();
@@ -144,18 +151,27 @@ $(document).ready(function () {
             select.append(html);
             let year = $('[data-toggle=h_r_c_for_year]').find(':selected').val();
             let date = $('[data-toggle=h_r_c_for_week]').find(':selected').val();
+            console.log(year);
+            console.log(date);
             uniXHR({year: year, date: date}, '/hpreport/reports/getreportsno', function (data) {
-                //console.log(data.lastReports);
+                console.log(data.previousReports);
                 let select = $('[data-toggle=h_r_c_for_reportid]');
-                // //console.log(select.attr('id'));
                 select.html('');
-                let items = data.lastReports || [];
+                let items = data.previousReports || [];
                 let html = '';
-                for (let n in items) {
-                    let item = items[n];
-                    html += '<option value="' + item.report_id + '">' + item.report_no + '</option>'
+                if (isObjectEmpty(items)) {
+                    html = '<option value="-1">-- brak --</option>'
+                    select.append(html);
+                } else {
+                    for (let n in items) {
+                        let item = items[n];
+                        //console.log(item);
+                        html += '<option value="' + item.report_id + '">' + item.report_no + '</option>'
+                    }
+                    select.append(html);
+                    const lastKey = Object.keys(items).pop(); // indeks ostatniego elementu w items
+                    select.val(lastKey).prop('selected', true);
                 }
-                select.append(html);
             });
         });
     });
@@ -165,21 +181,71 @@ $(document).ready(function () {
         let year = $('[data-toggle=h_r_c_for_year]').find(':selected').val();
         //let date = $(this).find(':selected').attr('data-from');
         let date = $(this).find(':selected').val();
-        //console.log(year);
+        console.log(year);
+        console.log(date);
         uniXHR({year: year, date: date}, '/hpreport/reports/getreportsno', function (data) {
-            //console.log(data.lastReports);
+            console.log(data.previousReports);
             let select = $('[data-toggle=h_r_c_for_reportid]');
-            // //console.log(select.attr('id'));
             select.html('');
-            let items = data.lastReports || [];
+            let items = data.previousReports || [];
             let html = '';
-            for (let n in items) {
-                let item = items[n];
-                html += '<option value="' + item.report_id + '">' + item.report_no + '</option>'
+            if (isObjectEmpty(items)) {
+                html = '<option value="-1">-- brak --</option>'
+                select.append(html);
+            } else {
+                for (let n in items) {
+                    let item = items[n];
+                    //console.log(item);
+                    html += '<option value="' + item.report_id + '">' + item.report_no + '</option>'
+                }
+                select.append(html);
+                const lastKey = Object.keys(items).pop(); // indeks ostatniego elementu w items
+                select.val(lastKey).prop('selected', true);
             }
-            select.append(html);
         });
     });
+
+    /**
+     *
+     */
+    $('[data-toggle=reportsshow]').click(function () {
+        let id = parseInt($(this).data('id')) ? $(this).data('id') : 0;
+        //console.log(id);
+        if (id > 0) {
+            location.href = '/hpreport/reports/show/' + id;
+        }
+    });
+
+
+    /**
+     * user destroy
+     */
+    $('[data-toggle=reportdelete]').click(function () {
+        //console.log($(this));
+        let id = parseInt($(this).data('id')) ? $(this).data('id') : 0;
+        let name = $(this).data('name') ? $(this).data('name') : '';
+        Swal.fire({
+            title: 'Usunąć raport id ' + name + ' ?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Tak',
+            cancelButtonText: 'Nie'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                //console.log(id);
+                if (id > 0) {
+                    uniXHR({}, '/hpreport/reports/destroy/' + id, function (data) {
+                        //location.href = 'users/list';
+                        window.location.reload();
+                    }, 'DELETE');
+                }
+            }
+        })
+
+    });
+
 
 });
 

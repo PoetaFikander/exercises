@@ -13,7 +13,7 @@
                     @foreach($ad->years as $year)
                         <option
                             value="{{ $year }}"
-                            @if($ad->weekDays->year == $year) selected @endif
+                            @if($ad->weekData->year == $year) selected @endif
                         >
                             {{ $year }}
                         </option>
@@ -24,22 +24,27 @@
                 <select class="form-select my-1 me-sm-2 w-auto" id="for_week" name="for_week" data-toggle="h_r_c_for_week">
                     @foreach($ad->weeks as $week)
                         <option
-                            data-from="{{ $week->w_start }}"
                             value="{{ $week->w_start }}"
-                            @if($week->w_no == $ad->weekDays->w_no) selected @endif
+                            @if($week->w_no == $ad->weekData->w_no) selected @endif
                         >
-                            {{ $week->w_start . ' - ' . $week->w_end }}
+                            {{ $week->w_no.' - '.$week->w_start . ':' . $week->w_end }}
                         </option>
                     @endforeach
                 </select>
 
-                <label class="my-1 me-2" for="for_reportid">Raport nr</label>
+                <label class="my-1 me-2" for="for_reportid">Raport źródłowy</label>
                 <select class="form-select my-1 me-sm-2 w-auto" id="for_reportno" name="for_reportid" data-toggle="h_r_c_for_reportid">
-                    @foreach($ad->lastReports as $report)
-                        <option value="{{ $report->report_id }}">
-                            {{ $report->report_no }}
-                        </option>
-                    @endforeach
+
+                    @if(count($ad->previousReports) > 0)
+                        @foreach($ad->previousReports as $report)
+                            <option value="{{ $report->report_id }}" @if($ad->pReSelected->report_id == $report->report_id) selected @endif >
+                                {{ $report->report_no }}
+                            </option>
+                        @endforeach
+                    @else
+                        <option value="-1">-- brak --</option>
+                    @endif
+
                 </select>
 
                 <button type="submit" class="btn btn-primary">Generuj raport</button>
@@ -47,7 +52,8 @@
 
         </div>
 
-        <div class="table-responsive">
+        @if(count($ad->report) > 0)
+        <div class="table-responsive  table-reports">
 
             <table class="table table-sm table-light">
                 <thead>
@@ -59,7 +65,7 @@
                 </thead>
                 <tbody>
 
-                @foreach($ad->data as $row)
+                @foreach($ad->report as $row)
                     <tr>
                         @foreach($row as $key=>$value)
                             <td class="text-nowrap">{{ $value }}</td>
@@ -70,6 +76,7 @@
                 </tbody>
             </table>
         </div>
+        @endif
 
     </div>
 

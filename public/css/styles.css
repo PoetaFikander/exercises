@@ -31,3 +31,13 @@ html {
     max-width:300px !important;
     overflow-wrap:break-word !important;
 }
+
+.table-reports {
+    max-height: 800px;
+    overflow: scroll;
+}
+
+.table-reports th, thead{
+    position: sticky;
+    top: 0;
+}
