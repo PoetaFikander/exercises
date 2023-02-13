@@ -19,7 +19,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link active" href="{{ route('hpreport.articles.delivery') }}">Dostawy</a>
+                            <a class="nav-link active" href="{{ route('hpreport.articles.purchases') }}">Dostawy</a>
                         </li>
 
                         <li class="nav-item">

@@ -26,7 +26,7 @@ class HpReportRepository extends BaseRepository
         return $results;
     }
 
-    public static function getCustomersFromAltum()
+    public static function getCustomersFromAltumOLD()
     {
         $results = DB::connection('sqlsrv_altum')->select("
             select cust.Id [altum_id]
@@ -45,6 +45,58 @@ class HpReportRepository extends BaseRepository
 	    ");
         return $results;
     }
+
+    public function getCustomersFromAltum($name, $tin)
+    {
+        $results = DB::connection('sqlsrv_altum')->select("
+            select top(10)
+                    cust.Id [altum_id]
+                    ,cust.Code [code]
+                    ,cd.Name1 [name]
+                    ,cd.TIN [tin]
+            from dbo.Dic_Customers cust
+                inner join dbo.Dic_CustomerData cd	on cd.CustomerId = cust.Id and cd.IsCurrent = 1
+            where 1=1
+                and cust.Activity = 1
+                and cd.TIN <> ''
+                and cd.TIN like concat('%',:tin,'%')
+                and cd.Name1 like concat('%',:name,'%')
+                and cust.Id not in (select altum_id from [projects].[dbo].[hp_reports_customers])
+	    ", ['name' => $name, 'tin' => $tin]);
+        return $results;
+    }
+
+    public function addCustomer($id)
+    {
+        $results = DB::connection('sqlsrv_altum')->insert("
+                insert into [projects].[dbo].[hp_reports_customers](
+                      [altum_id]
+                      ,[code]
+                      ,[name]
+                      ,[tin]
+                      ,[blocked_for_deletion]
+                )
+                select 
+                     cust.Id [altum_id]
+                    ,cust.Code [code]
+                    ,cd.Name1 [name]
+                    ,cd.TIN [tin]
+                    ,0 [blocked_for_deletion]
+                from dbo.Dic_Customers cust
+                inner join dbo.Dic_CustomerData cd	on cd.CustomerId = cust.Id and cd.IsCurrent = 1
+                where cust.Id = :id
+    	    ", ['id' => $id]);
+        return $results;
+    }
+
+    public function deleteCustomer($id)
+    {
+        $results = DB::connection('sqlsrv')->delete("
+            delete from [dbo].[hp_reports_customers] where [altum_id] = :id
+    	", ['id' => $id]);
+        return $results;
+    }
+
 
     public function getAltumArticles()
     {
@@ -354,7 +406,7 @@ class HpReportRepository extends BaseRepository
              */
             // tablica z sumami zakupów dla każdego artikla
             $totalPurchases = (object)array();
-            $purchases = HpReportRepository::getArticlePurchases($weekStart, $weekEnd);
+            $purchases = $this->getArticlePurchases($weekStart, $weekEnd);
             // tablica id zakupionych artykułów - grupowanie na poziomie artykułu
             // jeżeli dla danego artykułu była sprzedaż to id artykułu wypada z tablicy
             $purchasesArticleId = array();
@@ -390,13 +442,16 @@ class HpReportRepository extends BaseRepository
             // -----------------------------------
             foreach ($sales as $sale) {
                 //
-                $id = $sale->article_id;
+                $salesUnits = (float)$sale->quantity;
+                //if ($salesUnits >= 0) {
+                $id = (int)$sale->article_id;
+                $customerId = (int)$sale->customer_id;
+                $isArticleFirstRow = 0;
 
                 $totalSellinUnits = 0;
                 $inventoryUnits = 0;
-                $salesUnits = (float)$sale->quantity;
 
-                $lastIU = 0;
+                $previousIU = 0;
                 $totalSU = 0;
 
                 // jak był zakup to do wiersza dodajemy total zakupu i usuwamy id artikla z listy
@@ -413,9 +468,11 @@ class HpReportRepository extends BaseRepository
                 foreach ($previousInventories as $inventory) {
                     if ($inventory->article_id == $id and in_array($id, $inventoriesArticelId)) {
                         //
+                        $isArticleFirstRow = 1;
+                        //
                         $inventoryUnits = (float)$inventory->quantity + $totalSellinUnits - $totalSales->$id;
-                        //$lastIU = (float)$inventory->quantity;
-                        //$totalSU = (float)$totalSales->$id;
+                        $previousIU = (float)$inventory->quantity;
+                        $totalSU = (float)$totalSales->$id;
                         $currInvElement['article_id'] = $id;
                         $currInvElement['quantity'] = $inventoryUnits;
                         array_push($currentInventories, $currInvElement);
@@ -431,15 +488,20 @@ class HpReportRepository extends BaseRepository
                         'week_no' => $weekNo,
                         'year' => $weekYear,
                         'previous_report_id' => $previousReportId,
+                        'customer_id' => $customerId,
+                        'article_id' => $id,
+                        'row_type' => 1,
+                        'is_article_first_row'=>$isArticleFirstRow,
+                        'previous_iu' => $previousIU,
+                        'total_su'=>$totalSU,
+                        'row_status'=>'',
 
                         'Start period' => str_replace('-', '', $weekStart),
                         'End period' => str_replace('-', '', $weekEnd),
 
                         'HP Product Number' => $sale->catalogue_number,
                         'Total Sellin Units' => $totalSellinUnits,
-                        //'last IU' => $lastIU,
                         'Inventory Units' => $inventoryUnits,
-                        //'total SU' => $totalSU,
                         'Sales Units' => $salesUnits,
                         'Transaction Date' => str_replace('.', '', $sale->store_operation_date),
                         'Channel Partner to Customer Invoice ID' => $sale->document_no,
@@ -463,15 +525,20 @@ class HpReportRepository extends BaseRepository
                         'Contract ID' => $sale->contract_internal_number,
                         'Contract start date' => str_replace('-', '', $sale->contract_start_date),
                         'Contract end date' => str_replace('-', '', $sale->contract_end_date),
+
+                        'Partner Product Name' => '',
                     )
                 );
+                //}
             }
-
             // ----------- dostawy bez sprzedaży
             // -----------------------------------
             foreach ($purchases as $purchase) {
                 //
-                $id = $purchase->article_id;
+                $id = (int)$purchase->article_id;
+                $customerId = 0;
+                $isArticleFirstRow = 0;
+
 
                 if (in_array($id, $purchasesArticleId)) {
 
@@ -479,12 +546,17 @@ class HpReportRepository extends BaseRepository
                     $inventoryUnits = 0;
                     $salesUnits = 0;
 
+                    $previousIU = 0;
+                    $totalSU = 0;
+
                     // ustawiamy zasoby Inventory Units
                     foreach ($previousInventories as $inventory) {
                         if ($inventory->article_id == $id and in_array($id, $inventoriesArticelId)) {
                             //
+                            $isArticleFirstRow = 1;
+                            //
                             $inventoryUnits = (float)$inventory->quantity + $totalSellinUnits;
-                            //$lastIU = (float)$inventory->quantity;
+                            $previousIU = (float)$inventory->quantity;
                             //$totalSU = (float)$totalSales->$id;
                             $currInvElement['article_id'] = $id;
                             $currInvElement['quantity'] = $inventoryUnits;
@@ -501,38 +573,45 @@ class HpReportRepository extends BaseRepository
                             'week_no' => $weekNo,
                             'year' => $weekYear,
                             'previous_report_id' => $previousReportId,
+                            'customer_id' => $customerId,
+                            'article_id' => $id,
+                            'row_type' => 2,
+                            'is_article_first_row'=>$isArticleFirstRow,
+                            'previous_iu' => $previousIU,
+                            'total_su'=>$totalSU,
+                            'row_status'=>'',
 
                             'Start period' => str_replace('-', '', $weekStart),
                             'End period' => str_replace('-', '', $weekEnd),
 
                             'HP Product Number' => $purchase->catalogue_number,
                             'Total Sellin Units' => $totalSellinUnits,
-                            //'last IU' => $lastIU,
                             'Inventory Units' => $inventoryUnits,
-                            //'total SU' => $totalSU,
                             'Sales Units' => $salesUnits,
                             'Transaction Date' => str_replace('.', '', $purchase->store_operation_date),
                             'Channel Partner to Customer Invoice ID' => $purchase->document_no,
 
-                            'Sold-to Customer ID' => $purchase->customer_code,
-                            'Sold To Customer Name' => $purchase->customer_name,
-                            'Sold To Company Tax ID' => $purchase->customer_tin,
-                            'Sold To Address Line 1' => $purchase->customer_address,
-                            'Sold To City' => $purchase->customer_city,
-                            'Sold To Postal Code' => $purchase->customer_zipcode,
-                            'Sold To Country Code' => $purchase->customer_countrycode,
+                            'Sold-to Customer ID' => '',
+                            'Sold To Customer Name' => '',
+                            'Sold To Company Tax ID' => '',
+                            'Sold To Address Line 1' => '',
+                            'Sold To City' => '',
+                            'Sold To Postal Code' => '',
+                            'Sold To Country Code' => '',
 
-                            'Ship-to Customer ID' => $purchase->customer_code,
-                            'Ship To Customer Name' => $purchase->customer_name,
-                            'Ship To Company Tax ID' => $purchase->customer_tin,
-                            'Ship To Address Line 1' => $purchase->customer_address,
-                            'Ship To City' => $purchase->customer_city,
-                            'Ship To Postal Code' => $purchase->customer_zipcode,
-                            'Ship To Country Code' => $purchase->customer_countrycode,
+                            'Ship-to Customer ID' => '',
+                            'Ship To Customer Name' => '',
+                            'Ship To Company Tax ID' => '',
+                            'Ship To Address Line 1' => '',
+                            'Ship To City' => '',
+                            'Ship To Postal Code' => '',
+                            'Ship To Country Code' => '',
 
                             'Contract ID' => '',
                             'Contract start date' => '',
                             'Contract end date' => '',
+
+                            'Partner Product Name' => $sale->catalogue_number,
                         )
                     );
                 }
@@ -543,7 +622,9 @@ class HpReportRepository extends BaseRepository
              */
             foreach ($articles as $article) {
                 //
-                $id = $article->article_id;
+                $id = (int)$article->article_id;
+                $customerId = 0;
+                $isArticleFirstRow = 0;
 
                 if (in_array($id, $inventoriesArticelId)) {
                     //
@@ -551,11 +632,16 @@ class HpReportRepository extends BaseRepository
                     $inventoryUnits = 0;
                     $salesUnits = 0;
 
+                    $previousIU = 0;
+                    $totalSU = 0;
+
                     foreach ($previousInventories as $inventory) {
                         if ($inventory->article_id == $id and in_array($id, $inventoriesArticelId)) {
                             //
+                            $isArticleFirstRow = 1;
+                            //
                             $inventoryUnits = (float)$inventory->quantity;
-                            //$lastIU = (float)$inventory->quantity;
+                            $previousIU = (float)$inventory->quantity;
                             //$totalSU = (float)$totalSales->$id;
                             $currInvElement['article_id'] = $id;
                             $currInvElement['quantity'] = $inventoryUnits;
@@ -574,15 +660,20 @@ class HpReportRepository extends BaseRepository
                                 'week_no' => $weekNo,
                                 'year' => $weekYear,
                                 'previous_report_id' => $previousReportId,
+                                'customer_id' => $customerId,
+                                'article_id' => $id,
+                                'row_type' => 3,
+                                'is_article_first_row'=>$isArticleFirstRow,
+                                'previous_iu' => $previousIU,
+                                'total_su'=>$totalSU,
+                                'row_status'=>'',
 
                                 'Start period' => str_replace('-', '', $weekStart),
                                 'End period' => str_replace('-', '', $weekEnd),
 
                                 'HP Product Number' => $article->catalogue_number,
                                 'Total Sellin Units' => $totalSellinUnits,
-                                //'last IU' => $lastIU,
                                 'Inventory Units' => $inventoryUnits,
-                                //'total SU' => $totalSU,
                                 'Sales Units' => $salesUnits,
                                 'Transaction Date' => '',
                                 'Channel Partner to Customer Invoice ID' => '',
@@ -606,6 +697,8 @@ class HpReportRepository extends BaseRepository
                                 'Contract ID' => '',
                                 'Contract start date' => '',
                                 'Contract end date' => '',
+
+                                'Partner Product Name' => '',
                             )
                         );
                     }
@@ -809,7 +902,7 @@ class HpReportRepository extends BaseRepository
      * @param int $customerType : default 0 - nabywca purchaser
      * @return array
      */
-    public function getArticleSales($dateFrom, $dateTo, $docType = 28, $customerType = 0)
+    public function getArticleSales($dateFrom, $dateTo, $docType = 28, $cusType = 0)
     {
         $results = DB::connection('sqlsrv_altum')->select("
             select
@@ -825,6 +918,7 @@ class HpReportRepository extends BaseRepository
                 --,convert(decimal(19,2), si.Quantity) [quantity]
                 ,convert(decimal(19,2), sum(si.Quantity)) [quantity]
                 ----------------------------
+               	,dc.Id [customer_id]
                	,dc.Code [customer_code]
                 ,dcd.Name1 [customer_name]
                 ,CONCAT('PL',dcd.TIN) [customer_tin]
@@ -845,12 +939,15 @@ class HpReportRepository extends BaseRepository
 		        ,isnull((select REPLACE(CONVERT(varchar,pah.DateOfEnd,111),'/','') from pgiAgreements.Headers pah 
 			        where pah.InternalNumber = (select max(pah.InternalNumber) from pgiAgreements.Headers pah where pah.CustomerID = dc.Id)),'')
 			    [contract_end_date]
+                --------- stan doca
+                ,ds.Name [document_state]
                 
             from Sales.Items si
                 join SecSales.Headers ssh on si.HeaderID = ssh.ID
                 join dbo.Dic_Articles a on si.ArticleID = a.Id
+                join  DT.States ds on ssh.DocumentStateID = ds.ID
                 	--	------ #### dane kastomersa
-                join Sales.DocumentCustomers sdc ON sdc.DocumentID = ssh.ID and sdc.CustomerTypeID = :cust
+                join Sales.DocumentCustomers sdc ON sdc.DocumentID = ssh.ID and sdc.CustomerTypeID = :custype
                 join dbo.Dic_CustomerData dcd ON dcd.Id = sdc.CustomerDataID
                 left join Address.AddressData ad ON ad.AddressDataID = sdc.AddressDataID
                 left join dbo.Dic_Country co on co.Id = ad.CountryID
@@ -860,8 +957,12 @@ class HpReportRepository extends BaseRepository
                 left join [projects].[dbo].[hp_reports_customers] hrc on hrc.altum_id = dc.Id
             where 1=1
                 and a.Id in (select article_id from [projects].[dbo].[hp_reports_articles])
-                and ssh.DocumentTypesID = :doct
+                and ssh.DocumentTypesID in (28,30)
                 and ssh.StoreOperationDate Between CONVERT(DATETIME, :df) AND DATEADD(dd, 1, CONVERT(DATETIME, :dt))
+                --and ds.Name <> 'Anulowany'
+                --and ds.ID not in (125,126) -- usunięty, anulowany dla WZ
+                and (ds.StateType <> 16 and ds.StateType <> 32) ---- nie usunięty i nie anulowany
+                --and a.CatalogueNumber = 'W9004MC'
             group by 
                 a.Id, a.Code, a.Name, a.CatalogueNumber
                 ,ssh.NumberString, ssh.DocumentDate, ssh.StoreOperationDate
@@ -869,9 +970,9 @@ class HpReportRepository extends BaseRepository
                 ,dcd.Name1, dcd.TIN
                 ,ad.ApartmentNumber, ad.Street, ad.BuildingNumber, ad.ApartmentNumber, ad.City, ad.ZipCode, co.Code
                 ,hrc.id
+                ,ds.Name
             order by a.CatalogueNumber
-   	        ", ['doct' => $docType, 'cust' => $customerType, 'df' => $dateFrom, 'dt' => $dateTo]);
-
+   	        ", ['df' => $dateFrom, 'dt' => $dateTo, 'custype' => $cusType]);
         return $results;
     }
 
@@ -883,7 +984,7 @@ class HpReportRepository extends BaseRepository
      * @param int $customerType : default 2 - dostawca supplier
      * @return array
      */
-    public static function getArticlePurchases($dateFrom, $dateTo, $customerType = 2)
+    public function getArticlePurchases($dateFrom, $dateTo, $customerType = 2)
     {
         $results = DB::connection('sqlsrv_altum')->select("
             select
@@ -897,6 +998,7 @@ class HpReportRepository extends BaseRepository
                 --,convert(decimal(19,2), si.Quantity) [quantity]
                 ,convert(decimal(19,2), sum(si.Quantity)) [quantity]
                 ----------------------------
+                ,dc.Id [customer_id]
                	,dc.Code [customer_code]
                 ,dcd.Name1 [customer_name]
                 ,CONCAT('PL',dcd.TIN) [customer_tin]
@@ -908,10 +1010,12 @@ class HpReportRepository extends BaseRepository
                 ,ad.ZipCode [customer_zipcode]
                 ,co.Code [customer_countrycode]
                 ------------------------------
+                ,ds.Name [document_state]
                 
             from Sales.Items si
                 join SecSales.Headers ssh on si.HeaderID = ssh.ID
                 join dbo.Dic_Articles a on si.ArticleID = a.Id
+                join  DT.States ds on ssh.DocumentStateID = ds.ID
                 	--	------ #### dane kastomersa
                 join Sales.DocumentCustomers sdc ON sdc.DocumentID = ssh.ID and sdc.CustomerTypeID = :cust
                 join dbo.Dic_CustomerData dcd ON dcd.Id = sdc.CustomerDataID
@@ -923,14 +1027,19 @@ class HpReportRepository extends BaseRepository
                 left join [projects].[dbo].[hp_reports_customers] hrc on hrc.altum_id = dc.Id
             where 1=1
                 and a.Id in (select article_id from [projects].[dbo].[hp_reports_articles])
-                and ssh.DocumentTypesID in (5,31)
+                and ssh.DocumentTypesID in (5,31,33,87)
                 and ssh.StoreOperationDate Between CONVERT(DATETIME, :df) AND DATEADD(dd, 1, CONVERT(DATETIME, :dt))
+                --and ds.Name <> 'Anulowany'
+                --and ds.ID not in (19,20,143,144) -- usunięty, anulowany dla PW i PZ
+                and (ds.StateType <> 16 and ds.StateType <> 32) ---- nie usunięty i nie anulowany
+                --and a.CatalogueNumber = 'W9004MC'
             group by 
                 a.Id, a.Code, a.Name, a.CatalogueNumber
                 ,ssh.NumberString, ssh.DocumentDate, ssh.StoreOperationDate
                 ,dc.Code, dc.Id
                 ,dcd.Name1, dcd.TIN
                 ,ad.ApartmentNumber, ad.Street, ad.BuildingNumber, ad.ApartmentNumber, ad.City, ad.ZipCode, co.Code
+                ,ds.Name
             order by a.CatalogueNumber
    	        ", ['cust' => $customerType, 'df' => $dateFrom, 'dt' => $dateTo]);
         return $results;
@@ -942,25 +1051,56 @@ class HpReportRepository extends BaseRepository
      * @param $reportId integer
      * @return array
      */
-    public function getHpReportForShow($reportId)
+    public function getHpReportForShow($reportId, $edit = false)
     {
-        $res = DB::connection('sqlsrv')->select("select * from [dbo].[hp_reports] where report_id = :rid", ['rid' => $reportId]);
+        $res = DB::connection('sqlsrv')->select("
+            select 
+                hr.*
+                ,case when hrc.id is not null or ([Sales Units] = 0 and hrc.id is null) then 1 else 0 end [has_contract]
+            from [dbo].[hp_reports] hr
+            left join [dbo].[hp_reports_customers] hrc on hrc.altum_id = hr.customer_id
+            where report_id = :rid", ['rid' => $reportId]);
         $results = array();
-        foreach ($res as $row) {
-            // usuwamy niepotrzebne kolumny
-            unset($row->{'id'});
-            unset($row->{'report_id'});
-            unset($row->{'report_no'});
-            unset($row->{'week_no'});
-            unset($row->{'year'});
-            unset($row->{'previous_report_id'});
-            unset($row->{'created_at'});
-            // formatujemy wartości
-            $row->{'Total Sellin Units'} = number_format($row->{'Total Sellin Units'}, 2, ',', ' ');
-            $row->{'Inventory Units'} = number_format($row->{'Inventory Units'}, 2, ',', ' ');
-            $row->{'Sales Units'} = number_format($row->{'Sales Units'}, 2, ',', ' ');
+        if ($edit) {
             //
-            $results[] = $row;
+            foreach ($res as $row) {
+                // usuwamy niepotrzebne kolumny
+//                unset($row->{'id'});
+//                unset($row->{'article_id'});
+                unset($row->{'report_id'});
+                unset($row->{'customer_id'});
+                unset($row->{'report_no'});
+                unset($row->{'week_no'});
+                unset($row->{'year'});
+                unset($row->{'previous_report_id'});
+                unset($row->{'created_at'});
+                // formatujemy wartości
+                $row->{'Total Sellin Units'} = (float)($row->{'Total Sellin Units'});
+                $row->{'Inventory Units'} = (float)($row->{'Inventory Units'});
+                $row->{'Sales Units'} = (float)($row->{'Sales Units'});
+                //
+                $results[] = $row;
+            }
+        } else {
+            //
+            foreach ($res as $row) {
+                // usuwamy niepotrzebne kolumny
+                unset($row->{'id'});
+                //unset($row->{'article_id'});
+                unset($row->{'report_id'});
+                unset($row->{'customer_id'});
+                unset($row->{'report_no'});
+                unset($row->{'week_no'});
+                unset($row->{'year'});
+                unset($row->{'previous_report_id'});
+                unset($row->{'created_at'});
+                // formatujemy wartości
+                $row->{'Total Sellin Units'} = number_format($row->{'Total Sellin Units'}, 2, ',', ' ');
+                $row->{'Inventory Units'} = number_format($row->{'Inventory Units'}, 2, ',', ' ');
+                $row->{'Sales Units'} = number_format($row->{'Sales Units'}, 2, ',', ' ');
+                //
+                $results[] = $row;
+            }
         }
         return $results;
     }

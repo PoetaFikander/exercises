@@ -41,13 +41,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/hpreport/reports/getreportsno',[HpReportController::class,'getReportsNo']);
 
     Route::get('/hpreport/articles/list',[HpReportController::class,'articlesList'])->name('hpreport.articles.list');
-    Route::get('/hpreport/customers/list',[HpReportController::class,'customersList'])->name('hpreport.customers.list');
 
     Route::get('/hpreport/articles/show/{id}',[HpReportController::class,'articlesShow'])->name('hpreport.articles.show');
 
-    Route::get('/hpreport/articles/delivery/{date?}',[HpReportController::class,'articlesDelivery'])->name('hpreport.articles.delivery');
+    Route::get('/hpreport/articles/purchases/{date?}',[HpReportController::class,'articlesPurchases'])->name('hpreport.articles.purchases');
     Route::get('/hpreport/articles/sale/{date?}',[HpReportController::class,'articlesSale'])->name('hpreport.articles.sale');
 
+    Route::get('/hpreport/customers/list',[HpReportController::class,'customersList'])->name('hpreport.customers.list');
+    Route::post('/hpreport/customers/getfromalt',[HpReportController::class,'getCustomersFromAltum']);
+    Route::post('/hpreport/customers/add',[HpReportController::class,'addCustomer']);
+    Route::delete('/hpreport/customers/delete/{id}',[HpReportController::class,'deleteCustomer'])->name('hpreport.customers.delete');
 
     Route::middleware(['can:isAdmin'])->group(function () {
         Route::get('/users/list', [UserController::class, 'index'])->name('users.list');

@@ -53,30 +53,38 @@
         </div>
 
         @if(count($ad->report) > 0)
-        <div class="table-responsive  table-reports">
+            <div class="table-responsive  table-reports">
 
-            <table class="table table-sm table-light">
-                <thead>
-                <tr class="text-start">
-                    @foreach($ad->headers as $key=>$value)
-                        <th scope="col" class="text-nowrap">{{ $key }}</th>
-                    @endforeach
-                </tr>
-                </thead>
-                <tbody>
-
-                @foreach($ad->report as $row)
-                    <tr>
-                        @foreach($row as $key=>$value)
-                            <td class="text-nowrap">{{ $value }}</td>
+                <table class="table table-sm table-light">
+                    <thead>
+                    <tr class="text-start">
+                        @foreach($ad->headers as $key=>$value)
+                            @if($key != "has_contract")
+                                <th scope="col" class="text-nowrap">{{ $key }}</th>
+                            @endif
                         @endforeach
                     </tr>
-                @endforeach
+                    </thead>
+                    <tbody>
 
-                </tbody>
-            </table>
-        </div>
+                    @foreach($ad->report as $row)
+                        <tr @if($row->has_contract == 0) class="text-danger" @endif>
+                            @foreach($row as $key=>$value)
+                                @if($key != "has_contract")
+                                    <td class="text-nowrap">{{ $value }}</td>
+                                @endif
+                            @endforeach
+                        </tr>
+                    @endforeach
+
+                    </tbody>
+                </table>
+            </div>
         @endif
+        @if($ad->errors == 1)
+            <div class="alert alert-danger" id="create_report_message">{{ $ad->message }}</div>
+        @endif
+
 
     </div>
 

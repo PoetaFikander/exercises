@@ -5,7 +5,7 @@
 
         <div class="table-responsive">
             {{--@if(isset($reports[0])) --}}
-                <table class="table table-sm table-light table-hover">
+                <table class="table table-striped table-sm table-light table-hover">
                     <thead>
                     <tr class="text-start">
                         <th scope="col" class="text-nowrap">ID raportu</th>
@@ -25,21 +25,16 @@
                             <td class="text-nowrap">{{ $row->year }}</td>
                             <td class="text-nowrap">{{ $row->previous_report_id }}</td>
                             <td class="text-nowrap">
-                                {{--  --}}
-                                <a href="{{ route('hpreport.reports.show', $row->report_id) }}">
-                                    <button class="btn btn-primary btn-sm">
-                                        <i class="bi-search"></i>
-                                    </button>
-                                </a>
+                                <a href="{{ route('hpreport.reports.show', $row->report_id) }}"><button class="btn btn-sm"><i class="bi-search"></i></button></a>
 
                                 <a href="{{ route('hpreport.reports.edit', $row->report_id) }}">
-                                    <button class="btn btn-success btn-sm">
+                                    <button class="btn btn-sm">
                                         <i class="bi-pencil"></i>
                                     </button>
                                 </a>
 
                                 <button
-                                    class="btn btn-danger btn-sm"
+                                    class="btn btn-sm"
                                     data-toggle="reportdelete"
                                     data-id="{{ $row->report_id }}"
                                     data-name="{{ $row->report_id }}"

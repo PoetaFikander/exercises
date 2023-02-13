@@ -3,7 +3,11 @@ html {
 }
 
 .thead-dark-grey th {
-    background-color: #adb5bd;
+    background-color: #b02a37;
+}
+
+.thead-lgrey th {
+    background-color: #e2e3e5;
 }
 
 .octicon {
@@ -25,11 +29,20 @@ html {
     white-space: nowrap;
 }
 
-.my-popover{
-    min-width:100px !important;
-    width:100% !important;
-    max-width:300px !important;
-    overflow-wrap:break-word !important;
+.my-popover {
+    min-width: 100px !important;
+    width: 100% !important;
+    max-width: 300px !important;
+    overflow-wrap: break-word !important;
+}
+
+
+.my-table {
+
+}
+
+.my-table thead th {
+    background-color: #e2e3e5;
 }
 
 .table-reports {
@@ -37,7 +50,11 @@ html {
     overflow: scroll;
 }
 
-.table-reports th, thead{
+.table-reports th, thead {
     position: sticky;
     top: 0;
+}
+
+.swal2-title {
+    font-size: 1.3em !important;
 }
