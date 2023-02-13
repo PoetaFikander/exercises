@@ -31,11 +31,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/hpreport/reports/create',[HpReportController::class,'reportCreate'])->name('hpreport.reports.create');
     Route::post('/hpreport/reports/create',[HpReportController::class,'reportCreate'])->name('hpreport.reports.create');
+    Route::post('/hpreport/reports/update',[HpReportController::class,'reportUpdate'])->name('hpreport.reports.update');
 
     Route::get('/hpreport/reports/list',[HpReportController::class,'reportList'])->name('hpreport.reports.list');
     Route::get('/hpreport/reports/show/{id}',[HpReportController::class,'reportShow'])->name('hpreport.reports.show');
     Route::get('/hpreport/reports/edit/{id}',[HpReportController::class,'reportEdit'])->name('hpreport.reports.edit');
     Route::delete('/hpreport/reports/destroy/{id}',[HpReportController::class,'reportDestroy'])->name('hpreport.reports.destroy');
+
 
     Route::post('/hpreport/reports/getweeks',[HpReportController::class,'getWeeks']);
     Route::post('/hpreport/reports/getreportsno',[HpReportController::class,'getReportsNo']);

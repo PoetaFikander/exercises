@@ -76,15 +76,18 @@ class HpReportController extends Controller
     public function reportShow(HpReportRepository $hprRepo, $id)
     {
         //
-        $report = $hprRepo->getHpReportForShow($id);
+        $report = $hprRepo->getHpReportForShow($id, 'show');
         return view('hpreport.reports.show', ['report' => $report]);
     }
 
     public function reportEdit(HpReportRepository $hprRepo, $id)
     {
         //
-        $report = $hprRepo->getHpReportForShow($id, true);
-        return view('hpreport.reports.edit', ['report' => $report]);
+        $reportAll = $hprRepo->getHpReportForShow($id);
+        $i = key($reportAll);
+        $reportNo = $reportAll[$i]->report_no . '/' . $reportAll[$i]->week_no . '/' . $reportAll[$i]->year;
+        $report = $hprRepo->getHpReportForShow($id, 'edit');
+        return view('hpreport.reports.edit', ['report' => $report, 'reportAll' => $reportAll, 'reportNo' => $reportNo]);
     }
 
     public function reportDestroy(HpReportRepository $hprRepo, $id)
@@ -125,7 +128,7 @@ class HpReportController extends Controller
             $result = array();
             if ($previousReportId >= 0) {
                 $result = $hprRepo->generateHpReport($date, $previousReportId);
-                $report = $hprRepo->getHpReportForShow($result->reportId);
+                $report = $hprRepo->getHpReportForShow($result->reportId, 'show');
             } else {
                 $errors = 1;
                 $message = 'Brak raportu źródłowego oraz zasobów początkowych.';
@@ -151,6 +154,18 @@ class HpReportController extends Controller
             'message' => $message,
         ];
         return view('hpreport.reports.create', ['ad' => $articlesData]);
+    }
+
+    public function reportUpdate(HpReportRepository $hprRepo, Request $request)
+    {
+        if (Auth::check() && $request->ajax()) {
+            $json = json_decode(htmlspecialchars_decode($request->input('json')));
+            $json->update = $hprRepo->updateHpReport($json->data);
+            return Response::json($json);
+        } else {
+            //todo zrobić ogólną stronę błędów
+            return view('auth.login');
+        }
     }
 
 

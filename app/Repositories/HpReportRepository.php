@@ -491,10 +491,9 @@ class HpReportRepository extends BaseRepository
                         'customer_id' => $customerId,
                         'article_id' => $id,
                         'row_type' => 1,
-                        'is_article_first_row'=>$isArticleFirstRow,
+                        'is_article_first_row' => $isArticleFirstRow,
                         'previous_iu' => $previousIU,
-                        'total_su'=>$totalSU,
-                        'row_status'=>'',
+                        'total_su' => $totalSU,
 
                         'Start period' => str_replace('-', '', $weekStart),
                         'End period' => str_replace('-', '', $weekEnd),
@@ -576,10 +575,9 @@ class HpReportRepository extends BaseRepository
                             'customer_id' => $customerId,
                             'article_id' => $id,
                             'row_type' => 2,
-                            'is_article_first_row'=>$isArticleFirstRow,
+                            'is_article_first_row' => $isArticleFirstRow,
                             'previous_iu' => $previousIU,
-                            'total_su'=>$totalSU,
-                            'row_status'=>'',
+                            'total_su' => $totalSU,
 
                             'Start period' => str_replace('-', '', $weekStart),
                             'End period' => str_replace('-', '', $weekEnd),
@@ -663,10 +661,9 @@ class HpReportRepository extends BaseRepository
                                 'customer_id' => $customerId,
                                 'article_id' => $id,
                                 'row_type' => 3,
-                                'is_article_first_row'=>$isArticleFirstRow,
+                                'is_article_first_row' => $isArticleFirstRow,
                                 'previous_iu' => $previousIU,
-                                'total_su'=>$totalSU,
-                                'row_status'=>'',
+                                'total_su' => $totalSU,
 
                                 'Start period' => str_replace('-', '', $weekStart),
                                 'End period' => str_replace('-', '', $weekEnd),
@@ -1049,9 +1046,10 @@ class HpReportRepository extends BaseRepository
      * dane do widoku raportu wg wymagań HP
      *
      * @param $reportId integer
+     * @param string $mode
      * @return array
      */
-    public function getHpReportForShow($reportId, $edit = false)
+    public function getHpReportForShow($reportId, $mode = 'all')
     {
         $res = DB::connection('sqlsrv')->select("
             select 
@@ -1060,49 +1058,103 @@ class HpReportRepository extends BaseRepository
             from [dbo].[hp_reports] hr
             left join [dbo].[hp_reports_customers] hrc on hrc.altum_id = hr.customer_id
             where report_id = :rid", ['rid' => $reportId]);
+
+
         $results = array();
-        if ($edit) {
-            //
-            foreach ($res as $row) {
-                // usuwamy niepotrzebne kolumny
+        foreach ($res as $row){
+            $results[$row->id] = $row;
+        }
+
+        switch ($mode) {
+            case 'show':
+                foreach ($results as $row) {
+                    // usuwamy niepotrzebne kolumny
+                    unset($row->{'id'});
+                    //unset($row->{'article_id'});
+                    unset($row->{'report_id'});
+                    unset($row->{'customer_id'});
+                    unset($row->{'report_no'});
+                    unset($row->{'week_no'});
+                    unset($row->{'year'});
+                    unset($row->{'previous_report_id'});
+                    unset($row->{'created_at'});
+                    // formatujemy wartości
+                    $row->{'Total Sellin Units'} = number_format($row->{'Total Sellin Units'}, 2, ',', ' ');
+                    $row->{'Inventory Units'} = number_format($row->{'Inventory Units'}, 2, ',', ' ');
+                    $row->{'Sales Units'} = number_format($row->{'Sales Units'}, 2, ',', ' ');
+                    //
+                    //$results[] = $row;
+                }
+                break;
+            case 'edit':
+
+                $this->checkReportCohesion($results);
+
+                foreach ($results as $row) {
+                    // usuwamy niepotrzebne kolumny
 //                unset($row->{'id'});
 //                unset($row->{'article_id'});
-                unset($row->{'report_id'});
-                unset($row->{'customer_id'});
-                unset($row->{'report_no'});
-                unset($row->{'week_no'});
-                unset($row->{'year'});
-                unset($row->{'previous_report_id'});
-                unset($row->{'created_at'});
-                // formatujemy wartości
-                $row->{'Total Sellin Units'} = (float)($row->{'Total Sellin Units'});
-                $row->{'Inventory Units'} = (float)($row->{'Inventory Units'});
-                $row->{'Sales Units'} = (float)($row->{'Sales Units'});
-                //
-                $results[] = $row;
-            }
-        } else {
-            //
-            foreach ($res as $row) {
-                // usuwamy niepotrzebne kolumny
-                unset($row->{'id'});
-                //unset($row->{'article_id'});
-                unset($row->{'report_id'});
-                unset($row->{'customer_id'});
-                unset($row->{'report_no'});
-                unset($row->{'week_no'});
-                unset($row->{'year'});
-                unset($row->{'previous_report_id'});
-                unset($row->{'created_at'});
-                // formatujemy wartości
-                $row->{'Total Sellin Units'} = number_format($row->{'Total Sellin Units'}, 2, ',', ' ');
-                $row->{'Inventory Units'} = number_format($row->{'Inventory Units'}, 2, ',', ' ');
-                $row->{'Sales Units'} = number_format($row->{'Sales Units'}, 2, ',', ' ');
-                //
-                $results[] = $row;
-            }
+                    unset($row->{'report_id'});
+                    unset($row->{'customer_id'});
+                    //unset($row->{'report_no'});
+                    //unset($row->{'week_no'});
+                    //unset($row->{'year'});
+                    unset($row->{'previous_report_id'});
+                    unset($row->{'created_at'});
+                    // formatujemy wartości
+                    $row->{'Total Sellin Units'} = (float)($row->{'Total Sellin Units'});
+                    $row->{'Inventory Units'} = (float)($row->{'Inventory Units'});
+                    $row->{'Sales Units'} = (float)($row->{'Sales Units'});
+                    //
+                    //$results[] = $row;
+                }
+                break;
+            default:
+//                foreach ($res as $row) {
+//                    $results[] = $row;
+//                }
         }
+
         return $results;
+    }
+
+    public function checkReportCohesion($report)
+    {
+        //$res = array();
+        $totalSUtab = array();
+        $articleRows = array();
+
+        $previousArticleId = 0;
+        $totalSU = 0;
+        foreach ($report as $row) {
+            $rowId = $row->id;
+            $articleId = $row->article_id;
+            //$res[$rowId] = $row;
+            $articleRows[$articleId][] = $rowId;
+            if ($articleId != $previousArticleId) {
+                $totalSUtab[$previousArticleId] = $totalSU;
+                $totalSU = 0;
+            }
+            $totalSU += $row->{'Sales Units'};
+            $previousArticleId = $articleId;
+        }
+        $totalSUtab[$previousArticleId] = $totalSU;
+
+        $previousArticleId = 0;
+        foreach ($report as $row) {
+            $articleId = $row->article_id;
+
+            if ($articleId != $previousArticleId) {
+                $previousIU = $row->previous_iu;
+                $iu = $row->{'Inventory Units'} - $row->{'Total Sellin Units'} + $totalSUtab[$articleId];
+                if ($previousIU != $iu) {
+                    foreach ($articleRows[$articleId] as $r) {
+                        $report[$r]->{'is_cohesive'} = 0;
+                    }
+                }
+            }
+            $previousArticleId = $articleId;
+        }
     }
 
     /**
@@ -1145,6 +1197,23 @@ class HpReportRepository extends BaseRepository
             delete from [dbo].[hp_reports] where report_id = :rid
             ", ['rid' => $reportId]);
         $results[] = $res;
+        return $results;
+    }
+
+    public function updateHpReport($data)
+    {
+        $results = array();
+        foreach ($data as $key => $row) {
+            //
+            $res = DB::connection('sqlsrv')->update("
+                update [dbo].[hp_reports] set 
+                    [Total Sellin Units] = :tsu
+                    ,[Inventory Units] = :iu
+                    ,[Sales Units] = :su
+                where id = :id
+            ", ['tsu' => $row->tsu, 'iu' => $row->iu, 'su' => $row->su, 'id' => $key]);
+            $results[] = $res;
+        }
         return $results;
     }
 
