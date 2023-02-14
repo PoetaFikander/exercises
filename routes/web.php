@@ -34,6 +34,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/hpreport/reports/update',[HpReportController::class,'reportUpdate'])->name('hpreport.reports.update');
 
     Route::get('/hpreport/reports/list',[HpReportController::class,'reportList'])->name('hpreport.reports.list');
+    Route::get('/hpreport/reports/export/{id}',[HpReportController::class,'reportExsport'])->name('hpreport.reports.export');
+
     Route::get('/hpreport/reports/show/{id}',[HpReportController::class,'reportShow'])->name('hpreport.reports.show');
     Route::get('/hpreport/reports/edit/{id}',[HpReportController::class,'reportEdit'])->name('hpreport.reports.edit');
     Route::delete('/hpreport/reports/destroy/{id}',[HpReportController::class,'reportDestroy'])->name('hpreport.reports.destroy');

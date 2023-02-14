@@ -63,6 +63,13 @@
                                             >
                                                 <i class="bi-trash"></i>
                                             </button>
+
+                                            <a href="{{ route('hpreport.reports.export', $row->report_id) }}">
+                                                <button class="btn btn-sm">
+                                                    <i class="bi-download"></i>
+                                                </button>
+                                            </a>
+
                                         </td>
                                     </tr>
                                 @endforeach

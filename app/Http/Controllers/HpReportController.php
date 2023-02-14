@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Exports\HpReportExport;
 use App\Models\HpReportsInventory;
 use Illuminate\Http\Request;
 use App\Models\HpReport;
@@ -11,6 +12,7 @@ use App\Traits\GlobalTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use Exception;
+use Maatwebsite\Excel\Facades\Excel;
 
 class HpReportController extends Controller
 {
@@ -65,7 +67,17 @@ class HpReportController extends Controller
     /**
      * reports
      * ---------------------------------------------------------------
+     * @param $id
+     * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
+
+    public function reportExsport(HpReportRepository $hprRepo, $id){
+        $report = $hprRepo->getHpReportForShow($id, 'show');
+        $i = key($report);
+        $reportNo = 'report_'.$report[$i]->report_no . '_' . $report[$i]->week_no . '_' . $report[$i]->year.'.xlsx';
+        return (new HpReportExport($id))->download($reportNo);
+    }
+
 
     public function reportList(HpReportRepository $hprRepo)
     {
