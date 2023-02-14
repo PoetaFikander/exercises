@@ -77,17 +77,18 @@ class HpReportController extends Controller
     {
         //
         $report = $hprRepo->getHpReportForShow($id, 'show');
-        return view('hpreport.reports.show', ['report' => $report]);
+        $i = key($report);
+        $reportNo = $report[$i]->report_no . '/' . $report[$i]->week_no . '/' . $report[$i]->year;
+        return view('hpreport.reports.show', ['report' => $report, 'reportNo' => $reportNo]);
     }
 
     public function reportEdit(HpReportRepository $hprRepo, $id)
     {
         //
-        $reportAll = $hprRepo->getHpReportForShow($id);
-        $i = key($reportAll);
-        $reportNo = $reportAll[$i]->report_no . '/' . $reportAll[$i]->week_no . '/' . $reportAll[$i]->year;
         $report = $hprRepo->getHpReportForShow($id, 'edit');
-        return view('hpreport.reports.edit', ['report' => $report, 'reportAll' => $reportAll, 'reportNo' => $reportNo]);
+        $i = key($report);
+        $reportNo = $report[$i]->report_no . '/' . $report[$i]->week_no . '/' . $report[$i]->year;
+        return view('hpreport.reports.edit', ['report' => $report, 'reportNo' => $reportNo]);
     }
 
     public function reportDestroy(HpReportRepository $hprRepo, $id)
@@ -108,6 +109,7 @@ class HpReportController extends Controller
     {
         // -------------------------------------
         $report = array();
+        $reportNo = '';
         $method = $request->method();
         $errors = 0; // flaga statusu
         $message = '';
@@ -125,12 +127,15 @@ class HpReportController extends Controller
             //-------- generuj raport
             $date = $request->input('for_week');
             $previousReportId = (int)$request->input('for_reportid');
-            $result = array();
             if ($previousReportId >= 0) {
                 $result = $hprRepo->generateHpReport($date, $previousReportId);
-                $report = $hprRepo->getHpReportForShow($result->reportId, 'show');
+                $r = $hprRepo->getHpReportForShow($result->reportId, 'show');
+                $i = key($r);
+                $reportNo = $r[$i]->report_no . '/' . $r[$i]->week_no . '/' . $r[$i]->year;
+                $errors = 200;
+                $message = 'Raport nr ' . $reportNo . ' został wygenerowany';
             } else {
-                $errors = 1;
+                $errors = 500;
                 $message = 'Brak raportu źródłowego oraz zasobów początkowych.';
             }
             //dd($result);
@@ -140,7 +145,7 @@ class HpReportController extends Controller
         $weeks = $hprRepo->getWeeksOfYear($weekData->year);
         $previousReports = $hprRepo->getPreviousHpReports($date);
         // ------------------------------
-        $headers = isset($report[0]) ? $report[0] : array();
+        //$headers = isset($report[0]) ? $report[0] : array();
         // ------------------------------
         $articlesData = (object)[
             'years' => $this->years,
@@ -148,8 +153,9 @@ class HpReportController extends Controller
             'weeks' => $weeks,
             'previousReports' => $previousReports,
             'pReSelected' => end($previousReports), // raport - select option:selected
-            'headers' => $headers,
+            //'headers' => $headers,
             'report' => $report,
+            'reportNo' => $reportNo,
             'errors' => $errors,
             'message' => $message,
         ];

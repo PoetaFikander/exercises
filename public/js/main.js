@@ -135,6 +135,13 @@ $(document).ready(function () {
         location.href = '/hpreport/articles/sale/' + dateFrom;
     });
 
+
+    /**
+     *
+     *
+     *
+     */
+
     $('[data-toggle=h_r_c_for_year]').change(function () {
         //console.log($(this));
         let year = $(this).find(':selected').val();
@@ -209,6 +216,8 @@ $(document).ready(function () {
             $('.table-reports').remove(); // usuwanie tabeli z raportem
         });
     });
+
+
 
     /**
      *

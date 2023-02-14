@@ -1057,81 +1057,60 @@ class HpReportRepository extends BaseRepository
                 ,case when hrc.id is not null or ([Sales Units] = 0 and hrc.id is null) then 1 else 0 end [has_contract]
             from [dbo].[hp_reports] hr
             left join [dbo].[hp_reports_customers] hrc on hrc.altum_id = hr.customer_id
-            where report_id = :rid", ['rid' => $reportId]);
-
+            where report_id = :rid
+        ", ['rid' => $reportId]);
 
         $results = array();
-        foreach ($res as $row){
+        foreach ($res as $row) {
             $results[$row->id] = $row;
         }
 
         switch ($mode) {
             case 'show':
+                // formatujemy wartości
                 foreach ($results as $row) {
-                    // usuwamy niepotrzebne kolumny
-                    unset($row->{'id'});
-                    //unset($row->{'article_id'});
-                    unset($row->{'report_id'});
-                    unset($row->{'customer_id'});
-                    unset($row->{'report_no'});
-                    unset($row->{'week_no'});
-                    unset($row->{'year'});
-                    unset($row->{'previous_report_id'});
-                    unset($row->{'created_at'});
-                    // formatujemy wartości
                     $row->{'Total Sellin Units'} = number_format($row->{'Total Sellin Units'}, 2, ',', ' ');
                     $row->{'Inventory Units'} = number_format($row->{'Inventory Units'}, 2, ',', ' ');
                     $row->{'Sales Units'} = number_format($row->{'Sales Units'}, 2, ',', ' ');
-                    //
-                    //$results[] = $row;
                 }
                 break;
             case 'edit':
-
                 $this->checkReportCohesion($results);
-
+                // formatujemy wartości
                 foreach ($results as $row) {
-                    // usuwamy niepotrzebne kolumny
-//                unset($row->{'id'});
-//                unset($row->{'article_id'});
-                    unset($row->{'report_id'});
-                    unset($row->{'customer_id'});
-                    //unset($row->{'report_no'});
-                    //unset($row->{'week_no'});
-                    //unset($row->{'year'});
-                    unset($row->{'previous_report_id'});
-                    unset($row->{'created_at'});
-                    // formatujemy wartości
                     $row->{'Total Sellin Units'} = (float)($row->{'Total Sellin Units'});
                     $row->{'Inventory Units'} = (float)($row->{'Inventory Units'});
                     $row->{'Sales Units'} = (float)($row->{'Sales Units'});
-                    //
-                    //$results[] = $row;
                 }
                 break;
             default:
-//                foreach ($res as $row) {
-//                    $results[] = $row;
-//                }
         }
-
         return $results;
+    }
+
+    public function unsetTableColumn($table, $columns)
+    {
+        foreach ($table as $row) {
+            foreach ($columns as $column) {
+                unset($row->{$column});
+            }
+        }
     }
 
     public function checkReportCohesion($report)
     {
-        //$res = array();
         $totalSUtab = array();
         $articleRows = array();
-
         $previousArticleId = 0;
         $totalSU = 0;
+
         foreach ($report as $row) {
+            //
             $rowId = $row->id;
             $articleId = $row->article_id;
-            //$res[$rowId] = $row;
             $articleRows[$articleId][] = $rowId;
             if ($articleId != $previousArticleId) {
+                //
                 $totalSUtab[$previousArticleId] = $totalSU;
                 $totalSU = 0;
             }
@@ -1142,12 +1121,14 @@ class HpReportRepository extends BaseRepository
 
         $previousArticleId = 0;
         foreach ($report as $row) {
+            //
             $articleId = $row->article_id;
-
             if ($articleId != $previousArticleId) {
+                //
                 $previousIU = $row->previous_iu;
                 $iu = $row->{'Inventory Units'} - $row->{'Total Sellin Units'} + $totalSUtab[$articleId];
                 if ($previousIU != $iu) {
+                    //
                     foreach ($articleRows[$articleId] as $r) {
                         $report[$r]->{'is_cohesive'} = 0;
                     }
@@ -1165,13 +1146,16 @@ class HpReportRepository extends BaseRepository
     public function getHpReportList()
     {
         $res = DB::connection('sqlsrv')->select("
-            select distinct
-               [report_id] 
-               ,[report_no]
-               ,[week_no]
-               ,[year]
-               ,[previous_report_id]
-            from [projects].[dbo].[hp_reports]
+            select
+               hr.report_id [report_id]
+               ,concat(hr.report_no,'/',hr.week_no,'/',hr.year) [report_no]
+               ,hr.week_no [week_no]
+               ,hr.year [year]
+               ,hr.previous_report_id [previous_report_id] 
+               ,case when phr.report_no IS NULL then '' else concat(phr.report_no,'/',phr.week_no,'/',phr.year) end [previous_report_no]
+            from [dbo].[hp_reports] hr
+            left join [dbo].[hp_reports] phr on phr.id = hr.previous_report_id
+            order by  hr.week_no, hr.year, hr.report_no
 	    ");
         $results = array();
         foreach ($res as $row) {
