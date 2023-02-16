@@ -1,6 +1,80 @@
 @extends('hpreport.index')
 
 @section('hprcontent')
+
+
+    <!-- Modal -->
+    <div class="modal fade modal-lg" id="changeCustomerModal" tabindex="-1" aria-labelledby="custModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="custModalLabel">Wybierz kontrahenta</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <div class="mb-2 row">
+                        <label class="col-sm-1 col-form-label text-end" for="customerName">Nazwa</label>
+                        <div class="col-sm-11">
+                            <div class="input-group">
+                                <input type="text" class="form-control border-secondary" id="customerName" name="customerName">
+                                <button class="btn btn-outline-secondary" type="button" data-toggle="hre_modalcustomerbtn">
+                                    <i class="bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-2 row">
+                        <label class="col-sm-1 col-form-label text-end" for="customerTin">NIP</label>
+                        <div class="col-sm-11">
+                            <div class="input-group">
+                                <input type="text" class="form-control border-secondary" id="customerTin" name="customerName">
+                                <button class="btn btn-outline-secondary" type="button" data-toggle="hre_modalcustomerbtn">
+                                    <i class="bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-2 row">
+
+                        <div class="table-responsive">
+                            <table class="table table-striped table-sm table-hover my-table">
+
+                                <thead>
+                                <tr>
+                                    <th scope="col">Kod</th>
+                                    <th scope="col">Nazwa</th>
+                                    <th scope="col">NIP</th>
+                                    <th scope="col"></th>
+                                </tr>
+                                </thead>
+
+                                <tbody data-toggle="hre_modalcustomertbody">
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                                </tbody>
+
+                            </table>
+                        </div>
+
+                    </div>
+                    <div class="mb-2 row" data-toggle="hre_modalcustomeraddmessage"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zakończ</button>
+                    {{--<button type="button" class="btn btn-primary">Zapisz</button>--}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
     <div class="container">
 
         <div class="row">
@@ -27,12 +101,14 @@
 
                                 <thead>
                                 <tr class="text-start">
-
+                                    {{--
                                     <th scope="col" class="text-nowrap">Country</th>
                                     <th scope="col" class="text-nowrap">Partner ID</th>
                                     <th scope="col" class="text-nowrap">Partner Name</th>
                                     <th scope="col" class="text-nowrap">Start period</th>
                                     <th scope="col" class="text-nowrap">End period</th>
+                                    --}}
+
                                     <th scope="col" class="text-nowrap">HP Product Number</th>
 
                                     <th scope="col" class="text-nowrap">RC</th>
@@ -116,12 +192,13 @@
                                         data-totsu="{{ $row->total_su }}"
                                         class="{{ $rowColor }}"
                                     >
-
+                                        {{--
                                         <td class="text-nowrap">{{ $row->{'Country'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Partner ID'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Partner Name'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Start period'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'End period'} }}</td>
+                                        --}}
                                         <td class="text-nowrap">{{ $row->{'HP Product Number'} }}</td>
 
                                         <td class="text-nowrap">
@@ -141,18 +218,19 @@
                                                    data-prevval="{{ $row->{'Total Sellin Units'} }}"
                                                    value="{{ $row->{'Total Sellin Units'} }}"
                                                    @if(!$row->is_article_first_row or $row->row_type > 2) disabled @endif
-                                                   name="tsu" min="-100" max="100">
+                                                   name="tsu" min="-1000" max="1000">
                                         </td>
 
                                         <td class="text-nowrap">
                                             <input type="number"
                                                    data-id="{{ $row->id }}"
                                                    data-artid="{{ $aId }}"
+                                                   data-repid="{{ $row->report_id }}"
                                                    data-toggle="artInpNumber"
-                                                   data-prevval="{{ $row->{'Inventory Units'} }}"
+                                                   data-fr="{{ $row->is_article_first_row }}"
                                                    value="{{ $row->{'Inventory Units'} }}"
-                                                   @if(!$row->is_article_first_row) disabled @endif
-                                                   name="iu" min="0" max="10000">
+                                                   name="iu" min="0" max="1000"
+                                                   @if(!$row->is_article_first_row) disabled @endif>
                                         </td>
 
                                         <td class="text-nowrap">
@@ -161,32 +239,52 @@
                                                    data-artid="{{ $aId }}"
                                                    data-prevval="{{ $row->{'Sales Units'} }}"
                                                    value="{{ $row->{'Sales Units'} }}"
+                                                   data-toggle="artInpNumber"
+                                                   name="su" min="-1000" max="1000"
                                                    @if((!$row->is_article_first_row and $row->row_type != 1) or $row->row_type != 1)
                                                    disabled
-                                                   @endif
-                                                   data-toggle="artInpNumber" name="su" min="-100" max="100">
+                                                @endif>
                                         </td>
 
                                         <td class="text-nowrap">{{ $row->{'Transaction Date'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Channel Partner to Customer Invoice ID'} }}</td>
 
-                                        <td class="text-nowrap">{{ $row->{'Sold-to Customer ID'} }}</td>
-                                        <td class="text-nowrap">{{ $row->{'Sold To Customer Name'} }}</td>
-                                        <td class="text-nowrap">{{ $row->{'Sold To Company Tax ID'} }}</td>
-                                        <td class="text-nowrap">{{ $row->{'Sold To Address Line 1'} }}</td>
-                                        <td class="text-nowrap">{{ $row->{'Sold To Address Line 2'} }}</td>
-                                        <td class="text-nowrap">{{ $row->{'Sold To City'} }}</td>
-                                        <td class="text-nowrap">{{ $row->{'Sold To Postal Code'} }}</td>
-                                        <td class="text-nowrap">{{ $row->{'Sold To Country Code'} }}</td>
+                                        <td class="text-nowrap">
+                                            @if(!$row->customer_id == 0)
+                                                <input type="hidden" name="customerid" value="{{ $row->customer_id }}">
+                                                <input type="text" value="{{ $row->{'Sold-to Customer ID'} }}" name="customer" class="custCodeInp"
+                                                       disabled>
+                                                <button class="btn btn-sm"
+                                                        data-id="{{ $row->id }}"
+                                                        data-artid="{{ $aId }}"
+                                                        data-custid="{{ $row->customer_id }}"
+                                                        data-toggle="artInpCustomer"
+                                                    {{--
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#changeCustomerModal">
+                                                    --}}
+                                                >
+                                                    <i class="bi-pencil"></i>
+                                                </button>
+                                            @endif
+                                        </td>
 
-                                        <td class="text-nowrap">{{ $row->{'Ship-to Customer ID'} }}</td>
-                                        <td class="text-nowrap">{{ $row->{'Ship To Customer Name'} }}</td>
-                                        <td class="text-nowrap">{{ $row->{'Ship To Company Tax ID'} }}</td>
-                                        <td class="text-nowrap">{{ $row->{'Ship To Address Line 1'} }}</td>
+                                        <td class="text-nowrap" data-toggle="cname">{{ $row->{'Sold To Customer Name'} }}</td>
+                                        <td class="text-nowrap" data-toggle="ctin">{{ $row->{'Sold To Company Tax ID'} }}</td>
+                                        <td class="text-nowrap" data-toggle="caddr">{{ $row->{'Sold To Address Line 1'} }}</td>
+                                        <td class="text-nowrap">{{ $row->{'Sold To Address Line 2'} }}</td>
+                                        <td class="text-nowrap" data-toggle="ccity">{{ $row->{'Sold To City'} }}</td>
+                                        <td class="text-nowrap" data-toggle="czip">{{ $row->{'Sold To Postal Code'} }}</td>
+                                        <td class="text-nowrap" data-toggle="ccountry">{{ $row->{'Sold To Country Code'} }}</td>
+
+                                        <td class="text-nowrap" data-toggle="ccode">{{ $row->{'Ship-to Customer ID'} }}</td>
+                                        <td class="text-nowrap" data-toggle="cname">{{ $row->{'Ship To Customer Name'} }}</td>
+                                        <td class="text-nowrap" data-toggle="ctin">{{ $row->{'Ship To Company Tax ID'} }}</td>
+                                        <td class="text-nowrap" data-toggle="caddr">{{ $row->{'Ship To Address Line 1'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Ship To Address Line 2'} }}</td>
-                                        <td class="text-nowrap">{{ $row->{'Ship To City'} }}</td>
-                                        <td class="text-nowrap">{{ $row->{'Ship To Postal Code'} }}</td>
-                                        <td class="text-nowrap">{{ $row->{'Ship To Country Code'} }}</td>
+                                        <td class="text-nowrap" data-toggle="ccity">{{ $row->{'Ship To City'} }}</td>
+                                        <td class="text-nowrap" data-toggle="czip">{{ $row->{'Ship To Postal Code'} }}</td>
+                                        <td class="text-nowrap" data-toggle="ccountry">{{ $row->{'Ship To Country Code'} }}</td>
 
                                         <td class="text-nowrap">{{ $row->{'Online'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Customer Online Order Date'} }}</td>
@@ -206,9 +304,9 @@
                                         <td class="text-nowrap">{{ $row->{'Deal/Promo ID #6'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Bundle ID #6'} }}</td>
 
-                                        <td class="text-nowrap">{{ $row->{'Contract ID'} }}</td>
-                                        <td class="text-nowrap">{{ $row->{'Contract start date'} }}</td>
-                                        <td class="text-nowrap">{{ $row->{'Contract end date'} }}</td>
+                                        <td class="text-nowrap" data-toggle="ccontract">{{ $row->{'Contract ID'} }}</td>
+                                        <td class="text-nowrap" data-toggle="ccontracts">{{ $row->{'Contract start date'} }}</td>
+                                        <td class="text-nowrap" data-toggle="ccontracte">{{ $row->{'Contract end date'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Drop ship Flag'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Partner Internal transaction ID'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Partner Requested Rebate Amount'} }}</td>

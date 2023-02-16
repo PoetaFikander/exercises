@@ -44,7 +44,7 @@
                                             value="{{ $week->w_no }}"
                                             @if($week->w_no == $ad->weekData->w_no) selected @endif
                                         >
-                                            {{ $week->w_start . ' - ' . $week->w_end }}
+                                            {{ $week->w_no.' - '.$week->w_start . ':' . $week->w_end }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -66,12 +66,12 @@
                                         <th scope="col">Ilość</th>
                                         <th scope="col">Dokument</th>
                                         {{--<th scope="col">Dostawca</th>--}}
-                                        <th scope="col">Stan dok.</th>
+                                        <th scope="col">Stan dokumentu</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     @foreach($ad->articles as $article)
-                                        <tr>
+                                        <tr class="@if($article->document_state == 'Niezatwierdzony') text-success @endif">
                                             <td>{{ $article->article_id }}</td>
                                             <td>{{ $article->code }}</td>
                                             <td class="ellipis">{{ $article->name }}</td>

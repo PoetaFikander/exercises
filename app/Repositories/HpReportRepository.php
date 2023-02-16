@@ -66,6 +66,44 @@ class HpReportRepository extends BaseRepository
         return $results;
     }
 
+    public function getCustomerFromAltum($id)
+    {
+        $results = DB::connection('sqlsrv_altum')->select("
+             select 
+                c.Id [customer_id]
+                ,c.Code [customer_code]
+                ,cd.Name1 [customer_name]
+                ,CONCAT(co.Code,cd.TIN) [customer_tin]
+                ,case when ad.ApartmentNumber <> '' 
+                then CONCAT((case when ad.Street like 'ul.%' then REPLACE(ad.Street,'ul. ','') else ad.Street end), ' ', ad.BuildingNumber,'/',ad.ApartmentNumber)
+                else CONCAT((case when ad.Street like 'ul.%' then REPLACE(ad.Street,'ul. ','') else ad.Street end), ' ', ad.BuildingNumber)
+                end [customer_address]
+                ,ad.City [customer_city]
+                ,ad.ZipCode [customer_zipcode]
+                ,co.Code [customer_countrycode]
+                ----- kontrakty --------------
+                ,isnull((select max(pah.InternalNumber) from pgiAgreements.Headers pah where pah.CustomerID = c.Id),'') [contract_internal_number]
+                ,isnull((select REPLACE(CONVERT(varchar,pah.DateOfStart,111),'/','') from pgiAgreements.Headers pah 
+                where pah.InternalNumber = (select max(pah.InternalNumber) from pgiAgreements.Headers pah where pah.CustomerID = c.Id)),'') 
+                [contract_start_date]
+                ,isnull((select REPLACE(CONVERT(varchar,pah.DateOfEnd,111),'/','') from pgiAgreements.Headers pah 
+                where pah.InternalNumber = (select max(pah.InternalNumber) from pgiAgreements.Headers pah where pah.CustomerID = c.Id)),'')
+                [contract_end_date]
+            from Dbo.Dic_Customers c
+                left outer join Dic_CustomerData cd on cd.CustomerId = c.id and cd.IsCurrent = 1
+                left outer join Address.Addresses a on a.ObjectID = c.Id
+                left outer join Address.AddressData ad on ad.AddressID = a.AddressID and ad.IsActive = 1
+                left outer join dbo.Dic_Country co on co.Id = ad.CountryID
+            where 1=1
+                and a.TypeID = 0
+                and a.IsDefault = 1
+                and a.ObjectTypeID = 15
+                and ad.IsActive = 1
+                and c.Id = :id
+	    ", ['id' => $id]);
+        return $results[0];
+    }
+
     public function addCustomer($id)
     {
         $results = DB::connection('sqlsrv_altum')->insert("
@@ -907,8 +945,10 @@ class HpReportRepository extends BaseRepository
                 --,CONVERT(datetime, :date_from) [date_from]
                 --,DATEADD(dd, 1, CONVERT(datetime, :date_to)) [date_to]
                 ,ssh.NumberString [document_no]
-                ,convert(varchar,ssh.DocumentDate,104) [document_date]
-                ,convert(varchar,ssh.StoreOperationDate,104) [store_operation_date]
+                --,convert(varchar,ssh.DocumentDate,104) [document_date]
+                ,REPLACE(CONVERT(varchar,ssh.DocumentDate,111),'/','') [document_date]
+                --,convert(varchar,ssh.StoreOperationDate,104) [store_operation_date]
+                ,REPLACE(CONVERT(varchar,ssh.StoreOperationDate,111),'/','') [store_operation_date]
                 ,a.Code [code]
                 ,a.Name [name]
                 ,a.CatalogueNumber [catalogue_number]
@@ -987,8 +1027,10 @@ class HpReportRepository extends BaseRepository
             select
                 a.Id [article_id]
                 ,ssh.NumberString [document_no]
-                ,convert(varchar,ssh.DocumentDate,104) [document_date]
-                ,convert(varchar,ssh.StoreOperationDate,104) [store_operation_date]
+                --,convert(varchar,ssh.DocumentDate,104) [document_date]
+                ,REPLACE(CONVERT(varchar,ssh.DocumentDate,111),'/','') [document_date]
+                --,convert(varchar,ssh.StoreOperationDate,104) [store_operation_date]
+                ,REPLACE(CONVERT(varchar,ssh.StoreOperationDate,111),'/','') [store_operation_date]
                 ,a.Code [code]
                 ,a.Name [name]
                 ,a.CatalogueNumber [catalogue_number]
@@ -1154,7 +1196,7 @@ class HpReportRepository extends BaseRepository
                ,hr.previous_report_id [previous_report_id] 
                ,case when phr.report_no IS NULL then '' else concat(phr.report_no,'/',phr.week_no,'/',phr.year) end [previous_report_no]
             from [dbo].[hp_reports] hr
-            left join [dbo].[hp_reports] phr on phr.id = hr.previous_report_id
+            left join [dbo].[hp_reports] phr on phr.report_id = hr.previous_report_id
             order by  hr.week_no, hr.year, hr.report_no
 	    ");
         $results = array();
@@ -1184,20 +1226,62 @@ class HpReportRepository extends BaseRepository
         return $results;
     }
 
-    public function updateHpReport($data)
+
+    public function updateHpReport($data, $invent)
     {
         $results = array();
         foreach ($data as $key => $row) {
-            //
             $res = DB::connection('sqlsrv')->update("
                 update [dbo].[hp_reports] set 
                     [Total Sellin Units] = :tsu
                     ,[Inventory Units] = :iu
                     ,[Sales Units] = :su
+                    ,[Sold-to Customer ID] = :tsu
+                    ,[Sold To Customer Name] = :tsu
+                    ,[Sold To Company Tax ID] = :tsu
+                    ,[Sold To Address Line 1] = :tsu
+                    ,[Sold To Address Line 2] = :tsu
+                    ,[Sold To City] = :tsu
+                    ,[Sold To Postal Code] = :tsu
+                    ,[Sold To Country Code] = :tsu
+                    ,[Ship-to Customer ID] = :tsu
+                    ,[Ship To Customer Name] = :tsu
+                    ,[Ship To Company Tax ID] = :tsu
+                    ,[Ship To Address Line 1] = :tsu
+                    ,[Ship To Address Line 2] = :tsu
+                    ,[Ship To City] = :tsu
+                    ,[Ship To Postal Code] = :tsu
+                    ,[Ship To Country Code] = :tsu
                 where id = :id
-            ", ['tsu' => $row->tsu, 'iu' => $row->iu, 'su' => $row->su, 'id' => $key]);
+            ", [
+                'tsu' => $row->tsu,
+                'iu' => $row->iu,
+                'su' => $row->su,
+                'cid' => $row->customer_id,
+                'ccode' => $row->customer_code,
+                'cname' => $row->customer_name,
+                'ctin' => $row->customer_tin,
+                'caddress' => $row->customer_address,
+                'ccity' => $row->customer_city,
+                'czipcode' => $row->customer_zipcode,
+                'ccountrycode' => $row->customer_countrycode,
+                'contract' => $row->contract_internal_number,
+                'sd' => $row->contract_start_date,
+                'ed' => $row->contract_end_date,
+                'id' => $key
+            ]);
+
             $results[] = $res;
         }
+
+        foreach ($invent as $article) {
+            $res = DB::connection('sqlsrv')->update("
+                        update [dbo].[hp_reports_inventories] set quantity = :iu
+                        where report_id = :id and article_id = :aid
+                    ", ['iu' => $article->iu, 'id' => $article->reportId, 'aid' => $article->articleId]);
+            $results[] = $res;
+        }
+
         return $results;
     }
 

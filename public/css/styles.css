@@ -50,6 +50,10 @@ html {
     overflow: scroll;
 }
 
+.custCodeInp{
+    max-width: 85px;
+}
+
 .table-reports th, thead {
     position: sticky;
     top: 0;

@@ -44,7 +44,7 @@
                                             value="{{ $week->w_no }}"
                                             @if($week->w_no == $ad->weekData->w_no) selected @endif
                                         >
-                                            {{ $week->w_start . ' - ' . $week->w_end }}
+                                            {{ $week->w_no.' - '.$week->w_start . ':' . $week->w_end }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -65,21 +65,22 @@
                                         <th scope="col" class="text-nowrap">Nr katalogowy</th>
                                         <th scope="col">Ilość</th>
                                         <th scope="col">Dokument</th>
-                                        {{--<th scope="col">Nabywca</th>--}}
-                                        <th scope="col">Stan dok.</th>
+                                        <th scope="col">Nabywca</th>
+                                        <th scope="col">Stan dokumentu</th>
                                         {{--<th scope="col">Kontrakt</th>--}}
                                     </tr>
                                     </thead>
                                     <tbody>
                                     @foreach($ad->articles as $article)
-                                        <tr @if($article->contract_customer_id == 0) class="_text-danger" @endif>
+                                        {{--<tr @if($article->contract_customer_id == 0) class="_text-danger" @endif>--}}
+                                        <tr class="@if($article->document_state == 'Niezatwierdzony') text-success @endif">
                                             <td>{{ $article->article_id }}</td>
                                             <td>{{ $article->code }}</td>
                                             <td class="ellipis">{{ $article->name }}</td>
                                             <td>{{ $article->catalogue_number }}</td>
                                             <td class="text-end">{{ $article->quantity }}</td>
                                             <td>{{ $article->document_no }}</td>
-                                            {{--<td>{{ $article->customer_name }}</td>--}}
+                                            <td class="@if($article->contract_customer_id == 0) text-decoration-underline @endif">{{ $article->customer_name }}</td>
                                             <td>{{ $article->document_state }}</td>
                                             {{--<td>{{ $article->contract_customer_id }}</td>--}}
                                         </tr>

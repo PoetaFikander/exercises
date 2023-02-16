@@ -46,30 +46,13 @@
                                         <td class="text-nowrap">{{ $row->previous_report_no }}</td>
                                         <td class="text-nowrap">
                                             <a href="{{ route('hpreport.reports.show', $row->report_id) }}">
-                                                <button class="btn btn-sm"><i class="bi-search"></i></button>
-                                            </a>
-
+                                                <button class="btn btn-sm"><i class="bi-search"></i></button></a>
                                             <a href="{{ route('hpreport.reports.edit', $row->report_id) }}">
-                                                <button class="btn btn-sm">
-                                                    <i class="bi-pencil"></i>
-                                                </button>
-                                            </a>
-
-                                            <button
-                                                class="btn btn-sm"
-                                                data-toggle="reportdelete"
-                                                data-id="{{ $row->report_id }}"
-                                                data-name="{{ $row->report_id }}"
-                                            >
-                                                <i class="bi-trash"></i>
-                                            </button>
-
+                                                <button class="btn btn-sm"><i class="bi-pencil"></i></button></a>
+                                            <button class="btn btn-sm" data-toggle="reportdelete" data-id="{{ $row->report_id }}"
+                                                    data-name="{{ $row->report_no }}"><i class="bi-trash"></i></button>
                                             <a href="{{ route('hpreport.reports.export', $row->report_id) }}">
-                                                <button class="btn btn-sm">
-                                                    <i class="bi-download"></i>
-                                                </button>
-                                            </a>
-
+                                                <button class="btn btn-sm"><i class="bi-download"></i></button></a>
                                         </td>
                                     </tr>
                                 @endforeach

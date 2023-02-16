@@ -111,7 +111,7 @@
                                          }
                                     @endphp
 
-                                    <tr class="@if($row->has_contract == 0) text-decoration-underline @endif {{ $rowColor }}">
+                                    <tr class="{{ $rowColor }}">
 
                                         <td class="text-nowrap">{{ $row->{'Country'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Partner ID'} }}</td>
@@ -126,7 +126,7 @@
                                         <td class="text-nowrap">{{ $row->{'Channel Partner to Customer Invoice ID'} }}</td>
 
                                         <td class="text-nowrap">{{ $row->{'Sold-to Customer ID'} }}</td>
-                                        <td class="text-nowrap">{{ $row->{'Sold To Customer Name'} }}</td>
+                                        <td class="text-nowrap @if($row->has_contract == 0) text-decoration-underline @endif">{{ $row->{'Sold To Customer Name'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Sold To Company Tax ID'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Sold To Address Line 1'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Sold To Address Line 2'} }}</td>

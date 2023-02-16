@@ -28,7 +28,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
      */
     Route::get('/hpreport/index',[HpReportController::class,'index'])->name('hpreport.index');
 
-
     Route::get('/hpreport/reports/create',[HpReportController::class,'reportCreate'])->name('hpreport.reports.create');
     Route::post('/hpreport/reports/create',[HpReportController::class,'reportCreate'])->name('hpreport.reports.create');
     Route::post('/hpreport/reports/update',[HpReportController::class,'reportUpdate'])->name('hpreport.reports.update');
@@ -40,7 +39,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/hpreport/reports/edit/{id}',[HpReportController::class,'reportEdit'])->name('hpreport.reports.edit');
     Route::delete('/hpreport/reports/destroy/{id}',[HpReportController::class,'reportDestroy'])->name('hpreport.reports.destroy');
 
-
     Route::post('/hpreport/reports/getweeks',[HpReportController::class,'getWeeks']);
     Route::post('/hpreport/reports/getreportsno',[HpReportController::class,'getReportsNo']);
 
@@ -51,8 +49,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/hpreport/articles/purchases/{date?}',[HpReportController::class,'articlesPurchases'])->name('hpreport.articles.purchases');
     Route::get('/hpreport/articles/sale/{date?}',[HpReportController::class,'articlesSale'])->name('hpreport.articles.sale');
 
+
     Route::get('/hpreport/customers/list',[HpReportController::class,'customersList'])->name('hpreport.customers.list');
-    Route::post('/hpreport/customers/getfromalt',[HpReportController::class,'getCustomersFromAltum']);
+    Route::post('/hpreport/customers/getsfromalt',[HpReportController::class,'getCustomersFromAltum']);
+    Route::post('/hpreport/customers/getfromalt',[HpReportController::class,'getCustomerFromAltum']);
     Route::post('/hpreport/customers/add',[HpReportController::class,'addCustomer']);
     Route::delete('/hpreport/customers/delete/{id}',[HpReportController::class,'deleteCustomer'])->name('hpreport.customers.delete');
 

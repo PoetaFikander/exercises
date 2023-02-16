@@ -71,10 +71,11 @@ class HpReportController extends Controller
      * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\BinaryFileResponse
      */
 
-    public function reportExsport(HpReportRepository $hprRepo, $id){
+    public function reportExsport(HpReportRepository $hprRepo, $id)
+    {
         $report = $hprRepo->getHpReportForShow($id, 'show');
         $i = key($report);
-        $reportNo = 'report_'.$report[$i]->report_no . '_' . $report[$i]->week_no . '_' . $report[$i]->year.'.xlsx';
+        $reportNo = 'report_' . $report[$i]->report_no . '_' . $report[$i]->week_no . '_' . $report[$i]->year . '.xlsx';
         return (new HpReportExport($id))->download($reportNo);
     }
 
@@ -178,7 +179,7 @@ class HpReportController extends Controller
     {
         if (Auth::check() && $request->ajax()) {
             $json = json_decode(htmlspecialchars_decode($request->input('json')));
-            $json->update = $hprRepo->updateHpReport($json->data);
+            $json->update = $hprRepo->updateHpReport($json->data, $json->invent);
             return Response::json($json);
         } else {
             //todo zrobić ogólną stronę błędów
@@ -234,6 +235,18 @@ class HpReportController extends Controller
             $json = json_decode(htmlspecialchars_decode($request->input('json')));
             //var_dump($json->data->customerName);
             $json->customers = $hprRepo->getCustomersFromAltum($json->data->customerName, $json->data->customerTin);
+            return Response::json($json);
+        } else {
+            //todo zrobić ogólną stronę błędów
+            return view('auth.login');
+        }
+    }
+
+    public function getCustomerFromAltum(HpReportRepository $hprRepo, Request $request)
+    {
+        if (Auth::check() && $request->ajax()) {
+            $json = json_decode(htmlspecialchars_decode($request->input('json')));
+            $json->customer = $hprRepo->getCustomerFromAltum($json->id);
             return Response::json($json);
         } else {
             //todo zrobić ogólną stronę błędów
