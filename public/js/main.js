@@ -467,6 +467,7 @@ $(document).ready(function () {
         checkReportCohesion($(this));
     });
 
+
     $('[data-toggle=hre_reportupdate]').click(function () {
         //
         const data = {}; // report update data
@@ -484,20 +485,20 @@ $(document).ready(function () {
                     invent[id] = {reportId: input.data('repid'), articleId: input.data('artid'), iu: parseFloat(input.val())}
                 }
             });
-            i.customer_id = tr.find('td > input[name="customerid"]').val();
-            i.customer_code = tr.children('td[data-toggle="ccode"]').text();
-            i.customer_name = tr.children('td[data-toggle="cname"]').first().text();
-            i.customer_tin = tr.children('td[data-toggle="ctin"]').first().text();
-            i.customer_address = tr.children('td[data-toggle="caddr"]').first().text();
-            i.customer_city = tr.children('td[data-toggle="ccity"]').first().text();
-            i.customer_zipcode = tr.children('td[data-toggle="czip"]').first().text();
-            i.customer_countrycode = tr.children('td[data-toggle="ccountry"]').first().text();
-            i.contract_internal_number = tr.children('td[data-toggle="ccontract"]').text();
-            i.contract_start_date = tr.children('td[data-toggle="ccontracts"]').text();
-            i.contract_end_date = tr.children('td[data-toggle="ccontracte"]').text();
+            i.cid = tr.find('td > input[name="customerid"]').val();
+            i.ccode = tr.children('td[data-toggle="ccode"]').text();
+            i.cname = tr.children('td[data-toggle="cname"]').first().text();
+            i.ctin = tr.children('td[data-toggle="ctin"]').first().text();
+            i.caddr = tr.children('td[data-toggle="caddr"]').first().text();
+            i.ccity = tr.children('td[data-toggle="ccity"]').first().text();
+            i.czip = tr.children('td[data-toggle="czip"]').first().text();
+            i.ccountry = tr.children('td[data-toggle="ccountry"]').first().text();
+            i.ccontract = tr.children('td[data-toggle="ccontract"]').first().text();
+            i.ccontracts = tr.children('td[data-toggle="ccontracts"]').first().text();
+            i.ccontracte = tr.children('td[data-toggle="ccontracte"]').first().text();
             data[id] = i;
         });
-        console.log(data);
+        //console.log(data);
         uniXHR({data: data, invent: invent}, '/hpreport/reports/update', function (data) {
             const mes = $('[data-toggle=hre_reportupdatemessage]');
             mes.html('');

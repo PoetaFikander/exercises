@@ -1226,51 +1226,69 @@ class HpReportRepository extends BaseRepository
         return $results;
     }
 
-
     public function updateHpReport($data, $invent)
     {
         $results = array();
         foreach ($data as $key => $row) {
             $res = DB::connection('sqlsrv')->update("
-                update [dbo].[hp_reports] set 
-                    [Total Sellin Units] = :tsu
+                update [dbo].[hp_reports] set
+                
+                     [customer_id] = :cid
+                     
+                    ,[Total Sellin Units] = :tsu
                     ,[Inventory Units] = :iu
                     ,[Sales Units] = :su
-                    ,[Sold-to Customer ID] = :tsu
-                    ,[Sold To Customer Name] = :tsu
-                    ,[Sold To Company Tax ID] = :tsu
-                    ,[Sold To Address Line 1] = :tsu
-                    ,[Sold To Address Line 2] = :tsu
-                    ,[Sold To City] = :tsu
-                    ,[Sold To Postal Code] = :tsu
-                    ,[Sold To Country Code] = :tsu
-                    ,[Ship-to Customer ID] = :tsu
-                    ,[Ship To Customer Name] = :tsu
-                    ,[Ship To Company Tax ID] = :tsu
-                    ,[Ship To Address Line 1] = :tsu
-                    ,[Ship To Address Line 2] = :tsu
-                    ,[Ship To City] = :tsu
-                    ,[Ship To Postal Code] = :tsu
-                    ,[Ship To Country Code] = :tsu
+                    
+                    ,[Sold-to Customer ID] = :ccode
+                    ,[Sold To Customer Name] = :cname
+                    ,[Sold To Company Tax ID] = :ctin
+                    ,[Sold To Address Line 1] = :caddr
+                    ,[Sold To City] = :ccity
+                    ,[Sold To Postal Code] = :czip
+                    ,[Sold To Country Code] = :ccountry
+                    
+                    ,[Ship-to Customer ID] = :ccode1
+                    ,[Ship To Customer Name] = :cname1
+                    ,[Ship To Company Tax ID] = :ctin1
+                    ,[Ship To Address Line 1] = :caddr1
+                    ,[Ship To City] = :ccity1
+                    ,[Ship To Postal Code] = :czip1
+                    ,[Ship To Country Code] = :ccountry1
+                    
+                    ,[Contract ID] = :contract
+	                ,[Contract start date] = :ccontracts
+	                ,[Contract end date] = :ccontracte
+	                
                 where id = :id
             ", [
+                'cid' => $row->cid,
+
                 'tsu' => $row->tsu,
                 'iu' => $row->iu,
                 'su' => $row->su,
-                'cid' => $row->customer_id,
-                'ccode' => $row->customer_code,
-                'cname' => $row->customer_name,
-                'ctin' => $row->customer_tin,
-                'caddress' => $row->customer_address,
-                'ccity' => $row->customer_city,
-                'czipcode' => $row->customer_zipcode,
-                'ccountrycode' => $row->customer_countrycode,
-                'contract' => $row->contract_internal_number,
-                'sd' => $row->contract_start_date,
-                'ed' => $row->contract_end_date,
+
+                'ccode' => $row->ccode,
+                'cname' => $row->cname,
+                'ctin' => $row->ctin,
+                'caddr' => $row->caddr,
+                'ccity' => $row->ccity,
+                'czip' => $row->czip,
+                'ccountry' => $row->ccountry,
+
+                'ccode1' => $row->ccode,
+                'cname1' => $row->cname,
+                'ctin1' => $row->ctin,
+                'caddr1' => $row->caddr,
+                'ccity1' => $row->ccity,
+                'czip1' => $row->czip,
+                'ccountry1' => $row->ccountry,
+
+                'contract' => $row->ccontract,
+                'ccontracts' => $row->ccontracts,
+                'ccontracte' => $row->ccontracte,
+
                 'id' => $key
             ]);
-
             $results[] = $res;
         }
 

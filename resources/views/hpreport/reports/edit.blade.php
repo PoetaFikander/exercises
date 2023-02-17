@@ -101,13 +101,12 @@
 
                                 <thead>
                                 <tr class="text-start">
-                                    {{--
+
                                     <th scope="col" class="text-nowrap">Country</th>
                                     <th scope="col" class="text-nowrap">Partner ID</th>
                                     <th scope="col" class="text-nowrap">Partner Name</th>
                                     <th scope="col" class="text-nowrap">Start period</th>
                                     <th scope="col" class="text-nowrap">End period</th>
-                                    --}}
 
                                     <th scope="col" class="text-nowrap">HP Product Number</th>
 
@@ -192,13 +191,13 @@
                                         data-totsu="{{ $row->total_su }}"
                                         class="{{ $rowColor }}"
                                     >
-                                        {{--
+
                                         <td class="text-nowrap">{{ $row->{'Country'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Partner ID'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Partner Name'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'Start period'} }}</td>
                                         <td class="text-nowrap">{{ $row->{'End period'} }}</td>
-                                        --}}
+
                                         <td class="text-nowrap">{{ $row->{'HP Product Number'} }}</td>
 
                                         <td class="text-nowrap">
@@ -250,20 +249,15 @@
                                         <td class="text-nowrap">{{ $row->{'Channel Partner to Customer Invoice ID'} }}</td>
 
                                         <td class="text-nowrap">
+                                            <input type="hidden" name="customerid" value="{{ $row->customer_id }}">
                                             @if(!$row->customer_id == 0)
-                                                <input type="hidden" name="customerid" value="{{ $row->customer_id }}">
                                                 <input type="text" value="{{ $row->{'Sold-to Customer ID'} }}" name="customer" class="custCodeInp"
                                                        disabled>
                                                 <button class="btn btn-sm"
                                                         data-id="{{ $row->id }}"
                                                         data-artid="{{ $aId }}"
                                                         data-custid="{{ $row->customer_id }}"
-                                                        data-toggle="artInpCustomer"
-                                                    {{--
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#changeCustomerModal">
-                                                    --}}
-                                                >
+                                                        data-toggle="artInpCustomer">
                                                     <i class="bi-pencil"></i>
                                                 </button>
                                             @endif

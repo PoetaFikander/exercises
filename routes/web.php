@@ -56,6 +56,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/hpreport/customers/add',[HpReportController::class,'addCustomer']);
     Route::delete('/hpreport/customers/delete/{id}',[HpReportController::class,'deleteCustomer'])->name('hpreport.customers.delete');
 
+    /*
+     * end Raporty HP
+     */
+
     Route::middleware(['can:isAdmin'])->group(function () {
         Route::get('/users/list', [UserController::class, 'index'])->name('users.list');
         Route::get('/users/show/{user}', [UserController::class, 'show'])->name('users.show');
