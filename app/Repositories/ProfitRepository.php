@@ -183,16 +183,42 @@ class ProfitRepository extends BaseRepository
         $workCards = $this->getWorkCards($p->dev_id, $p->dateFrom, $p->dateTo);
 
         // --- lista powiązanych dokumentów kosztowych
-        // --- gdy WZ ma FS dokument zalicza się do profitu
         $agrWZ = $this->getDoc($p->dev_id, $p->dateFrom, $p->dateTo);
+
+
+        $profit = 0; // zysk
+        $gp = 0; //
+
+        $income = 0; // przychód
+        $cost = 0;
+
+        $incomeAdditional = 0; // wartość artykułów z płatnych zleceń ZL->WZ->FS
+        $incomeAddItems = array(); // lista artykułów z płatnych zleceń ZL->WZ->FS
 
         // --- artykuły z WZ
         $agrWZitems = array();
         foreach ($agrWZ as $d) {
+            // ---- liczymy koszty
             $articles = $this->getDocContents($d->wz_id);
-            foreach ($articles as $a) {
-                $agrWZitems[] = $a;
+
+            foreach ($articles as $item) {
+                $item->item_quantity = (float)$item->item_quantity;
+                $item->item_price = (float)$item->item_price;
+                $item->item_value = (float)$item->item_value;
+                $item->item_purchase_price = (float)$item->item_purchase_price;
+                $item->item_purchase_value = (float)$item->item_purchase_value;
+
+                //gdy WZ ma FS dokument zalicza się do przychodu
+                if ($d->fs_id > 0) {
+                    $incomeAddItems[] = $item;
+                    //$incomeAdditional += (float)$item->item_value - (float)$item->item_purchase_value;
+                    $incomeAdditional += (float)$item->item_value; // bez odliczania kosztów zakupu
+                } else {
+                    $agrWZitems[] = $item;
+                    $cost += (float)$item->item_purchase_value;
+                }
             }
+
         }
 
         // ---
@@ -218,6 +244,9 @@ class ProfitRepository extends BaseRepository
                 $item->item_purchase_value = (float)$item->item_purchase_value;
                 $agrFSitems[] = $item;
 
+                // przychód
+                $income += (float)$item->item_value;
+
                 // tabela podsumowująca usługi
                 $artCode = $item->art_code;
                 if (array_key_exists($artCode, $agrFSsummaryV)) {
@@ -232,26 +261,57 @@ class ProfitRepository extends BaseRepository
 
         }
 
-        foreach ($agrServName as $key=>$val){
+        foreach ($agrServName as $key => $val) {
             $agrFSsummary[] = (object)[
-                'art_code' =>$key,
-                'art_name'=>$val,
-                'item_quantity'=>$agrFSsummaryQ[$key],
-                'item_value'=>$agrFSsummaryV[$key]
+                'art_code' => $key,
+                'art_name' => $val,
+                'item_quantity' => $agrFSsummaryQ[$key],
+                'item_value' => $agrFSsummaryV[$key]
             ];
         }
 
         //----------------------------------------------
+        $incomeAll = $income + $incomeAdditional;
+        $profit = $incomeAll - $cost;
+        if ($incomeAll != 0) {
+            $gp = (($incomeAll  - $cost) / $incomeAll) * 100;
+        } else {
+            $gp = 100;
+        }
 
+        $summary = [
+            (object)[
+                'name' => 'income',
+                'value' => $income,
+            ],
+            (object)[
+                'name' => 'incomeAdditional',
+                'value' => $incomeAdditional,
+            ],
+            (object)[
+                'name' => 'cost',
+                'value' => $cost,
+            ],
+            (object)[
+                'name' => 'profit',
+                'value' => $profit,
+            ],
+            (object)[
+                'name' => 'gp',
+                'value' => $gp,
+            ],
+        ];
 
         //----------------------------------------------
         $results['param'] = $p;
-        $results['workCards'] = $workCards;         // zlecenia do umowy
-        $results['agrWZ'] = $agrWZ;                 // dokumenty kosztowe do umowy
-        $results['agrWZitems'] = $agrWZitems;       // elementy dokumentów kosztowych do umów
-        $results['agrFS'] = $agrFS;                 // faktury wystawione do umowy
-        $results['agrFSitems'] = $agrFSitems;       // elementy faktur do umów
-        $results['agrFSsummary'] = $agrFSsummary;   // podsumowanie elementów faktur wg usług
+        $results['workCards'] = $workCards;                             // zlecenia do umowy
+        $results['agrWZ'] = $agrWZ;                                     // dokumenty kosztowe do umowy
+        $results['agrWZitems'] = $agrWZitems;                           // elementy dokumentów kosztowych do umów
+        $results['agrFS'] = $agrFS;                                     // faktury wystawione do umowy
+        $results['agrFSitems'] = $agrFSitems;                           // elementy faktur do umów
+        $results['agrFSsummary'] = $agrFSsummary;                       // podsumowanie elementów faktur wg usług
+        $results['incomeAddItems'] = $incomeAddItems;
+        $results['summary'] = $summary;                                 // podsumowanie kosztów i zysków urządzenia
         return $results;
     }
 

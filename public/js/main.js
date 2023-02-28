@@ -710,10 +710,12 @@ $(document).ready(function () {
 
         const $workCardTable = $('#workCardTable');
         const $docTable = $('#docTable');
-        const $artTable = $('#artTable');
+        const $costTable = $('#costTable');
+        const $incomeTable = $('#incomeTable');
         const $FSTable = $('#FSTable');
         const $FSContentsTable = $('#FSContentsTable');
         const $FSContentsSumTable = $('#FSContentsSumTable');
+        const $summaryTable = $('#summaryTable');
 
         // DataTables init
         const workCardDataTable = $workCardTable.DataTable(
@@ -744,7 +746,7 @@ $(document).ready(function () {
         );
         docTable.clear().draw();
 
-        const artTable = $artTable.DataTable(
+        const costTable = $costTable.DataTable(
             {
                 "pageLength": 10,
                 info: true,
@@ -759,7 +761,24 @@ $(document).ready(function () {
                 ]
             }
         );
-        artTable.clear().draw();
+        costTable.clear().draw();
+
+        const incomeTable = $incomeTable.DataTable(
+            {
+                "pageLength": 10,
+                info: true,
+                columns: [
+                    {'data': 'doc_date'},
+                    {'data': 'doc_no'},
+                    {'data': 'art_code', 'className': 'text-nowrap'},
+                    {'data': 'art_name', 'className': 'ellipis'},
+                    {'data': 'item_quantity', 'className': 'text-end'},
+                    {'data': 'item_purchase_price', 'className': 'text-end'},
+                    {'data': 'item_purchase_value', 'className': 'text-end'}
+                ]
+            }
+        );
+        incomeTable.clear().draw();
 
         const FSTable = $FSTable.DataTable(
             {
@@ -775,7 +794,7 @@ $(document).ready(function () {
         );
         FSTable.clear().draw();
 
-         const FSContentsTable = $FSContentsTable.DataTable(
+        const FSContentsTable = $FSContentsTable.DataTable(
             {
                 "pageLength": 10,
                 info: true,
@@ -793,13 +812,16 @@ $(document).ready(function () {
                     {'data': 'service_company_unit_name'}
                 ]
             }
-         );
+        );
         FSContentsTable.clear().draw();
 
         const FSContentsSumTable = $FSContentsSumTable.DataTable(
             {
                 "pageLength": 10,
-                info: true,
+                info: false,
+                paging: false,
+                sort: false,
+                searching: false,
                 columns: [
                     {'data': 'art_code'},
                     {'data': 'art_name', 'className': 'ellipis'},
@@ -810,6 +832,20 @@ $(document).ready(function () {
         );
         FSContentsSumTable.clear().draw();
 
+        const summaryTable = $summaryTable.DataTable(
+            {
+                "pageLength": 10,
+                info: false,
+                paging: false,
+                sort: false,
+                searching: false,
+                columns: [
+                    {'data': 'name', 'className': 'text-end'},
+                    {'data': 'value', 'className': 'text-end'},
+                ]
+            }
+        );
+        summaryTable.clear().draw();
 
         const $btn = $('#btnShowProfit');
         const $dateFrom = $('#profitDateFrom');
@@ -848,17 +884,41 @@ $(document).ready(function () {
             docTable.rows.add(agrWZ).draw();
 
             const agrWZitems = data.results.agrWZitems;
-            artTable.clear();
-            artTable.rows.add(agrWZitems).draw();
+            for (let n in agrWZitems) {
+                let item = agrWZitems[n];
+                item.item_quantity = Number(item.item_quantity).toFixed(0);
+                item.item_value = Number(item.item_value).toFixed(2);
+                item.item_price = Number(item.item_price).toFixed(2);
+                item.item_purchase_value = Number(item.item_purchase_value).toFixed(2);
+                item.item_purchase_price = Number(item.item_purchase_price).toFixed(2);
+            }
+            costTable.clear();
+            costTable.rows.add(agrWZitems).draw();
+
+            const incomeAddItems = data.results.incomeAddItems;
+            for (let n in incomeAddItems) {
+                let item = incomeAddItems[n];
+                item.item_quantity = Number(item.item_quantity).toFixed(0);
+                item.item_value = Number(item.item_value).toFixed(2);
+                item.item_price = Number(item.item_price).toFixed(2);
+                item.item_purchase_value = Number(item.item_purchase_value).toFixed(2);
+                item.item_purchase_price = Number(item.item_purchase_price).toFixed(2);
+            }
+            incomeTable.clear();
+            incomeTable.rows.add(incomeAddItems).draw();
 
             const agrFS = data.results.agrFS;
+            for (let n in agrFS) {
+                let item = agrFS[n];
+                item.doc_net_value = Number(item.doc_net_value).toFixed(2);
+            }
             FSTable.clear();
             FSTable.rows.add(agrFS).draw();
 
             const agrFSitems = data.results.agrFSitems;
             for (let n in agrFSitems) {
                 let item = agrFSitems[n];
-                item.item_quantity = Number(item.item_quantity).toFixed(2);
+                item.item_quantity = Number(item.item_quantity).toFixed(0);
                 item.item_value = Number(item.item_value).toFixed(2);
                 item.item_price = Number(item.item_price).toFixed(4);
                 item.item_purchase_value = Number(item.item_purchase_value).toFixed(2);
@@ -870,12 +930,22 @@ $(document).ready(function () {
             const agrFSsummary = data.results.agrFSsummary;
             for (let n in agrFSsummary) {
                 let item = agrFSsummary[n];
-                item.item_quantity = Number(item.item_quantity).toFixed(2);
+                item.item_quantity = Number(item.item_quantity).toFixed(0);
                 item.item_value = Number(item.item_value).toFixed(2);
             }
             FSContentsSumTable.clear();
             FSContentsSumTable.rows.add(agrFSsummary).draw();
 
+            const summary = data.results.summary;
+            for (let n in summary) {
+                let item = summary[n];
+                item.value = Number(item.value).toFixed(2);
+                if (item.name === 'gp') {
+                    item.value = item.value + ' %';
+                }
+            }
+            summaryTable.clear();
+            summaryTable.rows.add(summary).draw();
 
             $("#overlay-spinner").fadeOut(300);
         };

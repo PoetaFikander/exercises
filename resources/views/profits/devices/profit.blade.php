@@ -67,16 +67,18 @@
                                 <div class="d-inline-block">
                                     <label for="profitDateFrom">Okres od:&nbsp;</label>
                                 </div>
+                                {{-- value="{{ $device->fdom }}" --}}
                                 <div class="d-inline-block">
-                                    <input type='text' value="{{ $device->fdom }}" class="form-control form-control-sm fs-5 input-datepicker"
+                                    <input type='text' value="01.01.2020" class="form-control form-control-sm fs-5 input-datepicker"
                                            id='profitDateFrom'>
                                 </div>
 
                                 <div class="d-inline-block ms-2">
                                     <label for="profitDateTo">do:&nbsp;</label>
                                 </div>
+                                {{-- value="{{ $device->ldom }}" --}}
                                 <div class="d-inline-block">
-                                    <input type='text' value="{{ $device->ldom }}" class="form-control form-control-sm fs-5 input-datepicker"
+                                    <input type='text' value="30.09.2022" class="form-control form-control-sm fs-5 input-datepicker"
                                            id='profitDateTo'>
                                 </div>
 
@@ -99,7 +101,7 @@
                                     <h2 class="accordion-header" id="headingOne">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
                                                 aria-expanded="true" aria-controls="collapseOne">
-                                            Zlecenia
+                                            <span class="fs-5">Zlecenia</span>
                                         </button>
                                     </h2>
                                     <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
@@ -128,7 +130,7 @@
                                     <h2 class="accordion-header" id="headingTwo">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo"
                                                 aria-expanded="false" aria-controls="collapseTwo">
-                                            Wydania
+                                            <span class="fs-5">Wydania do zleceń</span>
                                         </button>
                                     </h2>
                                     <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
@@ -157,7 +159,7 @@
                                     <h2 class="accordion-header" id="headingThree">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree"
                                                 aria-expanded="false" aria-controls="collapseThree">
-                                            Artykuły z WZ
+                                            <span class="fs-5">Artykuły ze zleceń bezpłatnych</span>
                                         </button>
                                     </h2>
                                     <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
@@ -165,7 +167,7 @@
                                         <div class="accordion-body">
 
                                             <div class="table-responsive">
-                                                <table class="table table-striped table-sm table-hover" id="artTable">
+                                                <table class="table table-striped table-sm table-hover" id="costTable">
                                                     <thead>
                                                     <tr>
                                                         <th scope="col">Data WZ</th>
@@ -189,10 +191,42 @@
                                     <h2 class="accordion-header" id="headingFour">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour"
                                                 aria-expanded="false" aria-controls="collapseFour">
-                                            Faktury do kontraktów
+                                            <span class="fs-5">Artykuły ze zleceń płatnych</span>
                                         </button>
                                     </h2>
                                     <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour"
+                                         data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+
+                                            <div class="table-responsive">
+                                                <table class="table table-striped table-sm table-hover" id="incomeTable">
+                                                    <thead>
+                                                    <tr>
+                                                        <th scope="col">Data WZ</th>
+                                                        <th scope="col">Numer WZ</th>
+                                                        <th scope="col">Kod</th>
+                                                        <th scope="col">Nazwa</th>
+                                                        <th scope="col">Ilość</th>
+                                                        <th scope="col">Cena</th>
+                                                        <th scope="col">Wartość</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody></tbody>
+                                                </table>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingFive">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive"
+                                                aria-expanded="false" aria-controls="collapseFive">
+                                            <span class="fs-5">FS do kontraktów</span>
+                                        </button>
+                                    </h2>
+                                    <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive"
                                          data-bs-parent="#accordionExample">
                                         <div class="accordion-body">
 
@@ -216,13 +250,13 @@
                                 </div>
 
                                 <div class="accordion-item">
-                                    <h2 class="accordion-header" id="headingFive">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive"
-                                                aria-expanded="false" aria-controls="collapseFive">
-                                            Usługi z FS
+                                    <h2 class="accordion-header" id="headingSix">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix"
+                                                aria-expanded="false" aria-controls="collapseSix">
+                                            <span class="fs-5">Usługi z FS</span>
                                         </button>
                                     </h2>
-                                    <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive"
+                                    <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix"
                                          data-bs-parent="#accordionExample">
                                         <div class="accordion-body">
 
@@ -251,14 +285,15 @@
                                     </div>
                                 </div>
 
+
                                 <div class="accordion-item">
-                                    <h2 class="accordion-header" id="headingSix">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix"
-                                                aria-expanded="false" aria-controls="collapseSix">
-                                            Podsumowanie usług z faktur
+                                    <h2 class="accordion-header" id="headingSeven">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven"
+                                                aria-expanded="false" aria-controls="collapseSeven">
+                                            <span class="fs-5">Podsumowanie usług z FS</span>
                                         </button>
                                     </h2>
-                                    <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix"
+                                    <div id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingSeven"
                                          data-bs-parent="#accordionExample">
                                         <div class="accordion-body">
 
@@ -280,6 +315,39 @@
                                         </div>
                                     </div>
                                 </div>
+
+
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingEight">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEight"
+                                                aria-expanded="false" aria-controls="collapseEight">
+                                            <span class="fw-bold fs-5">Podsumowanie urządzenia</span>
+                                        </button>
+                                    </h2>
+                                    <div id="collapseEight" class="accordion-collapse collapse" aria-labelledby="headingEight"
+                                         data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+
+                                            <div class="table-responsive">
+                                                <table class="table table-striped table-sm table-hover" id="summaryTable">
+                                                    <thead>
+                                                    <tr>
+                                                        <th scope="col"></th>
+                                                        <th scope="col"></th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+
 
                             </div>
 
