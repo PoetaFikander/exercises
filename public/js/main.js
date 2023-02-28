@@ -12,6 +12,24 @@ $(document).ready(function () {
 
     /** HELPERS ----------------------------------------------------------------- */
 
+    /**
+     * Polish translation for bootstrap-datepicker
+     * Robert <rtpm@gazeta.pl>
+     */
+    ;(function ($) {
+        $.fn.datepicker.dates['pl'] = {
+            days: ["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"],
+            daysShort: ["Niedz.", "Pon.", "Wt.", "Śr.", "Czw.", "Piąt.", "Sob."],
+            daysMin: ["Ndz.", "Pn.", "Wt.", "Śr.", "Czw.", "Pt.", "Sob."],
+            months: ["Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec", "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"],
+            monthsShort: ["Sty.", "Lut.", "Mar.", "Kwi.", "Maj", "Cze.", "Lip.", "Sie.", "Wrz.", "Paź.", "Lis.", "Gru."],
+            today: "Dzisiaj",
+            weekStart: 1,
+            clear: "Wyczyść",
+            format: "dd.mm.yyyy"
+        };
+    }(jQuery));
+
     let uniXHR = function (o, url, callback, type = "POST") {
         callback = $.isFunction(callback) ? callback : false;
         o = JSON.stringify(o);
@@ -588,6 +606,298 @@ $(document).ready(function () {
         })
 
     });
+
+
+    /**
+     *
+     * ---------------------- PROFIT
+     * =====================================================================================================
+     *
+     */
+
+    /**
+     *
+     * list.blade
+     */
+
+    if (('#deviceListProfit').length) {
+
+        //const $pdl_form_filter = $('#pdl_form_filter');
+        const $deviceListFilters = $('#deviceListFilters');
+
+        const $table = $('#devicesListTable');
+        const $tbody = $('tbody', $table);
+
+        // DataTables init
+        const dataTable = $table.DataTable(
+            {
+                "pageLength": 10,
+                info: false,
+                columns: [
+                    {'data': 'dev_id'},
+                    {'data': 'dev_name'},
+                    {'data': 'dev_serial_no'},
+                    {'data': 'customer_name', 'className': 'ellipis'},
+                    {'data': 'customer_tin'},
+                    {'data': 'agreement_no'},
+                    {'data': 'agreement_status'},
+                    {'data': 'action', 'searchable': false, 'orderable': false}
+                ]
+            }
+        );
+
+        $tbody.on('click', 'button', function () {
+            const dev_id = parseInt($(this).data('devid'));
+            const agr_id = parseInt($(this).data('agrid'));
+            showDeviceProfit(dev_id, agr_id);
+        });
+
+        const showDeviceProfit = function (dev_id, agr_id) {
+            //console.log(id);
+            location.href = '/profits/devices/profit/' + dev_id + '/' + agr_id;
+        };
+
+        // generujemy nową zawartość tabeli
+        const createTable = function (data) {
+            //console.log(data);
+            $tbody.off('click', 'button');
+
+            for (let n in data) {
+                let item = data[n];
+                item.action = '<button type="button" class="btn btn-sm fw-bold" data-agrid="' + item.agreement_id + '" data-devid="' + item.dev_id + '"><i class="bi bi-search"></button>';
+            }
+
+            dataTable.clear();
+            dataTable.rows.add(data).draw();
+
+            $tbody.on('click', 'button', function () {
+                const dev_id = parseInt($(this).data('devid'));
+                const agr_id = parseInt($(this).data('agrid'));
+                showDeviceProfit(dev_id, agr_id);
+            })
+        };
+
+        const searchDevices = function (e) {
+            //console.log($(this));
+            const $inp = $('input', $deviceListFilters);
+            const txtSearch = $inp.val();
+            const type = $('select', $deviceListFilters).find(':selected').val();
+            const activeDevice = $('#activeDevice').prop('checked');
+            const activeAgreement = $('#activeAgreement').prop('checked');
+
+            uniXHR(
+                {Type: type, txtSearch: txtSearch, activeDevice: activeDevice, activeAgreement: activeAgreement},
+                '/profits/devices/list', function (data) {
+                    console.log(data);
+                    $inp.val('');
+                    createTable(data.devices);
+                }
+            );
+        };
+
+        $($deviceListFilters).on('click', 'button', searchDevices);
+        //$($deviceListFilters).on('change', 'input:checkbox', searchDevices);
+
+    }
+
+
+    /**
+     *
+     * profit.blade
+     */
+
+    if ($('#deviceProfit').length) {
+
+        const $workCardTable = $('#workCardTable');
+        const $docTable = $('#docTable');
+        const $artTable = $('#artTable');
+        const $FSTable = $('#FSTable');
+        const $FSContentsTable = $('#FSContentsTable');
+        const $FSContentsSumTable = $('#FSContentsSumTable');
+
+        // DataTables init
+        const workCardDataTable = $workCardTable.DataTable(
+            {
+                "pageLength": 10,
+                info: true,
+                columns: [
+                    //{'data': 'wc_id'},
+                    {'data': 'wc_number'},
+                    {'data': 'wc_employees'},
+                    {'data': 'wc_register_date'}
+                ]
+            }
+        );
+        workCardDataTable.clear().draw();
+
+        const docTable = $docTable.DataTable(
+            {
+                "pageLength": 10,
+                info: true,
+                columns: [
+                    {'data': 'zl_no', 'className': 'col-1'},
+                    {'data': 'zs_no', 'className': 'col-1'},
+                    {'data': 'wz_no', 'className': 'col-1'},
+                    {'data': 'fs_no', 'className': 'col-1'}
+                ]
+            }
+        );
+        docTable.clear().draw();
+
+        const artTable = $artTable.DataTable(
+            {
+                "pageLength": 10,
+                info: true,
+                columns: [
+                    {'data': 'doc_date'},
+                    {'data': 'doc_no'},
+                    {'data': 'art_code', 'className': 'text-nowrap'},
+                    {'data': 'art_name', 'className': 'ellipis'},
+                    {'data': 'item_quantity', 'className': 'text-end'},
+                    {'data': 'item_purchase_price', 'className': 'text-end'},
+                    {'data': 'item_purchase_value', 'className': 'text-end'}
+                ]
+            }
+        );
+        artTable.clear().draw();
+
+        const FSTable = $FSTable.DataTable(
+            {
+                "pageLength": 10,
+                info: true,
+                columns: [
+                    {'data': 'doc_id'},
+                    {'data': 'doc_number_string'},
+                    {'data': 'doc_date'},
+                    {'data': 'doc_net_value', 'className': 'text-end'}
+                ]
+            }
+        );
+        FSTable.clear().draw();
+
+         const FSContentsTable = $FSContentsTable.DataTable(
+            {
+                "pageLength": 10,
+                info: true,
+                order: [[2, 'asc']],
+                columns: [
+                    {'data': 'doc_item_no'},
+                    {'data': 'doc_date'},
+                    {'data': 'doc_no'},
+                    {'data': 'art_code'},
+                    {'data': 'art_name', 'className': 'ellipis'},
+                    {'data': 'item_quantity', 'className': 'text-end'},
+                    {'data': 'item_price', 'className': 'text-end'},
+                    {'data': 'item_value', 'className': 'text-end'},
+                    {'data': 'dev_counter', 'className': 'text-end'},
+                    {'data': 'service_company_unit_name'}
+                ]
+            }
+         );
+        FSContentsTable.clear().draw();
+
+        const FSContentsSumTable = $FSContentsSumTable.DataTable(
+            {
+                "pageLength": 10,
+                info: true,
+                columns: [
+                    {'data': 'art_code'},
+                    {'data': 'art_name', 'className': 'ellipis'},
+                    {'data': 'item_quantity', 'className': 'text-end'},
+                    {'data': 'item_value', 'className': 'text-end'},
+                ]
+            }
+        );
+        FSContentsSumTable.clear().draw();
+
+
+        const $btn = $('#btnShowProfit');
+        const $dateFrom = $('#profitDateFrom');
+        const $dateTo = $('#profitDateTo');
+        $dateFrom.datepicker({'language': 'pl'});
+        $dateTo.datepicker({'language': 'pl'});
+
+        const showProfit = function (data) {
+            console.log(data);
+
+            const workCards = data.results.workCards;
+            for (let n in workCards) {
+                let item = workCards[n];
+                item.wc_number = '<button type="button" class="border-0" data-doc="zl" data-id="' + item.wc_id + '">' + item.wc_number + '</button>';
+            }
+            workCardDataTable.clear();
+            workCardDataTable.rows.add(workCards).draw();
+
+            const agrWZ = data.results.agrWZ;
+            for (let n in agrWZ) {
+                let item = agrWZ[n];
+                if (item.zl_id > 0) {
+                    item.zl_no = '<button type="button" class="border-0" data-doc="zl" data-id="' + item.zl_id + '">' + item.zl_no + '</button>';
+                }
+                if (item.zs_id > 0) {
+                    item.zs_no = '<button type="button" class="border-0" data-doc="zs" data-id="' + item.zs_id + '">' + item.zs_no + '</button>';
+                }
+                if (item.wz_id > 0) {
+                    item.wz_no = '<button type="button" class="border-0" data-doc="wz" data-id="' + item.wz_id + '">' + item.wz_no + '</button>';
+                }
+                if (item.fs_id > 0) {
+                    item.fs_no = '<button type="button" class="border-0" data-doc="fs" data-id="' + item.fs_id + '">' + item.fs_no + '</button>';
+                }
+            }
+            docTable.clear();
+            docTable.rows.add(agrWZ).draw();
+
+            const agrWZitems = data.results.agrWZitems;
+            artTable.clear();
+            artTable.rows.add(agrWZitems).draw();
+
+            const agrFS = data.results.agrFS;
+            FSTable.clear();
+            FSTable.rows.add(agrFS).draw();
+
+            const agrFSitems = data.results.agrFSitems;
+            for (let n in agrFSitems) {
+                let item = agrFSitems[n];
+                item.item_quantity = Number(item.item_quantity).toFixed(2);
+                item.item_value = Number(item.item_value).toFixed(2);
+                item.item_price = Number(item.item_price).toFixed(4);
+                item.item_purchase_value = Number(item.item_purchase_value).toFixed(2);
+                item.item_purchase_price = Number(item.item_purchase_price).toFixed(4);
+            }
+            FSContentsTable.clear();
+            FSContentsTable.rows.add(agrFSitems).draw();
+
+            const agrFSsummary = data.results.agrFSsummary;
+            for (let n in agrFSsummary) {
+                let item = agrFSsummary[n];
+                item.item_quantity = Number(item.item_quantity).toFixed(2);
+                item.item_value = Number(item.item_value).toFixed(2);
+            }
+            FSContentsSumTable.clear();
+            FSContentsSumTable.rows.add(agrFSsummary).draw();
+
+
+            $("#overlay-spinner").fadeOut(300);
+        };
+
+        const getProfit = function () {
+            const devId = parseInt($btn.data('devid')) ? parseInt($btn.data('devid')) : 0;
+            const agrId = parseInt($btn.data('agrid')) ? parseInt($btn.data('agrid')) : 0;
+            const dateFrom = $dateFrom.val();
+            const dateTo = $dateTo.val();
+            const o = {
+                devId: devId,
+                agrId: agrId,
+                dateFrom: dateFrom,
+                dateTo: dateTo
+            };
+            $("#overlay-spinner").fadeIn(300);
+            uniXHR(o, '/profits/devices/profit', showProfit);
+        };
+
+        $($btn).on('click', getProfit);
+
+    }
 
 
 });

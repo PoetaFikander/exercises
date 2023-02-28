@@ -33,9 +33,13 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         Gate::define('isAdmin', function (User $user){
-            //dd($user->type_id);
             return $user->type_id == 1;
         });
+
+        Gate::define('isHPReports', function (User $user){
+            return ($user->type_id == 1 || $user->type_id == 5);
+        });
+
 
         //$this->defineUserRoleGate('isAdmin',1);
         //$this->defineUserRoleGate('isUser',2);

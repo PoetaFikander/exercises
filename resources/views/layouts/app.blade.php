@@ -18,6 +18,8 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/styles.css') }}" rel="stylesheet">
+    <link href="{{ asset('DataTables/datatables.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('Datepicker/bootstrap-datepicker.min.css') }}" rel="stylesheet">
 
     <!-- My Scripts -->
     {{--
@@ -27,6 +29,13 @@
 </head>
 <body>
 <div id="app">
+
+    <div id="overlay-spinner">
+        <div class="cv-spinner">
+            <span class="spinner"></span>
+        </div>
+    </div>
+
     <nav class="navbar navbar-expand-md navbar-light shadow-sm">
         <div class="container">
             <a class="navbar-brand" href="{{ url('/') }}">
@@ -41,18 +50,16 @@
                 <!-- Left Side Of Navbar -->
                 <ul class="navbar-nav me-auto">
 
-                    <a class="nav-link" href="{{ route('hpreport.index') }}">Raport HP</a>
+                    @can('isAdmin','isHPReports')
+                        <a class="nav-link" href="{{ route('hpreport.index') }}">Raport HP</a>
+                    @endcan
 
-                    {{-- @include('layouts.menu') --}}
-                    {{--
-                        <li class="nav-item">
-                        <a class="nav-link" href="{{ route('users.list') }}">{{ __('Użytkownicy') }}</a>
-                        <a class="nav-link" href="{{ route('users.list') }}">Użytkownicy</a>
-                    </li>
-                    --}}
                     @can('isAdmin')
+                        <a class="nav-link" href="{{ route('profits.index') }}">Profitowość</a>
+
                         <a class="nav-link" href="{{ route('users.list') }}">Użytkownicy</a>
                     @endcan
+                    {{--<a class="nav-link" href="{{ route('users.list') }}">{{ __('Użytkownicy') }}</a>--}}
                 </ul>
 
                 <!-- Right Side Of Navbar -->
@@ -100,6 +107,8 @@
     </main>
 </div>
 
+<script src="{{ asset('DataTables/datatables.min.js') }}" defer></script>
+<script src="{{ asset('Datepicker/bootstrap-datepicker.min.js') }}" defer></script>
 <script src="{{ asset('js/main.js') }}" defer></script>
 
 <script type="module">
