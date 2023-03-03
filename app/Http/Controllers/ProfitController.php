@@ -45,12 +45,14 @@ class ProfitController extends Controller
         }
     }
 
+
     public function showDeviceProfit(ProfitRepository $profitRepository, $devId, $agrId)
     {
         //var_dump($agrId);
-        $device = $profitRepository->getDeviceData($devId);
+        $device = $profitRepository->getDeviceData($devId, $agrId);
         return view('profits.devices.profit', ['device' => $device, 'agrId' => $agrId]);
     }
+
 
     public function getDeviceProfit(ProfitRepository $profitRepository, Request $request)
     {
@@ -65,5 +67,18 @@ class ProfitController extends Controller
         }
     }
 
+
+    public function getDoc(ProfitRepository $profitRepository, Request $request){
+        if ($request->ajax()) {
+            $json = json_decode(htmlspecialchars_decode($request->input('json')));
+            $json->test = $profitRepository->getDoc($json->docId, $json->docTypeId);
+            $json->header = $profitRepository->getDocHeader($json->docId);
+            $json->contents = $profitRepository->getDocContents($json->docId, 0);
+            return Response::json($json);
+        } else {
+            //todo zrobić ogólną stronę błędów
+            return view('auth.login');
+        }
+    }
 
 }

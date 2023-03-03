@@ -710,6 +710,7 @@ $(document).ready(function () {
 
         const $workCardTable = $('#workCardTable');
         const $docTable = $('#docTable');
+        const $WZContentsSumTable = $('#WZContentsSumTable');
         const $costTable = $('#costTable');
         const $incomeTable = $('#incomeTable');
         const $FSTable = $('#FSTable');
@@ -746,12 +747,31 @@ $(document).ready(function () {
         );
         docTable.clear().draw();
 
+        const WZContentsSumTable = $WZContentsSumTable.DataTable(
+            {
+                "pageLength": 10,
+                info: true,
+                paging: true,
+                sort: true,
+                searching: true,
+                order: [[2, 'desc']],
+                columns: [
+                    {'data': 'art_code'},
+                    {'data': 'art_name', 'className': 'ellipis'},
+                    {'data': 'item_quantity', 'className': 'text-end'},
+                    {'data': 'item_value', 'className': 'text-end'},
+                ]
+            }
+        );
+        WZContentsSumTable.clear().draw();
+
+
         const costTable = $costTable.DataTable(
             {
                 "pageLength": 10,
                 info: true,
                 columns: [
-                    {'data': 'doc_date'},
+                    {'data': 'doc_date', 'className': 'text-nowrap'},
                     {'data': 'doc_no'},
                     {'data': 'art_code', 'className': 'text-nowrap'},
                     {'data': 'art_name', 'className': 'ellipis'},
@@ -768,7 +788,7 @@ $(document).ready(function () {
                 "pageLength": 10,
                 info: true,
                 columns: [
-                    {'data': 'doc_date'},
+                    {'data': 'doc_date', 'className': 'text-nowrap'},
                     {'data': 'doc_no'},
                     {'data': 'art_code', 'className': 'text-nowrap'},
                     {'data': 'art_name', 'className': 'ellipis'},
@@ -787,8 +807,9 @@ $(document).ready(function () {
                 columns: [
                     {'data': 'doc_id'},
                     {'data': 'doc_number_string'},
-                    {'data': 'doc_date'},
-                    {'data': 'doc_net_value', 'className': 'text-end'}
+                    {'data': 'doc_date', 'className': 'text-nowrap'},
+                    {'data': 'doc_net_value', 'className': 'text-end'},
+                    {'data': 'action', 'className': 'text-center', 'orderable': false}
                 ]
             }
         );
@@ -801,7 +822,7 @@ $(document).ready(function () {
                 order: [[2, 'asc']],
                 columns: [
                     {'data': 'doc_item_no'},
-                    {'data': 'doc_date'},
+                    {'data': 'doc_date', 'className': 'text-nowrap'},
                     {'data': 'doc_no'},
                     {'data': 'art_code'},
                     {'data': 'art_name', 'className': 'ellipis'},
@@ -868,20 +889,36 @@ $(document).ready(function () {
             for (let n in agrWZ) {
                 let item = agrWZ[n];
                 if (item.zl_id > 0) {
-                    item.zl_no = '<button type="button" class="border-0" data-doc="zl" data-id="' + item.zl_id + '">' + item.zl_no + '</button>';
+                    item.zl_no = '<button type="button" class="border-0" data-doctypeid="' + item.zl_types_id + '" data-id="' + item.zl_id + '">' + item.zl_no + '</button>';
                 }
                 if (item.zs_id > 0) {
-                    item.zs_no = '<button type="button" class="border-0" data-doc="zs" data-id="' + item.zs_id + '">' + item.zs_no + '</button>';
+                    item.zs_no = '<button type="button" class="border-0" data-doctypeid="' + item.zs_types_id + '" data-id="' + item.zs_id + '">' + item.zs_no + '</button>';
                 }
                 if (item.wz_id > 0) {
-                    item.wz_no = '<button type="button" class="border-0" data-doc="wz" data-id="' + item.wz_id + '">' + item.wz_no + '</button>';
+                    item.wz_no = '<button type="button" class="border-0" data-doctypeid="' + item.wz_types_id + '" data-id="' + item.wz_id + '">' + item.wz_no + '</button>';
                 }
                 if (item.fs_id > 0) {
-                    item.fs_no = '<button type="button" class="border-0" data-doc="fs" data-id="' + item.fs_id + '">' + item.fs_no + '</button>';
+                    item.fs_no = '<button type="button" class="border-0" data-doctypeid="' + item.fs_types_id + '" data-id="' + item.fs_id + '">' + item.fs_no + '</button>';
                 }
             }
             docTable.clear();
             docTable.rows.add(agrWZ).draw();
+
+            docTable.on('page', function () {
+                console.log('page changed');
+                $docTable.off('click', 'button');
+                $('#docTable').on('click', 'button', getDocContents);
+            });
+
+
+            const agrWZsummary = data.results.agrWZsummary;
+            for (let n in agrWZsummary) {
+                let item = agrWZsummary[n];
+                item.item_quantity = Number(item.item_quantity).toFixed(0);
+                item.item_value = Number(item.item_value).toFixed(2);
+            }
+            WZContentsSumTable.clear();
+            WZContentsSumTable.rows.add(agrWZsummary).draw();
 
             const agrWZitems = data.results.agrWZitems;
             for (let n in agrWZitems) {
@@ -911,9 +948,18 @@ $(document).ready(function () {
             for (let n in agrFS) {
                 let item = agrFS[n];
                 item.doc_net_value = Number(item.doc_net_value).toFixed(2);
+                // data-toggle="agrfs"
+                item.action = '<button type="button" class="btn btn-outline-primary" data-doctypeid="8" data-id="' + item.doc_id + '"><i class="bi bi-search"></i></button>';
             }
             FSTable.clear();
             FSTable.rows.add(agrFS).draw();
+
+            FSTable.on('page', function () {
+                console.log('page changed');
+                $FSTable.off('click', 'button');
+                $('#FSTable').on('click', 'button', getDocContents);
+            });
+
 
             const agrFSitems = data.results.agrFSitems;
             for (let n in agrFSitems) {
@@ -930,24 +976,42 @@ $(document).ready(function () {
             const agrFSsummary = data.results.agrFSsummary;
             for (let n in agrFSsummary) {
                 let item = agrFSsummary[n];
-                item.item_quantity = Number(item.item_quantity).toFixed(0);
-                item.item_value = Number(item.item_value).toFixed(2);
+                //let x = Number(item.item_quantity).toFixed(0);
+
+                item.item_quantity = digitForm(Number(item.item_quantity).toFixed(0));
+                item.item_value = digitForm(Number(item.item_value).toFixed(2));
             }
             FSContentsSumTable.clear();
             FSContentsSumTable.rows.add(agrFSsummary).draw();
 
-            const summary = data.results.summary;
-            for (let n in summary) {
-                let item = summary[n];
-                item.value = Number(item.value).toFixed(2);
+            const summ = data.results.summary;
+            for (let n in summ) {
+                let item = summ[n];
+                item.value = digitForm(Number(item.value).toFixed(2));
                 if (item.name === 'gp') {
                     item.value = item.value + ' %';
                 }
             }
             summaryTable.clear();
-            summaryTable.rows.add(summary).draw();
+            summaryTable.rows.add(summ).draw();
+
+            // ------
+            $FSTable.on('click', 'button', getDocContents);
+            // ------
+            $docTable.on('click', 'button', getDocContents);
+
+
+            const summaryColl = document.getElementById('collapseEight');
+            const bsSummaryColl = new bootstrap.Collapse(summaryColl, {
+                toggle: false
+            });
+            bsSummaryColl.show();
 
             $("#overlay-spinner").fadeOut(300);
+        };
+
+        const digitForm = function (x) {
+            return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
         };
 
         const getProfit = function () {
@@ -961,11 +1025,228 @@ $(document).ready(function () {
                 dateFrom: dateFrom,
                 dateTo: dateTo
             };
+
             $("#overlay-spinner").fadeIn(300);
+
+            $FSTable.off('click', 'button');
+            $docTable.off('click', 'button');
+
             uniXHR(o, '/profits/devices/profit', showProfit);
         };
 
+
+        const docHeader = function (h) {
+            const header = {
+                'netValue': {
+                    'value': h.doc_net_value,
+                    'label': 'Netto',
+                    'hidden': false
+                },
+                'grossValue': {
+                    'value': h.doc_gross_value,
+                    'label': 'Brutto',
+                    'hidden': false
+                },
+                'sourceNo': {
+                    'value': h.doc_source_no,
+                    'label': 'Numer obcy',
+                    'hidden': false
+                },
+                'customer1': {
+                    'value': '',
+                    'label': '',
+                    'hidden': false
+                },
+                'customer2': {
+                    'value': '',
+                    'label': '',
+                    'hidden': false
+                },
+                'date1': {
+                    'value': '',
+                    'label': '',
+                    'hidden': false
+                },
+                'date2': {
+                    'value': '',
+                    'label': '',
+                    'hidden': false
+                },
+                'date3': {
+                    'value': '',
+                    'label': '',
+                    'hidden': false
+                },
+                'store1': {
+                    'value': '',
+                    'label': '',
+                    'hidden': false
+                },
+                'store2': {
+                    'value': '',
+                    'label': '',
+                    'hidden': false
+                },
+                'paymentFormName': {
+                    'value': h.doc_payment_form_name,
+                    'label': 'Płatność',
+                    'hidden': false
+                },
+                'datePayment': {
+                    'value': h.doc_date_payment,
+                    'label': 'Termin',
+                    'hidden': false
+                },
+                'companyUnitName': {
+                    'value': h.company_unit_name,
+                    'label': 'Właściciel',
+                    'hidden': false
+                },
+                'assistant': {
+                    'value': h.doc_assistant,
+                    'label': 'Obsługujący',
+                    'hidden': false
+                },
+            };
+            const docTypeId = parseInt(h.doc_types_id);
+            console.log(docTypeId);
+            switch (docTypeId) {
+                case 5: // PW
+                    break;
+                case 6: // RW
+                    break;
+                case 7: // FZ
+                    break;
+                case 8: // FS
+                    header.customer1.value = h.purchaser_name;
+                    header.customer1.label = 'Nabywca';
+                    header.customer2.value = h.recipient_name;
+                    header.customer2.label = 'Odbiorca';
+                    header.date1.value = h.doc_date;
+                    header.date1.label = 'Data wystawienia';
+                    header.date2.value = h.doc_date_selling;
+                    header.date2.label = 'Data sprzedaży';
+                    header.date3.hidden = true;
+                    header.store1.value = h.source_store_name;
+                    header.store1.label = 'Magazyn';
+                    header.store2.hidden = true;
+                    break;
+                case 13: // ZS
+                    header.sourceNo.hidden = true;
+                    header.customer1.value = h.purchaser_name;
+                    header.customer1.label = 'Nabywca';
+                    header.customer2.value = h.recipient_name;
+                    header.customer2.label = 'Odbiorca';
+                    header.date1.value = h.doc_date;
+                    header.date1.label = 'Data wystawienia';
+                    header.date2.value = h.doc_date_purchase;
+                    header.date2.label = 'Data aktywacji';
+                    header.date3.value = h.doc_date_purchase;
+                    header.date3.label = 'Data realizacji';
+                    header.store1.value = h.doc_date_receipt;
+                    header.store1.label = 'Magazyn';
+                    header.store2.hidden = true;
+                    break;
+                case 17: // MM+
+                    break;
+                case 18: // MM-
+                    break;
+                case 28: // WZ
+                    header.customer1.value = h.purchaser_name;
+                    header.customer1.label = 'Nabywca';
+                    header.customer2.value = h.recipient_name;
+                    header.customer2.label = 'Odbiorca';
+                    header.date1.value = h.doc_date;
+                    header.date1.label = 'Data wystawienia';
+                    header.date2.value = h.doc_date_storeope;
+                    header.date2.label = 'Data wydania';
+                    header.date3.hidden = true;
+                    header.store1.value = h.source_store_name;
+                    header.store1.label = 'Magazyn';
+                    header.store2.hidden = true;
+                    break;
+                case 31: // PZ
+                    break;
+                default:
+                    header.assistant.value = 'dupa z kota';
+            }
+            return header;
+        };
+
+        const showDoc = function (data) {
+
+            console.log(data);
+            const h = data.header;      // nagłówek dokumentu
+            const c = data.contents;    // zawartość dokumentu
+
+            const modalEl = document.querySelector('#showDocModal');
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+            const $modal = $('#showDocModal');
+            const $modalLabel = $('#showDocModalLabel');
+            $modalLabel.text(h.doc_no);
+
+            const doc = docHeader(h);
+            console.log(doc);
+
+            for (let n in doc) {
+                let i = doc[n];
+                let $n = $('#' + n);
+                if($n.length) {
+                    $("label", $n).text(i.label);
+                    $('input', $n).val(i.value);
+                    if(i.hidden){
+                        $n.addClass('d-none');
+                    } else {
+                        $n.removeClass('d-none');
+                    }
+                }
+            }
+
+            //
+            // $('#netValue', $modal).val(h.doc_net_value);
+            // $('#grossValue', $modal).val(h.doc_gross_value);
+            // $('#sourceNo', $modal).val(h.doc_source_no);
+            // $('#purchaserName', $modal).val(h.purchaser_name);
+            // $('#recipientName', $modal).val(h.recipient_name);
+            // $('#docDate', $modal).val(h.doc_date);
+            // $('#docSellingDate', $modal).val(h.doc_date_selling);
+            // $('#sourceStoreName', $modal).val(h.source_store_name);
+            // $('#paymentFormName', $modal).val(h.doc_payment_form_name);
+            // $('#paymentDate', $modal).val(h.doc_date_payment);
+            // $('#companyUnitName', $modal).val(h.company_unit_name);
+            // $('#docAssistant', $modal).val(h.doc_assistant);
+
+            const $tbody = $('tbody', $modal);
+            $tbody.html('');
+            for (let n in c) {
+                let item = c[n];
+                let row = '<tr>';
+                row += '<td>' + item.doc_item_no + '</td>';
+                row += '<td>' + item.art_code + '</td>';
+                row += '<td class="ellipis">' + item.art_name + '</td>';
+                row += '<td class="text-end">' + Number(item.item_quantity).toFixed(0) + '</td>';
+                row += '<td class="text-end">' + Number(item.item_price).toFixed(4) + '</td>';
+                row += '<td class="text-end">' + Number(item.item_value).toFixed(2) + '</td>';
+                row += '</tr>';
+                $tbody.append(row);
+            }
+
+            modal.show();
+
+        };
+
+        const getDocContents = function () {
+            let id = parseInt($(this).data('id')) ? parseInt($(this).data('id')) : 0;
+            let typesid = parseInt($(this).data('doctypeid')) ? parseInt($(this).data('doctypeid')) : 0;
+
+            if (id > 0) {
+                uniXHR({docId: id, docTypeId: typesid}, '/profits/doc', showDoc);
+            }
+        };
+
         $($btn).on('click', getProfit);
+
 
     }
 

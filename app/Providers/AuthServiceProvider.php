@@ -40,6 +40,9 @@ class AuthServiceProvider extends ServiceProvider
             return ($user->type_id == 1 || $user->type_id == 5);
         });
 
+        Gate::define('isProfits', function (User $user){
+            return ($user->type_id == 1 || $user->type_id == 6);
+        });
 
         //$this->defineUserRoleGate('isAdmin',1);
         //$this->defineUserRoleGate('isUser',2);

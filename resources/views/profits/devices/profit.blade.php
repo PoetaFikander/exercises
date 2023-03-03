@@ -2,6 +2,160 @@
 
 @section('profitcontent')
 
+    <!-- Modal -->
+
+    <div class="modal fade modal-xl" id="showDocModal" tabindex="-1" aria-labelledby="showDocModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="showDocModalLabel"></h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{-- modal body --}}
+                    <div class="container-fluid">
+
+                        <div class="row">
+
+                            <div class="col-lg-4">
+
+                                <div id="netValue">
+                                    <div class="row mb-1">
+                                        <label for="netValueInp" class="col-sm-9 col-form-label">Netto</label>
+                                        <div class="col-sm-3" style="padding-right: 0;">
+                                            <input type="text" class="form-control form-control-sm text-end" id="netValueInp" disabled/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="grossValue">
+                                    <div class="row mb-1">
+                                        <label for="grossValueInp" class="col-sm-9 col-form-label">Brutto</label>
+                                        <div class="col-sm-3" style="padding-right: 0;">
+                                            <input type="text" class="form-control form-control-sm text-end" id="grossValueInp" disabled/>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="sourceNo">
+                                    <div class="row">
+                                        <label for="sourceNoInp" class="col-form-label">Numer obcy</label>
+                                    </div>
+                                    <div class="row mb-1">
+                                        <input type="text" class="form-control form-control-sm" id="sourceNoInp" disabled/>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <label for="purchaserName" class="col-form-label">Nabywca</label>
+                                </div>
+                                <div class="row mb-1">
+                                    <input type="text" class="form-control form-control-sm" id="purchaserName" disabled/>
+                                </div>
+
+                                <div class="row">
+                                    <label for="recipientName" class="col-form-label">Odbiorca</label>
+                                </div>
+                                <div class="row mb-1">
+                                    <input type="text" class="form-control form-control-sm" id="recipientName" disabled/>
+                                </div>
+
+
+                                <div class="row d">
+                                    <label for="docDate" class="col-form-label col-sm-6">Data wystawienia</label>
+                                    <label for="docSellingDate" class="col-form-label col-sm-6">Data sprzedaży</label>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-sm-6" style="padding-left: 0;">
+                                        <input type="text" class="form-control form-control-sm" id="docDate" disabled/>
+                                    </div>
+                                    <div class="col-sm-6" style="padding-right: 0;">
+                                        <input type="text" class="form-control form-control-sm" id="docSellingDate" disabled/>
+                                    </div>
+                                </div>
+
+                                <div id="docDate3div" class="d-none">
+                                    <div class="row">
+                                        <label for="docDate3" class="col-form-label col-sm-6">Data realizacji</label>
+                                    </div>
+                                    <div class="row mb-1">
+                                        <div class="col-sm-6" style="padding-left: 0;">
+                                            <input type="text" class="form-control form-control-sm" id="docDate3" disabled/>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="row">
+                                    <label for="sourceStoreName" class="col-form-label">Magazyn</label>
+                                </div>
+                                <div class="row mb-1">
+                                    <input type="text" class="form-control form-control-sm" id="sourceStoreName" disabled/>
+                                </div>
+
+                                <div class="row">
+                                    <label for="paymentFormName" class="col-form-label col-sm-6">Płatność</label>
+                                    <label for="paymentDate" class="col-form-label col-sm-6">Termin</label>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-sm-6" style="padding-left: 0;">
+                                        <input type="text" class="form-control form-control-sm" id="paymentFormName" disabled/>
+                                    </div>
+                                    <div class="col-sm-6" style="padding-right: 0;">
+                                        <input type="text" class="form-control form-control-sm" id="paymentDate" disabled/>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <label for="companyUnitName" class="col-form-label col-sm-6">Właściciel</label>
+                                    <label for="docAssistant" class="col-form-label col-sm-6">Obsługujący</label>
+                                </div>
+                                <div class="row mb-1">
+                                    <div class="col-sm-6" style="padding-left: 0;">
+                                        <input type="text" class="form-control form-control-sm" id="companyUnitName" disabled/>
+                                    </div>
+                                    <div class="col-sm-6" style="padding-right: 0;">
+                                        <input type="text" class="form-control form-control-sm" id="docAssistant" disabled/>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                            <div class="col-lg-8">
+
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-sm table-hover">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">Lp</th>
+                                            <th scope="col">Kod</th>
+                                            <th scope="col">Nazwa</th>
+                                            <th scope="col">Ilość</th>
+                                            <th scope="col">Cena</th>
+                                            <th scope="col">Wartość</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    {{-- end modal body --}}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zamknij</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- end Modal -->
+
 
     <div class="container" id="deviceProfit">
 
@@ -53,6 +207,20 @@
                                     <h5>{{ $device->agreement_status }}</h5>
                                 </div>
 
+                                <div class="d-inline-block ms-3">
+                                    <h6>Okres obowiązywania od:&nbsp;</h6>
+                                </div>
+                                <div class="d-inline-block">
+                                    <h5>{{ $device->agreement_data_start }}</h5>
+                                </div>
+                                <div class="d-inline-block ms-1">
+                                    <h6>do:&nbsp;</h6>
+                                </div>
+                                <div class="d-inline-block">
+                                    <h5>{{ $device->agreement_data_end }}</h5>
+                                </div>
+
+
                             </div>
                         </div>
 
@@ -61,24 +229,25 @@
 
                     <div class="card-body">
 
+
                         <div class="row">
                             <div class="col-md-12">
 
                                 <div class="d-inline-block">
                                     <label for="profitDateFrom">Okres od:&nbsp;</label>
                                 </div>
-                                {{-- value="{{ $device->fdom }}" --}}
+
                                 <div class="d-inline-block">
-                                    <input type='text' value="01.01.2020" class="form-control form-control-sm fs-5 input-datepicker"
+                                    <input type='text' value="{{ $device->fdom }}" class="form-control form-control-sm fs-5 input-datepicker"
                                            id='profitDateFrom'>
                                 </div>
 
                                 <div class="d-inline-block ms-2">
                                     <label for="profitDateTo">do:&nbsp;</label>
                                 </div>
-                                {{-- value="{{ $device->ldom }}" --}}
+
                                 <div class="d-inline-block">
-                                    <input type='text' value="30.09.2022" class="form-control form-control-sm fs-5 input-datepicker"
+                                    <input type='text' value="{{ $device->ldom }}" class="form-control form-control-sm fs-5 input-datepicker"
                                            id='profitDateTo'>
                                 </div>
 
@@ -155,6 +324,38 @@
                                     </div>
                                 </div>
 
+
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="headingNine">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNine"
+                                                aria-expanded="false" aria-controls="collapseNine">
+                                            <span class="fs-5">Podsumowanie artykułów z WZ</span>
+                                        </button>
+                                    </h2>
+                                    <div id="collapseNine" class="accordion-collapse collapse" aria-labelledby="headingNine"
+                                         data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+
+                                            <div class="table-responsive">
+                                                <table class="table table-striped table-sm table-hover" id="WZContentsSumTable">
+                                                    <thead>
+                                                    <tr>
+                                                        <th scope="col">Kod</th>
+                                                        <th scope="col">Nazwa</th>
+                                                        <th scope="col">Ilość</th>
+                                                        <th scope="col">Wartość</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+
                                 <div class="accordion-item">
                                     <h2 class="accordion-header" id="headingThree">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree"
@@ -223,7 +424,7 @@
                                     <h2 class="accordion-header" id="headingFive">
                                         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive"
                                                 aria-expanded="false" aria-controls="collapseFive">
-                                            <span class="fs-5">FS do kontraktów</span>
+                                            <span class="fs-5">FS do kontraktu</span>
                                         </button>
                                     </h2>
                                     <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive"
@@ -231,13 +432,14 @@
                                         <div class="accordion-body">
 
                                             <div class="table-responsive">
-                                                <table class="table table-striped table-sm table-hover" id="FSTable">
+                                                <table class="table table-striped table-sm table-hover profit-summary" id="FSTable">
                                                     <thead>
                                                     <tr>
                                                         <th scope="col">Id</th>
                                                         <th scope="col">Numer</th>
                                                         <th scope="col">Data</th>
                                                         <th scope="col">Wartość</th>
+                                                        <th scope="col"></th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
@@ -344,9 +546,6 @@
                                         </div>
                                     </div>
                                 </div>
-
-
-
 
 
                             </div>

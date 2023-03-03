@@ -50,13 +50,24 @@
                 <!-- Left Side Of Navbar -->
                 <ul class="navbar-nav me-auto">
 
-                    @can('isAdmin','isHPReports')
+                    {{--@can('isAdmin','isHPReports')
+                    @can('isHPReports')
                         <a class="nav-link" href="{{ route('hpreport.index') }}">Raport HP</a>
                     @endcan
+                    --}}
+
+                    @canany(['isAdmin', 'isHPReports'])
+                        <a class="nav-link" href="{{ route('hpreport.index') }}">Raport HP</a>
+                    <!-- The current user can update, view, or delete the post... -->
+                    {{--@elsecanany(['create'], \App\Models\Post::class)--}}
+                    <!-- The current user can create a post... -->
+                    @endcanany
+
+                    {{--@can('isAdmin','isProfits')--}}
+                    <a class="nav-link" href="{{ route('profits.index') }}">Profitowość</a>
+                    {{--@endcan--}}
 
                     @can('isAdmin')
-                        <a class="nav-link" href="{{ route('profits.index') }}">Profitowość</a>
-
                         <a class="nav-link" href="{{ route('users.list') }}">Użytkownicy</a>
                     @endcan
                     {{--<a class="nav-link" href="{{ route('users.list') }}">{{ __('Użytkownicy') }}</a>--}}

@@ -75,6 +75,20 @@ html {
     margin-top: .2em;
 }
 
+table.profit-summary button {
+    padding-bottom: 0;
+    padding-top: .175rem;
+}
+
+#showDocModal label {
+    padding-top: 0;
+    padding-bottom: 0;
+    font-weight: bold;
+}
+
+
+
+
 #overlay-spinner {
     position: fixed;
     top: 0;

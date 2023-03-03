@@ -63,11 +63,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
      * end Raporty HP
      */
 
-    Route::middleware(['can:isAdmin'])->group(function () {
-
+    Route::middleware(['can:isProfits'])->group(function () {
         /*
          * profit
-         */
+        */
         Route::get('/profits/index', [ProfitController::class, 'index'])->name('profits.index');
 
         Route::get('/profits/devices/list', [ProfitController::class, 'showDevicesList'])->name('profits.devices.list');
@@ -76,10 +75,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/profits/devices/profit/{devid}/{agrid}', [ProfitController::class, 'showDeviceProfit'])->name('profits.devices.profit');
         Route::post('/profits/devices/profit', [ProfitController::class, 'getDeviceProfit']);
 
+        Route::post('/profits/doc', [ProfitController::class, 'getDoc']);
+
         /*
          * end profit
          */
+    });
 
+
+    Route::middleware(['can:isAdmin'])->group(function () {
 
         /*
          * users
