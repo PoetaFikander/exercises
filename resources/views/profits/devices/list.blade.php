@@ -27,7 +27,7 @@
                                             <option value="customer_tin">Kontrahent NIP</option>
                                             <option value="agreement_no">Nr umowy</option>
                                         </select>
-                                        {{--WJD00996 22E16582--}}
+                                        {{--WJD00996 22E16582 --}}
                                         <input type="text" class="form-control" name="text_filter" value="WJD00996">
                                         <button type="button" class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
                                     </div>

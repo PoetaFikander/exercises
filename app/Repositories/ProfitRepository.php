@@ -109,6 +109,22 @@ class ProfitRepository extends BaseRepository
         return $res;
     }
 
+    public function getAgreementInvoices($agrId, $dateFrom, $dateTo)
+    {
+        $res = DB::connection('sqlsrv')->select("
+                 EXEC [dbo].[profitGetAgreementInvoices]
+                    @agreementId = :id,
+                    @dateFrom = :datefrom,
+                    @dateTo = :dateto
+        ", [
+                'id' => $agrId,
+                'datefrom' => $dateFrom,
+                'dateto' => $dateTo,
+            ]
+        );
+        return $res;
+    }
+
 
     public function getDocContents($docId, $withAddon = 0)
     {
@@ -129,54 +145,55 @@ class ProfitRepository extends BaseRepository
         return $res[0];
     }
 
-
-    public function getAgreementInvoices($agrId, $dateFrom, $dateTo)
+    public function getWorkCardHeader($docId)
     {
         $res = DB::connection('sqlsrv')->select("
-                 EXEC [dbo].[profitGetAgreementInvoices]
-                    @agreementId = :id,
-                    @dateFrom = :datefrom,
-                    @dateTo = :dateto
-        ", [
-                'id' => $agrId,
-                'datefrom' => $dateFrom,
-                'dateto' => $dateTo,
-            ]
+                SELECT * FROM [dbo].[profitGetWorkCardHeader] ( :id )
+            ", ['id' => $docId]
+        );
+        return $res[0];
+    }
+
+    public function getWorkCardActions($docId)
+    {
+        $res = DB::connection('sqlsrv')->select("
+                SELECT * FROM [dbo].[profitGetWorkCardActions] ( :id )
+            ", ['id' => $docId]
         );
         return $res;
     }
 
+    public function getWorkCardMaterials($docId)
+    {
+        $res = DB::connection('sqlsrv')->select("
+                SELECT * FROM [dbo].[profitGetWorkCardMaterials] ( :id )
+            ", ['id' => $docId]
+        );
+        return $res;
+    }
+
+    public function getWorkCardServices($docId)
+    {
+        $res = DB::connection('sqlsrv')->select("
+                SELECT * FROM [dbo].[profitGetWorkCardServices] ( :id )
+            ", ['id' => $docId]
+        );
+        return $res;
+    }
 
     public function getDoc($docId, $docTypeId)
     {
         $results = array();
-
-        switch ($docTypeId) {
-            case 5: // PW
-                break;
-            case 6: // RW
-                break;
-            case 7: // FZ
-                break;
-            case 8: // FS
-                $results['header'] = $this->getDocHeader($docId);
-                $results['contents'] = $this->getDocContents($docId, 0);
-                break;
-            case 13: // ZS
-                break;
-            case 17: // MM+
-                break;
-            case 18: // MM-
-                break;
-            case 28: // WZ
-                break;
-            case 31: // PZ
-                break;
-            case 1002: // ZL
-                break;
-            default:
+        if($docTypeId == 1002){
+            $results['header'] = $this->getWorkCardHeader($docId);
+            $results['contents'] = array();
+            $results['actions'] = $this->getWorkCardActions($docId);
+            $results['materials'] = $this->getWorkCardMaterials($docId);
+            $results['services'] = $this->getWorkCardServices($docId);
+        } else {
+            $results['header'] = $this->getDocHeader($docId);
+            $results['contents'] = $this->getDocContents($docId, 0);
         }
-
         return $results;
     }
 

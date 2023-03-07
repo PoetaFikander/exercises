@@ -868,6 +868,62 @@ $(document).ready(function () {
         );
         summaryTable.clear().draw();
 
+        // ---- tabele w modalu
+        const $wcActionTable = $('#wcActionTable');
+        const wcActionTable = $wcActionTable.DataTable(
+            {
+                autoWidth: false,
+                info: false,
+                paging: false,
+                sort: false,
+                searching: false,
+                columns: [
+                    {'data': 'action_name'},
+                    {'data': 'action_start_date', 'width': '130px'},
+                    {'data': 'action_end_date', 'width': '130px'},
+                    {'data': 'action_description'},
+                ]
+            }
+        );
+
+        const $wcMaterialTable = $('#wcMaterialTable');
+        const wcMaterialTable = $wcMaterialTable.DataTable(
+            {
+                autoWidth: false,
+                info: false,
+                paging: false,
+                sort: false,
+                searching: false,
+                columns: [
+                    {'data': 'art_code', className: 'text-nowrap'},
+                    {'data': 'art_name', className: 'ellipis'},
+                    {'data': 'quantity_ordered', className: 'text-end'},
+                    {'data': 'quantity_realized', className: 'text-end'},
+                    {'data': 'quantity_used', className: 'text-end'},
+                    {'data': 'price', className: 'text-end'},
+                ]
+            }
+        );
+
+        const $wcServiceTable = $('#wcServiceTable');
+        const wcServiceTable = $wcServiceTable.DataTable(
+            {
+                autoWidth: false,
+                info: false,
+                paging: false,
+                sort: false,
+                searching: false,
+                columns: [
+                    {'data': 'art_code', className: 'text-nowrap'},
+                    {'data': 'art_name', className: 'ellipis'},
+                    {'data': 'quantity', className: 'text-end'},
+                    {'data': 'price', className: 'text-end'},
+                ]
+            }
+        );
+
+
+        // ------------------------------------------------------------------------
         const $btn = $('#btnShowProfit');
         const $dateFrom = $('#profitDateFrom');
         const $dateTo = $('#profitDateTo');
@@ -880,10 +936,16 @@ $(document).ready(function () {
             const workCards = data.results.workCards;
             for (let n in workCards) {
                 let item = workCards[n];
-                item.wc_number = '<button type="button" class="border-0" data-doc="zl" data-id="' + item.wc_id + '">' + item.wc_number + '</button>';
+                item.wc_number = '<button type="button" class="border-0"  data-doctypeid="1002" data-id="' + item.wc_id + '">' + item.wc_number + '</button>';
             }
             workCardDataTable.clear();
             workCardDataTable.rows.add(workCards).draw();
+
+            workCardDataTable.on('page', function () {
+                console.log('page changed');
+                $workCardTable.off('click', 'button');
+                $('#workCardTable').on('click', 'button', getDocContents);
+            });
 
             const agrWZ = data.results.agrWZ;
             for (let n in agrWZ) {
@@ -999,6 +1061,8 @@ $(document).ready(function () {
             $FSTable.on('click', 'button', getDocContents);
             // ------
             $docTable.on('click', 'button', getDocContents);
+            // -----
+            $workCardTable.on('click', 'button', getDocContents);
 
 
             const summaryColl = document.getElementById('collapseEight');
@@ -1033,7 +1097,6 @@ $(document).ready(function () {
 
             uniXHR(o, '/profits/devices/profit', showProfit);
         };
-
 
         const docHeader = function (h) {
             const header = {
@@ -1107,9 +1170,13 @@ $(document).ready(function () {
                     'label': 'Obsługujący',
                     'hidden': false
                 },
+                'description': {
+                    'value': h.doc_description,
+                    'label': 'Opis',
+                    'hidden': false
+                },
             };
             const docTypeId = parseInt(h.doc_types_id);
-            console.log(docTypeId);
             switch (docTypeId) {
                 case 5: // PW
                     break;
@@ -1132,7 +1199,8 @@ $(document).ready(function () {
                     header.store2.hidden = true;
                     break;
                 case 13: // ZS
-                    header.sourceNo.hidden = true;
+                    header.sourceNo.value = h.doc_source_no;
+                    header.sourceNo.label = 'Źródło';
                     header.customer1.value = h.purchaser_name;
                     header.customer1.label = 'Nabywca';
                     header.customer2.value = h.recipient_name;
@@ -1176,63 +1244,133 @@ $(document).ready(function () {
         const showDoc = function (data) {
 
             console.log(data);
-            const h = data.header;      // nagłówek dokumentu
-            const c = data.contents;    // zawartość dokumentu
+            const docTypeId = parseInt(data.docTypeId);
+            const h = data.doc.header;      // nagłówek dokumentu
+            const c = data.doc.contents;    // zawartość dokumentu
 
-            const modalEl = document.querySelector('#showDocModal');
-            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            if (docTypeId === 1002) {
+                // ---- zlecenia serwisowe Altum
+                const actions = data.doc.actions;
+                const materials = data.doc.materials;
+                const services = data.doc.services;
 
-            const $modal = $('#showDocModal');
-            const $modalLabel = $('#showDocModalLabel');
-            $modalLabel.text(h.doc_no);
+                const modalEl = document.querySelector('#showWorkCardModal');
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
 
-            const doc = docHeader(h);
-            console.log(doc);
+                const $modal = $('#showWorkCardModal');
+                const $modalLabel = $('#showWorkCardModalLabel');
+                $modalLabel.text(h.wc_no + ' - ' + h.service_no);
 
-            for (let n in doc) {
-                let i = doc[n];
-                let $n = $('#' + n);
-                if($n.length) {
-                    $("label", $n).text(i.label);
-                    $('input', $n).val(i.value);
-                    if(i.hidden){
-                        $n.addClass('d-none');
-                    } else {
-                        $n.removeClass('d-none');
+                // ---- nagłówek
+                $('#statusNameInp').val(h.wc_status_name);
+                $('#devNameInp').val(h.dev_name);
+                $('#devSerialNoInp').val(h.dev_serial_no);
+                $('#lastModificationDateInp').val(h.wc_last_modification_date);
+                $('#servicePersonNameInp').val(h.wc_service_person_name);
+                $('#faultTypeNameInp').val(h.wc_fault_type_name);
+                $('#priorityNameInp').val(h.wc_priority_name);
+                $('#typeNameInp').val(h.wc_type_name);
+                $('#plannedRealizationTermInp').val(h.wc_planned_realization_term);
+
+                // ---- opisy tab
+                $('#faultDescriptionInp').val(h.wc_fault_description);
+                $('#agrDescriptionInp').val(h.agr_description);
+
+                // ---- parametry tab
+                $('#wasDeviceWorking').prop('checked', !!h.wc_was_device_working);
+                $('#isDeviceWorking').prop('checked', !!h.wc_is_device_working);
+                $('#testCopiesAmount').val(h.wc_test_copies_amount);
+                $('#drivingDistance').val(h.wc_driving_distance);
+                $('#totalTime').val(Number(h.wc_total_time).toFixed(0));
+
+                $('#counterReadingTypeName').val(h.wc_counter_reading_type_name);
+                $('#replacementPartsName').val(h.agr_replacement_parts_name);
+                $('#clientWorkTime').val(h.wc_client_work_time);
+                $('#clientActualWorkTime').val(h.wc_client_actual_work_time);
+                $('#warrantyProducer').val(h.wc_warranty_producer);
+                $('#warrantyDks').val(h.wc_warranty_dks);
+                $('#reactionTime').val(h.wc_reaction_time);
+                $('#repairTime').val(h.wc_repair_time);
+
+                // ---- czynności tab
+
+
+                wcActionTable.clear();
+                wcActionTable.rows.add(actions).draw();
+
+                wcMaterialTable.clear().draw();
+                if (materials.length) {
+                    for (let n in materials) {
+                        let item = materials[n];
+                        item.quantity_ordered = digitForm(Number(item.quantity_ordered).toFixed(2));
+                        item.quantity_realized = digitForm(Number(item.quantity_realized).toFixed(2));
+                        item.quantity_used = digitForm(Number(item.quantity_used).toFixed(2));
+                        item.price = digitForm(Number(item.price).toFixed(2));
+                    }
+                    console.log(materials);
+                    wcMaterialTable.clear();
+                    wcMaterialTable.rows.add(materials).draw();
+                }
+
+                wcServiceTable.clear().draw();
+                if (services.length) {
+                    for (let n in services) {
+                        let item = services[n];
+                        item.quantity = digitForm(Number(item.quantity).toFixed(2));
+                        item.price = digitForm(Number(item.price).toFixed(2));
+                    }
+                    console.log(services);
+                    wcServiceTable.clear();
+                    wcServiceTable.rows.add(services).draw();
+                }
+
+
+                modal.show();
+
+            } else {
+                // ---- natywne dokumety Altum
+                const modalEl = document.querySelector('#showDocModal');
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+                const $modal = $('#showDocModal');
+                const $modalLabel = $('#showDocModalLabel');
+                $modalLabel.text(h.doc_no);
+
+                const doc = docHeader(h);
+                //console.log(doc);
+
+                for (let n in doc) {
+                    let i = doc[n];
+                    let $n = $('#' + n);
+                    if ($n.length) {
+                        $("label", $n).text(i.label);
+                        const inp = $('input', $n).length ? $('input', $n) : $('textarea', $n);
+                        inp.val(i.value);
+                        if (i.hidden) {
+                            $n.addClass('d-none');
+                        } else {
+                            $n.removeClass('d-none');
+                        }
                     }
                 }
+
+                const $tbody = $('tbody', $modal);
+                $tbody.html('');
+                for (let n in c) {
+                    let item = c[n];
+                    let row = '<tr>';
+                    row += '<td>' + item.doc_item_no + '</td>';
+                    row += '<td>' + item.art_code + '</td>';
+                    row += '<td class="ellipis">' + item.art_name + '</td>';
+                    row += '<td class="text-end">' + Number(item.item_quantity).toFixed(0) + '</td>';
+                    row += '<td class="text-end">' + Number(item.item_price).toFixed(4) + '</td>';
+                    row += '<td class="text-end">' + Number(item.item_value).toFixed(2) + '</td>';
+                    row += '</tr>';
+                    $tbody.append(row);
+                }
+
+                modal.show();
             }
-
-            //
-            // $('#netValue', $modal).val(h.doc_net_value);
-            // $('#grossValue', $modal).val(h.doc_gross_value);
-            // $('#sourceNo', $modal).val(h.doc_source_no);
-            // $('#purchaserName', $modal).val(h.purchaser_name);
-            // $('#recipientName', $modal).val(h.recipient_name);
-            // $('#docDate', $modal).val(h.doc_date);
-            // $('#docSellingDate', $modal).val(h.doc_date_selling);
-            // $('#sourceStoreName', $modal).val(h.source_store_name);
-            // $('#paymentFormName', $modal).val(h.doc_payment_form_name);
-            // $('#paymentDate', $modal).val(h.doc_date_payment);
-            // $('#companyUnitName', $modal).val(h.company_unit_name);
-            // $('#docAssistant', $modal).val(h.doc_assistant);
-
-            const $tbody = $('tbody', $modal);
-            $tbody.html('');
-            for (let n in c) {
-                let item = c[n];
-                let row = '<tr>';
-                row += '<td>' + item.doc_item_no + '</td>';
-                row += '<td>' + item.art_code + '</td>';
-                row += '<td class="ellipis">' + item.art_name + '</td>';
-                row += '<td class="text-end">' + Number(item.item_quantity).toFixed(0) + '</td>';
-                row += '<td class="text-end">' + Number(item.item_price).toFixed(4) + '</td>';
-                row += '<td class="text-end">' + Number(item.item_value).toFixed(2) + '</td>';
-                row += '</tr>';
-                $tbody.append(row);
-            }
-
-            modal.show();
 
         };
 

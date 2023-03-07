@@ -71,9 +71,9 @@ class ProfitController extends Controller
     public function getDoc(ProfitRepository $profitRepository, Request $request){
         if ($request->ajax()) {
             $json = json_decode(htmlspecialchars_decode($request->input('json')));
-            $json->test = $profitRepository->getDoc($json->docId, $json->docTypeId);
-            $json->header = $profitRepository->getDocHeader($json->docId);
-            $json->contents = $profitRepository->getDocContents($json->docId, 0);
+            $doc = $profitRepository->getDoc($json->docId, $json->docTypeId);
+            //dd($doc);
+            $json->doc = $doc;
             return Response::json($json);
         } else {
             //todo zrobić ogólną stronę błędów
