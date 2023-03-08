@@ -737,6 +737,7 @@ $(document).ready(function () {
             {
                 "pageLength": 10,
                 info: true,
+                sort: false,
                 columns: [
                     {'data': 'zl_no', 'className': 'col-1'},
                     {'data': 'zs_no', 'className': 'col-1'},
@@ -805,11 +806,11 @@ $(document).ready(function () {
                 "pageLength": 10,
                 info: true,
                 columns: [
-                    {'data': 'doc_id'},
+                    //{'data': 'doc_id'},
                     {'data': 'doc_number_string'},
                     {'data': 'doc_date', 'className': 'text-nowrap'},
                     {'data': 'doc_net_value', 'className': 'text-end'},
-                    {'data': 'action', 'className': 'text-center', 'orderable': false}
+                    //{'data': 'action', 'className': 'text-center', 'orderable': false}
                 ]
             }
         );
@@ -922,6 +923,24 @@ $(document).ready(function () {
             }
         );
 
+        const $wcDocumentTable = $('#wcDocumentTable');
+        const wcDocumentTable = $wcDocumentTable.DataTable(
+            {
+                autoWidth: false,
+                info: false,
+                paging: false,
+                sort: false,
+                searching: false,
+                columns: [
+                    {'data': 'doc_no', className: 'text-nowrap'},
+                    {'data': 'doc_date'},
+                    {'data': 'cust_1_name'},
+                    {'data': 'doc_net_value', className: 'text-end'},
+                    {'data': 'doc_state_name'},
+                ]
+            }
+        );
+
 
         // ------------------------------------------------------------------------
         const $btn = $('#btnShowProfit');
@@ -1010,8 +1029,8 @@ $(document).ready(function () {
             for (let n in agrFS) {
                 let item = agrFS[n];
                 item.doc_net_value = Number(item.doc_net_value).toFixed(2);
-                // data-toggle="agrfs"
-                item.action = '<button type="button" class="btn btn-outline-primary" data-doctypeid="8" data-id="' + item.doc_id + '"><i class="bi bi-search"></i></button>';
+                item.doc_number_string =  '<button type="button" class="border-0" data-doctypeid="' + item.doc_types_id + '" data-id="' + item.doc_id + '">' + item.doc_number_string + '</button>';
+                //item.action = '<button type="button" class="btn btn-outline-primary" data-doctypeid="8" data-id="' + item.doc_id + '"><i class="bi bi-search"></i></button>';
             }
             FSTable.clear();
             FSTable.rows.add(agrFS).draw();
@@ -1038,8 +1057,6 @@ $(document).ready(function () {
             const agrFSsummary = data.results.agrFSsummary;
             for (let n in agrFSsummary) {
                 let item = agrFSsummary[n];
-                //let x = Number(item.item_quantity).toFixed(0);
-
                 item.item_quantity = digitForm(Number(item.item_quantity).toFixed(0));
                 item.item_value = digitForm(Number(item.item_value).toFixed(2));
             }
@@ -1235,6 +1252,24 @@ $(document).ready(function () {
                     break;
                 case 31: // PZ
                     break;
+                case 85: // ZWE
+                    header.sourceNo.hidden = true;
+                    header.customer1.hidden = true;
+                    header.customer2.hidden = true;
+                    header.store1.value = h.source_store_name;
+                    header.store1.label = 'Magazyn źródłowy';
+                    header.store2.value = h.target_store_name;
+                    header.store2.label = 'Magazyn docelowy';
+                    header.date1.value = h.doc_date;
+                    header.date1.label = 'Data wystawienia';
+                    header.date2.value = h.doc_date_storeope;
+                    header.date2.label = 'Data aktywacji rezerwacji';
+                    header.date3.value = h.doc_date_receipt;
+                    header.date3.label = 'Data realizacji';
+                    header.paymentFormName.hidden = true;
+                    header.datePayment.hidden = true;
+                    break;
+
                 default:
                     header.assistant.value = 'dupa z kota';
             }
@@ -1253,6 +1288,7 @@ $(document).ready(function () {
                 const actions = data.doc.actions;
                 const materials = data.doc.materials;
                 const services = data.doc.services;
+                const documents = data.doc.documents;
 
                 const modalEl = document.querySelector('#showWorkCardModal');
                 const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
@@ -1307,7 +1343,7 @@ $(document).ready(function () {
                         item.quantity_used = digitForm(Number(item.quantity_used).toFixed(2));
                         item.price = digitForm(Number(item.price).toFixed(2));
                     }
-                    console.log(materials);
+                    //console.log(materials);
                     wcMaterialTable.clear();
                     wcMaterialTable.rows.add(materials).draw();
                 }
@@ -1319,11 +1355,29 @@ $(document).ready(function () {
                         item.quantity = digitForm(Number(item.quantity).toFixed(2));
                         item.price = digitForm(Number(item.price).toFixed(2));
                     }
-                    console.log(services);
+                    //console.log(services);
                     wcServiceTable.clear();
                     wcServiceTable.rows.add(services).draw();
                 }
 
+                wcDocumentTable.clear().draw();
+                if (documents.length) {
+                    for (let n in documents) {
+                        let item = documents[n];
+                        item.doc_net_value = digitForm(Number(item.doc_net_value).toFixed(2));
+                        item.doc_no = '<button type="button" class="border-0" data-doctypeid="' + item.doc_types_id + '" data-id="' + item.doc_id + '">' + item.doc_no + '</button>';
+                    }
+                    //console.log(documents);
+                    wcDocumentTable.clear();
+                    wcDocumentTable.rows.add(documents).draw();
+                }
+
+                $wcDocumentTable.on('click', 'button', getDocContents);
+
+                modalEl.addEventListener('hidden.bs.modal', () => {
+                    //console.log('doc modal  element completely hidden!');
+                    $wcDocumentTable.off('click', 'button');
+                });
 
                 modal.show();
 
@@ -1360,9 +1414,9 @@ $(document).ready(function () {
                     let item = c[n];
                     let row = '<tr>';
                     row += '<td>' + item.doc_item_no + '</td>';
-                    row += '<td>' + item.art_code + '</td>';
+                    row += '<td class="text-nowrap">' + item.art_code + '</td>';
                     row += '<td class="ellipis">' + item.art_name + '</td>';
-                    row += '<td class="text-end">' + Number(item.item_quantity).toFixed(0) + '</td>';
+                    row += '<td class="text-end">' + Number(item.item_quantity).toFixed(1) + '</td>';
                     row += '<td class="text-end">' + Number(item.item_price).toFixed(4) + '</td>';
                     row += '<td class="text-end">' + Number(item.item_value).toFixed(2) + '</td>';
                     row += '</tr>';

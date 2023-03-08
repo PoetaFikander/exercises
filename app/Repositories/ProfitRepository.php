@@ -181,15 +181,34 @@ class ProfitRepository extends BaseRepository
         return $res;
     }
 
+    public function getWorkCardDoc($docId)
+    {
+        $res = DB::connection('sqlsrv')->select("
+                SELECT * FROM [dbo].[profitGetWorkCardDoc] ( :id )
+            ", ['id' => $docId]
+        );
+        return $res;
+    }
+
+
     public function getDoc($docId, $docTypeId)
     {
         $results = array();
-        if($docTypeId == 1002){
+        if ($docTypeId == 1002) {
             $results['header'] = $this->getWorkCardHeader($docId);
             $results['contents'] = array();
             $results['actions'] = $this->getWorkCardActions($docId);
             $results['materials'] = $this->getWorkCardMaterials($docId);
             $results['services'] = $this->getWorkCardServices($docId);
+            $documents = array();
+            $docs = $this->getWorkCardDoc($docId);
+            foreach ($docs as $d) {
+                if((int)$d->doc_id > 0) {
+                    $h = $this->getDocHeader($d->doc_id);
+                    $documents[] = $h;
+                }
+            }
+            $results['documents'] = $documents;
         } else {
             $results['header'] = $this->getDocHeader($docId);
             $results['contents'] = $this->getDocContents($docId, 0);
@@ -308,7 +327,7 @@ class ProfitRepository extends BaseRepository
                     $agrFSitems[] = $item;
 
                     // przychód bez CNU id:11543
-                    if($item->art_id != 11543) {
+                    if ($item->art_id != 11543) {
                         $income += (float)$item->item_value;
                     }
 

@@ -203,16 +203,19 @@
                                                         <legend class="float-none w-auto px-3 fs-6">SLA</legend>
 
                                                         <div class="row mb-1">
-                                                            <label for="counterReadingTypeName" class="col-sm-7 col-form-label">Sposób odczytu liczników</label>
+                                                            <label for="counterReadingTypeName" class="col-sm-7 col-form-label">Sposób odczytu
+                                                                liczników</label>
                                                             <div class="col-sm-5">
-                                                                <input type="text" id="counterReadingTypeName" class="form-control form-control-sm" disabled/>
+                                                                <input type="text" id="counterReadingTypeName" class="form-control form-control-sm"
+                                                                       disabled/>
                                                             </div>
                                                         </div>
 
                                                         <div class="row mb-1">
                                                             <label for="replacementPartsName" class="col-sm-7 col-form-label">Części zamienne</label>
                                                             <div class="col-sm-5">
-                                                                <input type="text" id="replacementPartsName" class="form-control form-control-sm" disabled/>
+                                                                <input type="text" id="replacementPartsName" class="form-control form-control-sm"
+                                                                       disabled/>
                                                             </div>
                                                         </div>
 
@@ -224,9 +227,11 @@
                                                         </div>
 
                                                         <div class="row mb-1">
-                                                            <label for="clientActualWorkTime" class="col-sm-7 col-form-label">Faktyczny czas pracy klienta</label>
+                                                            <label for="clientActualWorkTime" class="col-sm-7 col-form-label">Faktyczny czas pracy
+                                                                klienta</label>
                                                             <div class="col-sm-5">
-                                                                <input type="text" id="clientActualWorkTime" class="form-control form-control-sm" disabled/>
+                                                                <input type="text" id="clientActualWorkTime" class="form-control form-control-sm"
+                                                                       disabled/>
                                                             </div>
                                                         </div>
 
@@ -267,17 +272,17 @@
 
                                         <div class="tab-pane fade" id="tabThree">
 
-                                                <table class="table table-striped" id="wcActionTable">
-                                                    <thead>
-                                                    <tr>
-                                                        <th>Czynność</th>
-                                                        <th>Data rozpoczęcia</th>
-                                                        <th>Data zakończenia</th>
-                                                        <th>Opis/Dane dodatkowe</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody></tbody>
-                                                </table>
+                                            <table class="table table-striped" id="wcActionTable">
+                                                <thead>
+                                                <tr>
+                                                    <th>Czynność</th>
+                                                    <th>Data rozpoczęcia</th>
+                                                    <th>Data zakończenia</th>
+                                                    <th>Opis/Dane dodatkowe</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
 
                                         </div> <!-- end tabThree -->
 
@@ -316,7 +321,20 @@
                                         </div> <!-- end tabFive -->
 
                                         <div class="tab-pane fade" id="tabSix">
-                                            <p>Dokumenty</p>
+
+                                            <table class="table table-striped" id="wcDocumentTable">
+                                                <thead>
+                                                <tr>
+                                                    <th>Numer</th>
+                                                    <th>Data</th>
+                                                    <th>Kontrahent</th>
+                                                    <th>Wartość netto</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+
                                         </div> <!-- end tabSix -->
 
                                     </div>
@@ -361,8 +379,8 @@
 
                                 <div id="netValue">
                                     <div class="row mb-1">
-                                        <label for="netValueInp" class="col-sm-9 col-form-label">Netto</label>
-                                        <div class="col-sm-3" style="padding-right: 0;">
+                                        <label for="netValueInp" class="col-sm-6 col-form-label">Netto</label>
+                                        <div class="col-sm-6" style="padding-right: 0;">
                                             <input type="text" class="form-control form-control-sm text-end" id="netValueInp" disabled/>
                                         </div>
                                     </div>
@@ -370,8 +388,8 @@
 
                                 <div id="grossValue">
                                     <div class="row mb-1">
-                                        <label for="grossValueInp" class="col-sm-9 col-form-label">Brutto</label>
-                                        <div class="col-sm-3" style="padding-right: 0;">
+                                        <label for="grossValueInp" class="col-sm-6 col-form-label">Brutto</label>
+                                        <div class="col-sm-6" style="padding-right: 0;">
                                             <input type="text" class="form-control form-control-sm text-end" id="grossValueInp" disabled/>
                                         </div>
                                     </div>
@@ -406,7 +424,7 @@
 
 
                                 <div class="row">
-                                    <div class="col-sm-5">
+                                    <div class="col-sm-6">
                                         <div id="date1" class="ltop">
                                             <div class="row">
                                                 <label for="date1Inp" class="col-form-label">Data</label>
@@ -416,14 +434,15 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-2"></div>
-                                    <div class="col-sm-5">
+                                    {{--<div class="col-sm-2"></div>--}}
+
+                                    <div class="col-sm-6">
                                         <div id="date2" class="ltop">
                                             <div class="row">
                                                 <label for="date2Inp" class="col-form-label">Data</label>
                                             </div>
                                             <div class="row mb-1">
-                                                <input type="text" class="form-control form-control-sm" id="date2Inp" disabled/>
+                                                <input type="text" style="margin-left: 3px;" class="form-control form-control-sm" id="date2Inp" disabled/>
                                             </div>
                                         </div>
                                     </div>
@@ -431,7 +450,7 @@
 
                                 <div class="row">
 
-                                    <div class="col-sm-5">
+                                    <div class="col-sm-6">
                                         <div id="date3" class="ltop">
                                             <div class="row">
                                                 <label for="date3Inp" class="col-form-label">Data</label>
@@ -463,7 +482,7 @@
                                 </div>
 
                                 <div class="row">
-                                    <div class="col-sm-5">
+                                    <div class="col-sm-6">
                                         <div id="paymentFormName" class="ltop">
                                             <div class="row">
                                                 <label for="paymentFormNameInp" class="col-form-label">Płatność</label>
@@ -473,14 +492,13 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-sm-2"></div>
-                                    <div class="col-sm-5">
+                                    <div class="col-sm-6">
                                         <div id="datePayment" class="ltop">
                                             <div class="row">
                                                 <label for="datePaymentImp" class="col-form-label">Termin</label>
                                             </div>
                                             <div class="row mb-1">
-                                                <input type="text" class="form-control form-control-sm" id="datePaymentImp" disabled/>
+                                                <input type="text" style="margin-left: 3px;" class="form-control form-control-sm" id="datePaymentImp" disabled/>
                                             </div>
                                         </div>
                                     </div>
@@ -517,21 +535,24 @@
                             </div>
                             <div class="col-lg-8">
 
-                                <div class="table-responsive">
-                                    <table class="table table-striped table-sm table-hover">
-                                        <thead>
-                                        <tr>
-                                            <th scope="col">Lp</th>
-                                            <th scope="col">Kod</th>
-                                            <th scope="col">Nazwa</th>
-                                            <th scope="col">Ilość</th>
-                                            <th scope="col">Cena</th>
-                                            <th scope="col">Wartość</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
+                                <div class="container-fluid">
+                                    <div class="table-responsive">
 
+                                        <table class="table table-striped table-sm table-hover">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col">Lp</th>
+                                                <th scope="col">Kod</th>
+                                                <th scope="col">Nazwa</th>
+                                                <th scope="col">Ilość</th>
+                                                <th scope="col">Cena</th>
+                                                <th scope="col">Wartość</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+
+                                    </div>
                                 </div>
 
                             </div>
@@ -831,11 +852,11 @@
                                                 <table class="table table-striped table-sm table-hover profit-summary" id="FSTable">
                                                     <thead>
                                                     <tr>
-                                                        <th scope="col">Id</th>
+                                                        {{--<th scope="col">Id</th>--}}
                                                         <th scope="col">Numer</th>
                                                         <th scope="col">Data</th>
                                                         <th scope="col">Wartość</th>
-                                                        <th scope="col"></th>
+                                                        {{--<th scope="col"></th>--}}
                                                     </tr>
                                                     </thead>
                                                     <tbody>
