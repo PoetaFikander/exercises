@@ -86,6 +86,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['can:isAdmin'])->group(function () {
 
         /*
+         * profit TODO
+        */
+
+        Route::get('/profits/contracts/list', [ProfitController::class, 'showContractsList'])->name('profits.contracts.list');
+        Route::post('/profits/contracts/list', [ProfitController::class, 'getContractsList']);
+
+        Route::get('/profits/contracts/profit/{agrid}', [ProfitController::class, 'showContractProfit'])->name('profits.contracts.profit');
+        Route::post('/profits/contracts/profit', [ProfitController::class, 'getContractProfit']);
+
+        /*
+         * end profit
+         */
+
+        /*
          * users
          */
         Route::get('/users/list', [UserController::class, 'index'])->name('users.list');
@@ -97,7 +111,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/users', [UserController::class, 'store'])->name('users.store');
         /*
          * end users
-         */
+        */
 
     });
 

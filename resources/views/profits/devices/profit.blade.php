@@ -2,6 +2,8 @@
 
 @section('profitcontent')
 
+    {{--
+
     <!-- Modal zlecenia z Altum -->
 
     <div class="modal fade modal-xl" id="showWorkCardModal" tabindex="-1" aria-labelledby="showWorkCardModalLabel" aria-hidden="true">
@@ -370,7 +372,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    {{-- modal body --}}
+
                     <div class="container-fluid">
 
                         <div class="row">
@@ -434,7 +436,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                    {{--<div class="col-sm-2"></div>--}}
 
                                     <div class="col-sm-6">
                                         <div id="date2" class="ltop">
@@ -559,7 +560,7 @@
 
                         </div>
 
-                    </div> {{-- end modal body --}}
+                    </div>
 
 
                 </div>
@@ -572,7 +573,7 @@
 
     <!-- end Modal dokumenty z Altum -->
 
-
+    --}}
 
     <div class="container" id="deviceProfit">
 

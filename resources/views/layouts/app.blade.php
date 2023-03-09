@@ -63,9 +63,9 @@
                     <!-- The current user can create a post... -->
                     @endcanany
 
-                    {{--@can('isAdmin','isProfits')--}}
-                    <a class="nav-link" href="{{ route('profits.index') }}">Profitowość</a>
-                    {{--@endcan--}}
+                    @canany(['isAdmin', 'isProfits'])
+                        <a class="nav-link" href="{{ route('profits.index') }}">Profitowość</a>
+                    @endcanany
 
                     @can('isAdmin')
                         <a class="nav-link" href="{{ route('users.list') }}">Użytkownicy</a>

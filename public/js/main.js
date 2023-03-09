@@ -616,6 +616,10 @@ $(document).ready(function () {
      */
 
     /**
+     * ------------------- devices -------------------------
+     */
+
+    /**
      *
      * list.blade
      */
@@ -632,7 +636,7 @@ $(document).ready(function () {
         const dataTable = $table.DataTable(
             {
                 "pageLength": 10,
-                info: false,
+                info: true,
                 columns: [
                     {'data': 'dev_id'},
                     {'data': 'dev_name'},
@@ -1029,7 +1033,7 @@ $(document).ready(function () {
             for (let n in agrFS) {
                 let item = agrFS[n];
                 item.doc_net_value = Number(item.doc_net_value).toFixed(2);
-                item.doc_number_string =  '<button type="button" class="border-0" data-doctypeid="' + item.doc_types_id + '" data-id="' + item.doc_id + '">' + item.doc_number_string + '</button>';
+                item.doc_number_string = '<button type="button" class="border-0" data-doctypeid="' + item.doc_types_id + '" data-id="' + item.doc_id + '">' + item.doc_number_string + '</button>';
                 //item.action = '<button type="button" class="btn btn-outline-primary" data-doctypeid="8" data-id="' + item.doc_id + '"><i class="bi bi-search"></i></button>';
             }
             FSTable.clear();
@@ -1438,7 +1442,99 @@ $(document).ready(function () {
         };
 
         $($btn).on('click', getProfit);
+    }
 
+
+    /**
+     * ------------------- contracts -------------------------
+     */
+
+    /**
+     *
+     * list.blade
+     */
+
+
+    if (('#contractListProfit').length) {
+
+        const $contractListFilters = $('#contractListFilters');
+
+        const $table = $('#contractsListTable');
+        const $tbody = $('tbody', $table);
+
+        // DataTables init
+        const dataTable = $table.DataTable(
+            {
+                "pageLength": 10,
+                autoWidth: false,
+                columns: [
+                    {'data': 'agr_no'},
+                    {'data': 'customer_name', 'className': ''},
+                    {'data': 'agr_departament_name'},
+                    {'data': 'agr_status_name'},
+                    {'data': 'agr_date_start'},
+                    {'data': 'agr_date_end'},
+                    {'data': 'action', 'searchable': false, 'orderable': false}
+                ]
+            }
+        );
+
+        // $tbody.on('click', 'button', function () {
+        //     const dev_id = parseInt($(this).data('devid'));
+        //     const agr_id = parseInt($(this).data('agrid'));
+        //     showDeviceProfit(dev_id, agr_id);
+        // });
+        //
+        // const showDeviceProfit = function (dev_id, agr_id) {
+        //     //console.log(id);
+        //     location.href = '/profits/devices/profit/' + dev_id + '/' + agr_id;
+        // };
+        //
+        // generujemy nową zawartość tabeli
+
+        const createTable = function (data) {
+            //console.log(data);
+            $tbody.off('click', 'button');
+
+            for (let n in data) {
+                let item = data[n];
+                item.action = '<button type="button" class="btn btn-sm fw-bold" data-agrid="' + item.agr_id + '"><i class="bi bi-search"></button>';
+            }
+
+            dataTable.clear();
+            dataTable.rows.add(data).draw();
+
+            $tbody.on('click', 'button', function () {
+                const agr_id = parseInt($(this).data('agrid'));
+                //showContractProfit(agr_id);
+            })
+        };
+
+        const searchContracts = function (e) {
+            //console.log($(this));
+            const $inp = $('#contractTxtSearch', $contractListFilters);
+            const txtSearch = $inp.val();
+            const type = $('#filter', $contractListFilters).find(':selected').val();
+            const departmentId = $('#departments', $contractListFilters).find(':selected').val();
+            const activeAgreement = $('#activeAgreement', $contractListFilters).prop('checked');
+            const o = {
+                Type: type,
+                txtSearch: txtSearch,
+                departmentId: departmentId,
+                activeAgreement: activeAgreement
+            };
+            console.log(o);
+            uniXHR(
+                o,
+                '/profits/contracts/list', function (data) {
+                    console.log(data);
+                    //$inp.val('');
+                    createTable(data.contracts);
+                }
+            );
+        };
+        //
+        $($contractListFilters).on('click', 'button', searchContracts);
 
     }
 

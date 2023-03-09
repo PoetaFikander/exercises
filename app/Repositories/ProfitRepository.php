@@ -4,6 +4,7 @@
 namespace App\Repositories;
 
 
+use App\Models\Department;
 use App\Models\Profit;
 use Illuminate\Support\Facades\DB;
 
@@ -13,6 +14,11 @@ class ProfitRepository extends BaseRepository
     public function __construct(Profit $model)
     {
         $this->model = $model;
+    }
+
+    public function getDepartments(){
+        $res = DB::connection('sqlsrv')->select("SELECT * FROM [dbo].[departments]");
+        return $res;
     }
 
     /*
@@ -400,6 +406,56 @@ class ProfitRepository extends BaseRepository
         $results['incomeAddItems'] = $incomeAddItems;
         $results['summary'] = $summary;                                 // podsumowanie kosztów i zysków urządzenia
         return $results;
+    }
+
+
+
+
+    public function getContractsList($parameters = [])
+    {
+        $p = $parameters;
+        $results = array();
+
+        if (!count($p)) {
+            $p = [
+                'txtSearch' => '',
+                'Type' => 'dev_name',
+                'departmentId' => 0,
+                'activeAgreement' => 1,
+            ];
+        } else {
+            $p['txtSearch'] = array_key_exists('txtSearch', $p) ? $p['txtSearch'] : '';
+            $p['Type'] = array_key_exists('Type', $p) ? $p['Type'] : 'dev_name';
+            $p['departmentId'] = array_key_exists('departmentId', $p) ? $p['departmentId'] : 0;
+            $p['activeAgreement'] = array_key_exists('activeAgreement', $p) ? ($p['activeAgreement'] ? 1 : 0) : 1;
+        }
+
+        $res = DB::connection('sqlsrv')->select(
+            "EXEC [dbo].[getAgreementsList]
+		            @txtSearch = :ts,
+		            @Type = :t,
+            		@departmentId = :di,
+            		@activeAgreement = :aa
+            ", [
+                'ts' => $p["txtSearch"],
+                't' => $p["Type"],
+                'di' => $p["departmentId"],
+                'aa' => $p["activeAgreement"]
+            ]
+        );
+
+        $results['p'] = $p;
+        $results['contracts'] = $res;
+        return $results;
+    }
+
+
+    public function getContractData($agrId){
+        $res = DB::connection('sqlsrv')->select("
+                SELECT * FROM [dbo].[profitAgreementsList] where agr_id = :id 
+            ", ['id' => $agrId]
+        );
+        return $res;
     }
 
 }
