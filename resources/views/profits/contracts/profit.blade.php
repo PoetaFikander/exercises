@@ -2,9 +2,7 @@
 
 @section('profitcontent')
 
-
-    <div class="container" id="deviceProfit">
-
+    <div class="container" id="profit" data-type="2">
 
         <div class="row">
 
@@ -15,61 +13,68 @@
                     <div class="card-header">
 
                         <div class="row">
-                            <div class="col-md-12">
-                                <div class="d-inline-block">
-                                    <h6>Profit urządzenia:&nbsp;</h6>
-                                </div>
-                                <div class="d-inline-block">
-                                    <h4>{{ $device->dev_name }}</h4>
-                                </div>
-                                <div class="d-inline-block ms-3">
-                                    <h6>nr ser.&nbsp;</h6>
-                                </div>
-                                <div class="d-sm-inline-block">
-                                    <h4>{{ $device->dev_serial_no }}</h4>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div class="row">
-                            <div class="col-md-12">
+                            <div class="col-md-11">
 
-                                <div class="d-inline-block">
-                                    <h6>Kontrahent:&nbsp;</h6>
-                                </div>
-                                <div class="d-inline-block">
-                                    <h5>{{ $device->customer_name }}</h5>
-                                </div>
-                                <div class="d-inline-block ms-3">
-                                    <h6>Umowa:&nbsp;</h6>
-                                </div>
-                                <div class="d-inline-block">
-                                    <h5>{{ $device->agreement_no }}</h5>
-                                </div>
-                                <div class="d-inline-block ms-3">
-                                    <h6>Status:&nbsp;</h6>
-                                </div>
-                                <div class="d-inline-block">
-                                    <h5>{{ $device->agreement_status }}</h5>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="d-inline-block">
+                                            <h6>Profit umowy:&nbsp;</h6>
+                                        </div>
+                                        <div class="d-inline-block">
+                                            <h4>{{ $contract->agr_no }}</h4>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div class="d-inline-block ms-3">
-                                    <h6>Okres obowiązywania od:&nbsp;</h6>
-                                </div>
-                                <div class="d-inline-block">
-                                    <h5>{{ $device->agreement_data_start }}</h5>
-                                </div>
-                                <div class="d-inline-block ms-1">
-                                    <h6>do:&nbsp;</h6>
-                                </div>
-                                <div class="d-inline-block">
-                                    <h5>{{ $device->agreement_data_end }}</h5>
-                                </div>
+                                <div class="row">
+                                    <div class="col">
 
+                                        <div class="d-inline-block">
+                                            <h6>Kontrahent:&nbsp;</h6>
+                                        </div>
+                                        <div class="d-inline-block">
+                                            <h5>{{ $contract->customer_name }}</h5>
+                                        </div>
+                                        <div class="d-inline-block ms-3">
+                                            <h6>Status:&nbsp;</h6>
+                                        </div>
+                                        <div class="d-inline-block">
+                                            <h5>{{ $contract->agr_status_name }}</h5>
+                                        </div>
+                                        <div class="d-inline-block ms-3">
+                                            <h6>Okres obowiązywania od:&nbsp;</h6>
+                                        </div>
+                                        <div class="d-inline-block">
+                                            <h5>{{ $contract->agr_date_start }}</h5>
+                                        </div>
+                                        <div class="d-inline-block ms-1">
+                                            <h6>do:&nbsp;</h6>
+                                        </div>
+                                        <div class="d-inline-block">
+                                            <h5>{{ $contract->agr_date_end }}</h5>
+                                        </div>
+
+                                    </div>
+                                </div>
 
                             </div>
-                        </div>
 
+                            {{--
+                            <div class="col-md-1 text-center align-self-center">
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-primary"
+                                    id="btnShowProfit"
+                                    data-profittype="contract"
+                                    data-agrid="{{ $agrId }}"
+                                >
+                                    <i class="bi bi-currency-dollar fs-4"></i>
+                                </button>
+                            </div>
+                            --}}
+
+                        </div>
 
                     </div>
 
@@ -84,7 +89,7 @@
                                 </div>
 
                                 <div class="d-inline-block">
-                                    <input type='text' value="{{ $device->fdom }}" class="form-control form-control-sm fs-5 input-datepicker"
+                                    <input type='text' value="{{ $contract->agr_date_start }}" class="form-control form-control-sm fs-5 input-datepicker"
                                            id='profitDateFrom'>
                                 </div>
 
@@ -93,106 +98,66 @@
                                 </div>
 
                                 <div class="d-inline-block">
-                                    <input type='text' value="{{ $device->ldom }}" class="form-control form-control-sm fs-5 input-datepicker"
+                                    <input type='text' value="{{ $contract->agr_date_end }}" class="form-control form-control-sm fs-5 input-datepicker"
                                            id='profitDateTo'>
                                 </div>
 
                                 <div class="d-inline-block ms-2">
-                                    <button type="button" class="btn btn-outline-primary" id="btnShowProfit" data-devid="{{ $device->dev_id }}"
-                                            data-agrid="{{ $agrId }}"><i class="bi bi-currency-dollar fs-6"></i></button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-primary"
+                                        id="btnShowProfit"
+                                        data-profittype="contract"
+                                        data-agrId="{{ $agrId }}"
+                                    >
+                                        <i class="bi bi-currency-dollar fs-6"></i>
+                                    </button>
                                 </div>
 
                             </div>
 
                         </div>
 
-
                         <div class="row">
 
-
-                            <div class="accordion mt-3 _d-none" id="accordionExample">
+                            <div class="accordion mt-3 _d-none" id="accordionDevices">
 
                                 <div class="accordion-item">
-                                    <h2 class="accordion-header" id="headingOne">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"
-                                                aria-expanded="true" aria-controls="collapseOne">
-                                            <span class="fs-5">Zlecenia</span>
+                                    <h2 class="accordion-header" id="headingDevice">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDevice"
+                                                aria-expanded="true" aria-controls="collapseDevice">
+                                            <span class="fs-5">Urządzenia</span>
                                         </button>
                                     </h2>
-                                    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne"
-                                         data-bs-parent="#accordionExample">
+                                    <div id="collapseDevice" class="accordion-collapse collapse" aria-labelledby="headingDevice"
+                                         data-bs-parent="#accordionDevices">
                                         <div class="accordion-body">
 
                                             <div class="table-responsive">
-                                                <table class="table table-striped table-sm table-hover" id="workCardTable">
+                                                <table class="table table-striped table-sm table-hover" id="deviceTable">
                                                     <thead>
                                                     <tr>
-                                                        {{--<th scope="col">Id</th>--}}
-                                                        <th scope="col">Numer</th>
-                                                        <th scope="col">Obsługujący</th>
-                                                        <th scope="col">Data</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody></tbody>
-                                                </table>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="headingTwo">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo"
-                                                aria-expanded="false" aria-controls="collapseTwo">
-                                            <span class="fs-5">Wydania do zleceń</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo"
-                                         data-bs-parent="#accordionExample">
-                                        <div class="accordion-body">
-
-                                            <div class="table-responsive">
-                                                <table class="table table-striped table-sm table-hover" id="docTable">
-                                                    <thead>
-                                                    <tr>
-                                                        <th scope="col" class="col-1">ZL</th>
-                                                        <th scope="col" class="col-1">ZS</th>
-                                                        <th scope="col" class="col-1">WZ</th>
-                                                        <th scope="col" class="col-1">FS</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody></tbody>
-                                                </table>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="headingNine">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseNine"
-                                                aria-expanded="false" aria-controls="collapseNine">
-                                            <span class="fs-5">Podsumowanie artykułów z WZ</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseNine" class="accordion-collapse collapse" aria-labelledby="headingNine"
-                                         data-bs-parent="#accordionExample">
-                                        <div class="accordion-body">
-
-                                            <div class="table-responsive">
-                                                <table class="table table-striped table-sm table-hover" id="WZContentsSumTable">
-                                                    <thead>
-                                                    <tr>
-                                                        <th scope="col">Kod</th>
+                                                        <th scope="col">Id</th>
                                                         <th scope="col">Nazwa</th>
-                                                        <th scope="col">Ilość</th>
-                                                        <th scope="col">Wartość</th>
+                                                        <th scope="col">Nr seryjny</th>
+                                                        <th scope="col">Przychód</th>
+                                                        <th scope="col">Koszt</th>
+                                                        <th scope="col">Profit</th>
+                                                        <th scope="col">GP</th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
+                                                    @foreach($devices as $device)
+                                                        <tr>
+                                                            <td>{{ $device->dev_id }}</td>
+                                                            <td class="text-nowrap">{{ $device->dev_name }}</td>
+                                                            <td class="text-nowrap">{{ $device->dev_serial_no }}</td>
+                                                            <td>0</td>
+                                                            <td>0</td>
+                                                            <td>0</td>
+                                                            <td>0</td>
+                                                        </tr>
+                                                    @endforeach
                                                     </tbody>
                                                 </table>
                                             </div>
@@ -201,179 +166,23 @@
                                     </div>
                                 </div>
 
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="accordion mt-3 _d-none" id="accordionSummary">
 
                                 <div class="accordion-item">
-                                    <h2 class="accordion-header" id="headingThree">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree"
-                                                aria-expanded="false" aria-controls="collapseThree">
-                                            <span class="fs-5">Artykuły ze zleceń bezpłatnych</span>
+                                    <h2 class="accordion-header" id="headingSummary">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                                data-bs-target="#collapseSummary"
+                                                aria-expanded="false" aria-controls="collapseSummary">
+                                            <span class="fw-bold fs-5">Podsumowanie umowy</span>
                                         </button>
                                     </h2>
-                                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree"
-                                         data-bs-parent="#accordionExample">
-                                        <div class="accordion-body">
-
-                                            <div class="table-responsive">
-                                                <table class="table table-striped table-sm table-hover" id="costTable">
-                                                    <thead>
-                                                    <tr>
-                                                        <th scope="col">Data WZ</th>
-                                                        <th scope="col">Numer WZ</th>
-                                                        <th scope="col">Kod</th>
-                                                        <th scope="col">Nazwa</th>
-                                                        <th scope="col">Ilość</th>
-                                                        <th scope="col">Cena</th>
-                                                        <th scope="col">Wartość</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody></tbody>
-                                                </table>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="headingFour">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour"
-                                                aria-expanded="false" aria-controls="collapseFour">
-                                            <span class="fs-5">Artykuły ze zleceń płatnych</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour"
-                                         data-bs-parent="#accordionExample">
-                                        <div class="accordion-body">
-
-                                            <div class="table-responsive">
-                                                <table class="table table-striped table-sm table-hover" id="incomeTable">
-                                                    <thead>
-                                                    <tr>
-                                                        <th scope="col">Data WZ</th>
-                                                        <th scope="col">Numer WZ</th>
-                                                        <th scope="col">Kod</th>
-                                                        <th scope="col">Nazwa</th>
-                                                        <th scope="col">Ilość</th>
-                                                        <th scope="col">Cena</th>
-                                                        <th scope="col">Wartość</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody></tbody>
-                                                </table>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="headingFive">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive"
-                                                aria-expanded="false" aria-controls="collapseFive">
-                                            <span class="fs-5">FS do kontraktu</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive"
-                                         data-bs-parent="#accordionExample">
-                                        <div class="accordion-body">
-
-                                            <div class="table-responsive">
-                                                <table class="table table-striped table-sm table-hover profit-summary" id="FSTable">
-                                                    <thead>
-                                                    <tr>
-                                                        {{--<th scope="col">Id</th>--}}
-                                                        <th scope="col">Numer</th>
-                                                        <th scope="col">Data</th>
-                                                        <th scope="col">Wartość</th>
-                                                        {{--<th scope="col"></th>--}}
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="headingSix">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSix"
-                                                aria-expanded="false" aria-controls="collapseSix">
-                                            <span class="fs-5">Usługi z FS</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseSix" class="accordion-collapse collapse" aria-labelledby="headingSix"
-                                         data-bs-parent="#accordionExample">
-                                        <div class="accordion-body">
-
-                                            <div class="table-responsive">
-                                                <table class="table table-striped table-sm table-hover" id="FSContentsTable">
-                                                    <thead>
-                                                    <tr>
-                                                        <th scope="col">Lp.</th>
-                                                        <th scope="col">Data FS</th>
-                                                        <th scope="col">Numer FS</th>
-                                                        <th scope="col">Kod artykułu</th>
-                                                        <th scope="col">Nazwa artykułu</th>
-                                                        <th scope="col">Ilość</th>
-                                                        <th scope="col">Cena</th>
-                                                        <th scope="col">Wartość</th>
-                                                        <th scope="col">Licznik</th>
-                                                        <th scope="col">Podlega</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="headingSeven">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSeven"
-                                                aria-expanded="false" aria-controls="collapseSeven">
-                                            <span class="fs-5">Podsumowanie usług z FS</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseSeven" class="accordion-collapse collapse" aria-labelledby="headingSeven"
-                                         data-bs-parent="#accordionExample">
-                                        <div class="accordion-body">
-
-                                            <div class="table-responsive">
-                                                <table class="table table-striped table-sm table-hover" id="FSContentsSumTable">
-                                                    <thead>
-                                                    <tr>
-                                                        <th scope="col">Kod</th>
-                                                        <th scope="col">Nazwa</th>
-                                                        <th scope="col">Ilość</th>
-                                                        <th scope="col">Wartość</th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <div class="accordion-item">
-                                    <h2 class="accordion-header" id="headingEight">
-                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEight"
-                                                aria-expanded="false" aria-controls="collapseEight">
-                                            <span class="fw-bold fs-5">Podsumowanie urządzenia</span>
-                                        </button>
-                                    </h2>
-                                    <div id="collapseEight" class="accordion-collapse collapse" aria-labelledby="headingEight"
-                                         data-bs-parent="#accordionExample">
+                                    <div id="collapseSummary" class="accordion-collapse collapse" aria-labelledby="headingSummary"
+                                         data-bs-parent="#accordionSummary">
                                         <div class="accordion-body">
 
                                             <div class="table-responsive">
@@ -393,12 +202,11 @@
                                     </div>
                                 </div>
 
-
                             </div>
 
+                            {{-- @include('profits.accordion') --}}
+
                         </div>
-
-
                     </div>
 
                 </div>

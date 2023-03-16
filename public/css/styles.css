@@ -100,6 +100,9 @@ div.ltop label {
     background-color: #ebebeb;
 }
 
+.pointer {
+    cursor: pointer;
+}
 
 
 #overlay-spinner {

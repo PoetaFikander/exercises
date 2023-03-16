@@ -94,6 +94,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         Route::get('/profits/contracts/profit/{agrid}', [ProfitController::class, 'showContractProfit'])->name('profits.contracts.profit');
         Route::post('/profits/contracts/profit', [ProfitController::class, 'getContractProfit']);
+        Route::post('/profits/contracts/devices', [ProfitController::class, 'getContractDevices']);
+
+        Route::post('/profits/devices/profit/calc/{id?}', [ProfitController::class, 'getDeviceProfitCalc']);
+
+        Route::post('/profits/contracts/setcount', [ProfitController::class, 'setContractCounter']);
+        Route::post('/profits/contracts/getcount', [ProfitController::class, 'getContractCounter']);
+        Route::post('/profits/contracts/upcount', [ProfitController::class, 'updateContractCounter']);
+        Route::post('/profits/contracts/brcount', [ProfitController::class, 'breakContractCounter']);
 
         /*
          * end profit

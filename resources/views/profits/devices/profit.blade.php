@@ -575,8 +575,7 @@
 
     --}}
 
-    <div class="container" id="deviceProfit">
-
+    <div class="container" id="profit">
 
         <div class="row">
 
@@ -670,8 +669,16 @@
                                 </div>
 
                                 <div class="d-inline-block ms-2">
-                                    <button type="button" class="btn btn-outline-primary" id="btnShowProfit" data-devid="{{ $device->dev_id }}"
-                                            data-agrid="{{ $agrId }}"><i class="bi bi-currency-dollar fs-6"></i></button>
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-primary"
+                                        id="btnShowProfit"
+                                        data-profittype="device"
+                                        data-devId="{{ $device->dev_id }}"
+                                        data-agrId="{{ $agrId }}"
+                                    >
+                                        <i class="bi bi-currency-dollar fs-6"></i>
+                                    </button>
                                 </div>
 
                             </div>
@@ -681,7 +688,9 @@
 
                         <div class="row">
 
+                            @include('profits.accordion')
 
+                            {{--
                             <div class="accordion mt-3 _d-none" id="accordionExample">
 
                                 <div class="accordion-item">
@@ -699,7 +708,6 @@
                                                 <table class="table table-striped table-sm table-hover" id="workCardTable">
                                                     <thead>
                                                     <tr>
-                                                        {{--<th scope="col">Id</th>--}}
                                                         <th scope="col">Numer</th>
                                                         <th scope="col">Obsługujący</th>
                                                         <th scope="col">Data</th>
@@ -853,11 +861,9 @@
                                                 <table class="table table-striped table-sm table-hover profit-summary" id="FSTable">
                                                     <thead>
                                                     <tr>
-                                                        {{--<th scope="col">Id</th>--}}
                                                         <th scope="col">Numer</th>
                                                         <th scope="col">Data</th>
                                                         <th scope="col">Wartość</th>
-                                                        {{--<th scope="col"></th>--}}
                                                     </tr>
                                                     </thead>
                                                     <tbody>
@@ -967,6 +973,7 @@
 
 
                             </div>
+                            --}}
 
                         </div>
 

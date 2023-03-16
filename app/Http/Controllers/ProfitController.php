@@ -58,7 +58,7 @@ class ProfitController extends Controller
     {
         if ($request->ajax()) {
             $json = json_decode(htmlspecialchars_decode($request->input('json')));
-            $res = $profitRepository->getDeviceProfit($json->devId, $json->agrId, $json->dateFrom, $json->dateTo);
+            $res = $profitRepository->getDeviceProfit($json->devid, $json->agrid, $json->dateFrom, $json->dateTo);
             $json->results = $res;
             return Response::json($json);
         } else {
@@ -68,16 +68,31 @@ class ProfitController extends Controller
     }
 
 
-
-
-    public function showContractsList(ProfitRepository $profitRepository){
-        // ----
-        $departments = $profitRepository->getDepartments();
-        return view('profits.contracts.list',['departments'=>$departments]);
+    public function getDeviceProfitCalc(ProfitRepository $profitRepository, Request $request)
+    {
+        if ($request->ajax()) {
+            $json = json_decode(htmlspecialchars_decode($request->input('json')));
+            //dd($json);
+            $res = $profitRepository->getDeviceProfitCalc($json->devid, $json->agrid, $json->dateFrom, $json->dateTo);
+            $json->results = $res;
+            return Response::json($json);
+        } else {
+            //todo zrobić ogólną stronę błędów
+            return view('auth.login');
+        }
     }
 
 
-    public function getContractsList(ProfitRepository $profitRepository, Request $request){
+    public function showContractsList(ProfitRepository $profitRepository)
+    {
+        // ----
+        $departments = $profitRepository->getDepartments();
+        return view('profits.contracts.list', ['departments' => $departments]);
+    }
+
+
+    public function getContractsList(ProfitRepository $profitRepository, Request $request)
+    {
         // ----
         if ($request->ajax()) {
             $json = json_decode(htmlspecialchars_decode($request->input('json')));
@@ -98,26 +113,95 @@ class ProfitController extends Controller
 
     public function showContractProfit(ProfitRepository $profitRepository, $agrId)
     {
-        $contract = $profitRepository->getContractData($agrId);
-        return view('profits.contracts.profit', ['contract' => $contract, 'agrId' => $agrId]);
+        $c = $profitRepository->getContractData($agrId);
+        $contract = $c[0];
+        $dev = $profitRepository->getContractDevices($agrId);
+        //dd($contract);
+        return view('profits.contracts.profit', ['contract' => $contract, 'devices' => $dev, 'agrId' => $agrId]);
+    }
+
+
+    public function getContractDevices(ProfitRepository $profitRepository, Request $request)
+    {
+        if ($request->ajax()) {
+            $json = json_decode(htmlspecialchars_decode($request->input('json')));
+            $dev = $profitRepository->getContractDevices($json->agrid);
+            $json->dev = $dev;
+            return Response::json($json);
+        } else {
+            //todo zrobić ogólną stronę błędów
+            return view('auth.login');
+        }
     }
 
 
     public function getContractProfit(ProfitRepository $profitRepository, Request $request)
     {
-//        if ($request->ajax()) {
-//            $json = json_decode(htmlspecialchars_decode($request->input('json')));
-//            $res = $profitRepository->getDeviceProfit($json->devId, $json->agrId, $json->dateFrom, $json->dateTo);
-//            $json->results = $res;
-//            return Response::json($json);
-//        } else {
-//            //todo zrobić ogólną stronę błędów
-//            return view('auth.login');
-//        }
+        if ($request->ajax()) {
+            $json = json_decode(htmlspecialchars_decode($request->input('json')));
+            $res = $profitRepository->getContractProfit($json->agrid, $json->dateFrom, $json->dateTo, $json->counterId);
+            $json->results = $res;
+            return Response::json($json);
+        } else {
+            //todo zrobić ogólną stronę błędów
+            return view('auth.login');
+        }
     }
 
 
-    public function getDoc(ProfitRepository $profitRepository, Request $request){
+    public function setContractCounter(ProfitRepository $profitRepository, Request $request)
+    {
+        if ($request->ajax()) {
+            $json = json_decode(htmlspecialchars_decode($request->input('json')));
+            $json->setCount = $profitRepository->setAgreementCounter($json->counterId, $json->devQuantity);
+            return Response::json($json);
+        } else {
+            //todo zrobić ogólną stronę błędów
+            return view('auth.login');
+        }
+    }
+
+
+    public function getContractCounter(ProfitRepository $profitRepository, Request $request)
+    {
+        if ($request->ajax()) {
+            $json = json_decode(htmlspecialchars_decode($request->input('json')));
+            $json->getCount = $profitRepository->getAgreementCounter($json->counterId);
+            return Response::json($json);
+        } else {
+            //todo zrobić ogólną stronę błędów
+            return view('auth.login');
+        }
+    }
+
+
+    public function updateContractCounter(ProfitRepository $profitRepository, Request $request)
+    {
+        if ($request->ajax()) {
+            $json = json_decode(htmlspecialchars_decode($request->input('json')));
+            $json->upCount = $profitRepository->updateAgreementCounter($json->counterId, $json->counter, $json->devQuantity, $json->break);
+            return Response::json($json);
+        } else {
+            //todo zrobić ogólną stronę błędów
+            return view('auth.login');
+        }
+    }
+
+    public function breakContractCounter(ProfitRepository $profitRepository, Request $request)
+    {
+        if ($request->ajax()) {
+            $json = json_decode(htmlspecialchars_decode($request->input('json')));
+            $json->brCount = $profitRepository->breakAgreementCounter($json->counterId);
+            return Response::json($json);
+        } else {
+            //todo zrobić ogólną stronę błędów
+            return view('auth.login');
+        }
+    }
+
+
+    public function getDoc(ProfitRepository $profitRepository, Request $request)
+    {
         if ($request->ajax()) {
             $json = json_decode(htmlspecialchars_decode($request->input('json')));
             $doc = $profitRepository->getDoc($json->docId, $json->docTypeId);
