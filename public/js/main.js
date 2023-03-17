@@ -729,6 +729,14 @@ $(document).ready(function () {
         let collapseDevice = null;
         let bsCollapseDevice = null;
 
+
+        const showDeviceProfit = function () {
+            const agrid = parseInt($(this).data('agrid'));
+            const devid = parseInt($(this).data('devid'));
+            location.href = '/profits/devices/profit/' + devid + '/' + agrid;
+        };
+
+
         if (profitType === 2) {
 
             summaryColl = document.getElementById('collapseSummary');
@@ -750,25 +758,29 @@ $(document).ready(function () {
                     "pageLength": 10,
                     autoWidth: false,
                     columns: [
-                        {'data': 'dev_id', 'data-id': 'dev_id'},
+                        {'data': 'dev_id'},
                         {'data': 'dev_name', 'className': 'ellipis text-nowrap'},
                         {'data': 'dev_serial_no'},
                         {'data': 'income_all', 'className': 'text-end'},
                         {'data': 'cost', 'className': 'text-end'},
                         {'data': 'profit', 'className': 'text-end'},
                         {'data': 'gp', 'className': 'text-end'},
+                        {'data': 'action', 'className': 'text-center', 'orderable': false},
                     ],
                     // ---- dodawanie id dewajsa do <tr>
-                    "createdRow": function (row, data, dataIndex, cells) {
-                        const firstTd = $(cells).get(0);
-                        const id = parseInt($(firstTd).text());
-                        $(row).attr('data-devid', id);
-                        $(row).addClass('pointer');
-                    }
+                    // "createdRow": function (row, data, dataIndex, cells) {
+                    //     const firstTd = $(cells).get(0);
+                    //     const id = parseInt($(firstTd).text());
+                    //     $(row).attr('data-devid', id);
+                    //     $(row).addClass('pointer');
+                    // }
                 }
             );
-            //deviceTable.clear().draw();
-            //console.log('dupa z kota');
+            deviceTable.draw();
+            $deviceTable.off('click', 'button');
+            $deviceTable.on('click', 'button', showDeviceProfit);
+            bsCollapseDevice.show();
+            bsSummaryColl.hide();
         }
 
         const showProfit = function (data) {
@@ -941,6 +953,13 @@ $(document).ready(function () {
             const hideModalEvent = function () {
                 uniXHR({counterId: counterId}, '/profits/contracts/brcount', function (data) {
                     //console.log(data);
+                    $progressBar.width('100%');
+                    $progressBar.text('');
+                    //progressModal.hide();
+                    progressModalEl.removeEventListener('shown.bs.modal', showModalEvent);
+                    progressModalEl.removeEventListener('hide.bs.modal', hideModalEvent);
+                    bsCollapseDevice.hide();
+                    bsSummaryColl.show();
                 });
             };
             progressModalEl.addEventListener('hide.bs.modal', hideModalEvent);
@@ -964,18 +983,13 @@ $(document).ready(function () {
                             item.cost = Number(item.cost).toFixed(2);
                             item.profit = Number(item.profit).toFixed(2);
                             item.gp = Number(item.gp).toFixed(2);
+                            item.action = '<button type="button" class="btn btn-sm fw-bold"  data-devid="' + item.dev_id + '" data-agrid="' + item.agr_id + '"><i class="bi bi-search"></i></button>';
                         }
                         deviceTable.clear();
                         deviceTable.rows.add(profits).draw();
 
-                        const showDeviceProfit = function(){
-                            //console.log($(this).data('devid'));
-                            //console.log(parameters.agrid);
-                            const devId = parseInt($(this).data('devid'));
-                            const agrId = parseInt(parameters.agrid);
-                            //location.href = '/profits/devices/profit/' + devId + '/' + agrId;
-                        };
-                        $deviceTable.on('click', 'tr', showDeviceProfit);
+                        $deviceTable.off('click', 'button');
+                        $deviceTable.on('click', 'button', showDeviceProfit);
 
                         // ------------------------
                         const summ = data.results.summary;
@@ -1023,13 +1037,13 @@ $(document).ready(function () {
                 if (counter <= 0) {
                     // --- sprzątamy
                     clearTimeout(timer);
-                    $progressBar.width('100%');
-                    $progressBar.text('');
+                    // $progressBar.width('100%');
+                    // $progressBar.text('');
                     progressModal.hide();
-                    progressModalEl.removeEventListener('shown.bs.modal', showModalEvent);
-                    progressModalEl.removeEventListener('hide.bs.modal', hideModalEvent);
-                    //bsCollapseDevice.show();
-                    bsSummaryColl.show();
+                    // progressModalEl.removeEventListener('shown.bs.modal', showModalEvent);
+                    // progressModalEl.removeEventListener('hide.bs.modal', hideModalEvent);
+                    // bsCollapseDevice.hide();
+                    // bsSummaryColl.show();
                 } else {
                     timer = setTimeout(myTimer, 500);
                 }
@@ -1254,7 +1268,6 @@ $(document).ready(function () {
         $dateFrom.datepicker({'language': 'pl'});
         $dateTo.datepicker({'language': 'pl'});
 
-
         switch (profitType) {
             case 1:
                 break;
@@ -1266,7 +1279,6 @@ $(document).ready(function () {
 
         const $btn = $('#btnShowProfit');
         $($btn).on('click', getProfit);
-
     }
 
     const docHeader = function (h) {
@@ -1638,7 +1650,7 @@ $(document).ready(function () {
 
             for (let n in data) {
                 let item = data[n];
-                item.action = '<button type="button" class="btn btn-sm fw-bold" data-agrid="' + item.agreement_id + '" data-devid="' + item.dev_id + '"><i class="bi bi-search"></button>';
+                item.action = '<button type="button" class="btn btn-sm fw-bold" data-agrid="' + item.agreement_id + '" data-devid="' + item.dev_id + '"><i class="bi bi-search"></i></button>';
             }
 
             dataTable.clear();
@@ -1716,11 +1728,12 @@ $(document).ready(function () {
         // generujemy nową zawartość tabeli
         const createTable = function (data) {
             //console.log(data);
+
             $tbody.off('click', 'button');
 
             for (let n in data) {
                 let item = data[n];
-                item.action = '<button type="button" class="btn btn-sm fw-bold" data-agrid="' + item.agr_id + '"><i class="bi bi-search"></button>';
+                item.action = '<button type="button" class="btn btn-sm fw-bold" data-agrid="' + item.agr_id + '"><i class="bi bi-search"></i></button>';
             }
 
             dataTable.clear();

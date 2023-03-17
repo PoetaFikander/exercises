@@ -144,6 +144,7 @@
                                                         <th scope="col">Koszt</th>
                                                         <th scope="col">Profit</th>
                                                         <th scope="col">GP</th>
+                                                        <th scope="col">#</th>
                                                     </tr>
                                                     </thead>
                                                     <tbody>
@@ -156,6 +157,16 @@
                                                             <td>0</td>
                                                             <td>0</td>
                                                             <td>0</td>
+                                                            <td>
+                                                                <button
+                                                                    type="button"
+                                                                    class="btn btn-sm fw-bold"
+                                                                    data-devid="{{ $device->dev_id }}"
+                                                                    data-agrid="{{ $agrId }}">
+                                                                    <i class="bi bi-search"></i>
+                                                                </button>
+                                                            </td>
+                                                            {{--  --}}
                                                         </tr>
                                                     @endforeach
                                                     </tbody>
