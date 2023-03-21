@@ -15,16 +15,13 @@
                         </li>
 
                         @can('isAdmin')
-                        <li class="nav-item">
-                            <a class="nav-link active" href="{{ route('profits.contracts.list') }}">Umowy</a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="{{ route('profits.contracts.list') }}">Umowy</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link active" href="{{ route('profits.customers.list') }}">Kontrahenci</a>
+                            </li>
                         @endcan
-
-                        {{--
-                        <li class="nav-item">
-                            <a class="nav-link active" href="{{ route('hpreport.customers.list') }}">Kontrahenci</a>
-                        </li>
-                        --}}
 
                     </ul>
                 </div>
@@ -32,7 +29,6 @@
         </nav>
 
         <div class="py-0">
-
             @yield('profitcontent')
         </div>
 

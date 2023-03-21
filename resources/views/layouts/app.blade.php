@@ -38,6 +38,8 @@
 
     <!-- ------------------ MODALE ------------------------------  -->
 
+    @include('modals.agreement') <!-- Modal umowa serwisowa -->
+
 
     <!-- Modal agreement profit progress -->
     <div class="modal fade" id="contractProfitProgressModal"
@@ -237,6 +239,7 @@
                                             <div class="row">
 
                                                 <div class="col-sm-6">
+
                                                     <fieldset class="border rounded-2 p-3">
                                                         <legend class="float-none w-auto px-3 fs-6">Naprawa</legend>
 
@@ -276,6 +279,7 @@
                                                         </div>
 
                                                     </fieldset>
+
                                                 </div>
 
                                                 <div class="col-sm-6">

@@ -87,18 +87,35 @@ div.ltop label {
 }
 
 #showDocModal textarea,
-#showWorkCardModal textarea
+#showWorkCardModal textarea,
+#showAgreementModal textarea
 {
     background-color: #ebebeb;
 }
 
 #showDocModal input,
-#showWorkCardModal input
+#showWorkCardModal input,
+#showAgreementModal input
 {
     font-size: .95rem;
     font-weight: bold;
     background-color: #ebebeb;
 }
+
+#showDocModal input[type=checkbox],
+#showWorkCardModal input[type=checkbox],
+#showAgreementModal input[type=checkbox]
+{
+    margin-top: .7em;
+}
+
+
+#showAgreementModal label
+{
+    padding-right: 5px;
+}
+
+
 
 .pointer {
     cursor: pointer;

@@ -16,6 +16,21 @@ class ProfitController extends Controller
     }
 
 
+    public function getDoc(ProfitRepository $profitRepository, Request $request)
+    {
+        if ($request->ajax()) {
+            $json = json_decode(htmlspecialchars_decode($request->input('json')));
+            $doc = $profitRepository->getDoc($json->docId, $json->docTypeId);
+            //dd($doc);
+            $json->doc = $doc;
+            return Response::json($json);
+        } else {
+            //todo zrobić ogólną stronę błędów
+            return view('auth.login');
+        }
+    }
+
+
     public function showDevicesList(ProfitRepository $profitRepository, $devices = [])
     {
         // tymczas, prawdopodobnie do usunięcia
@@ -187,6 +202,7 @@ class ProfitController extends Controller
         }
     }
 
+
     public function breakContractCounter(ProfitRepository $profitRepository, Request $request)
     {
         if ($request->ajax()) {
@@ -200,13 +216,29 @@ class ProfitController extends Controller
     }
 
 
-    public function getDoc(ProfitRepository $profitRepository, Request $request)
+
+
+
+    public function showCustomersList(ProfitRepository $profitRepository)
     {
+        // ----
+        $departments = $profitRepository->getDepartments();
+        return view('profits.customers.list', ['departments' => $departments]);
+    }
+
+
+    public function getCustomersList(ProfitRepository $profitRepository, Request $request)
+    {
+        // ----
         if ($request->ajax()) {
             $json = json_decode(htmlspecialchars_decode($request->input('json')));
-            $doc = $profitRepository->getDoc($json->docId, $json->docTypeId);
-            //dd($doc);
-            $json->doc = $doc;
+            $parameters = array();
+            foreach ($json as $key => $val) {
+                $parameters[$key] = $val;
+            }
+            $results = $profitRepository->getCustomersList($parameters);
+            $json->parameters = $results['p'];
+            $json->customers = $results['customers'];
             return Response::json($json);
         } else {
             //todo zrobić ogólną stronę błędów
@@ -214,4 +246,49 @@ class ProfitController extends Controller
         }
     }
 
+
+    public function showCustomerProfit(ProfitRepository $profitRepository, $custId, $custType)
+    {
+        $customer = $profitRepository->getCustomer($custId);
+
+        if ((int)$custType === 2) {
+            $agreements = $profitRepository->getRecipientAgreementsList($custId);
+            //dd($agreements);
+        } else {
+            $agreements = $profitRepository->getPurchaserAgreementsList($custId);
+        }
+
+        return view('profits.customers.profit', ['customer' => $customer, 'agreements' => $agreements]);
+    }
+
+
+    public function getCustomerAgreements(ProfitRepository $profitRepository, Request $request)
+    {
+        if ($request->ajax()) {
+            $json = json_decode(htmlspecialchars_decode($request->input('json')));
+            //$dev = $profitRepository->getContractDevices($json->agrid);
+            //$json->dev = $dev;
+            return Response::json($json);
+        } else {
+            //todo zrobić ogólną stronę błędów
+            return view('auth.login');
+        }
+    }
+
+
+    public function getCustomerProfit(ProfitRepository $profitRepository, Request $request)
+    {
+        if ($request->ajax()) {
+            $json = json_decode(htmlspecialchars_decode($request->input('json')));
+            //$res = $profitRepository->getContractProfit($json->agrid, $json->dateFrom, $json->dateTo, $json->counterId);
+            //$json->results = $res;
+            return Response::json($json);
+        } else {
+            //todo zrobić ogólną stronę błędów
+            return view('auth.login');
+        }
+    }
+
+
 }
+

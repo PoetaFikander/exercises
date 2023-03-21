@@ -78,26 +78,8 @@
                                     <th scope="col" class="text-nowrap"><i class="bi bi-currency-dollar"></i></th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                {{--
-                                @foreach($devices as $device)
-                                    <tr>
-                                        <td>{{ $device->dev_id }}</td>
-                                        <td class="text-nowrap">{{ $device->dev_name }}</td>
-                                        <td class="text-nowrap">{{ $device->dev_serial_no }}</td>
-                                        <td class="ellipis">{{ $device->customer_name }}</td>
-                                        <td>{{ $device->customer_tin }}</td>
-                                        <td>{{ $device->agreement_no }}</td>
-                                        <td>{{ $device->agreement_status }}</td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm fw-bold" data-agrid="{{ $device->agreement_id }}" data-devid="{{ $device->dev_id }}"><i class="bi bi-search"></i></button>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                                --}}
-                                </tbody>
+                                <tbody></tbody>
                             </table>
-
 
                         </div>
 

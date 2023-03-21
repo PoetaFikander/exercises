@@ -97,7 +97,6 @@ class ProfitRepository extends BaseRepository
         return $p[0];
     }
 
-
     public function getWorkCards($id, $customerId, $dateFrom, $dateTo)
     {
         $res = DB::connection('sqlsrv')->select("
@@ -134,6 +133,75 @@ class ProfitRepository extends BaseRepository
     }
 
 
+    public function getDoc($docId, $docTypeId)
+    {
+        $results = array();
+        switch ($docTypeId){
+            case 1002: // work card
+                $results['header'] = $this->getWorkCardHeader($docId);
+                $results['contents'] = array();
+                $results['actions'] = $this->getWorkCardActions($docId);
+                $results['materials'] = $this->getWorkCardMaterials($docId);
+                $results['services'] = $this->getWorkCardServices($docId);
+                $documents = array();
+                $docs = $this->getWorkCardDoc($docId);
+                foreach ($docs as $d) {
+                    if ((int)$d->doc_id > 0) {
+                        $h = $this->getDocHeader($d->doc_id);
+                        $documents[] = $h;
+                    }
+                }
+                $results['documents'] = $documents;
+                break;
+            case 1003: // agreement
+                $results['header'] = $this->getAgreementHeader($docId);
+                break;
+
+            default: // altum native
+                $results['header'] = $this->getDocHeader($docId);
+                $results['contents'] = $this->getDocContents($docId, 0);
+        }
+
+
+//        if ($docTypeId == 1002) {
+//            $results['header'] = $this->getWorkCardHeader($docId);
+//            $results['contents'] = array();
+//            $results['actions'] = $this->getWorkCardActions($docId);
+//            $results['materials'] = $this->getWorkCardMaterials($docId);
+//            $results['services'] = $this->getWorkCardServices($docId);
+//            $documents = array();
+//            $docs = $this->getWorkCardDoc($docId);
+//            foreach ($docs as $d) {
+//                if ((int)$d->doc_id > 0) {
+//                    $h = $this->getDocHeader($d->doc_id);
+//                    $documents[] = $h;
+//                }
+//            }
+//            $results['documents'] = $documents;
+//        } else {
+//            $results['header'] = $this->getDocHeader($docId);
+//            $results['contents'] = $this->getDocContents($docId, 0);
+//        }
+
+        return $results;
+    }
+
+    public function getAgreementHeader($docId)
+    {
+        //$res = DB::connection('sqlsrv')->select("
+        //    SELECT * FROM [dbo].[profitGetAgreementHeader] ( :id )
+        //    ", ['id' => $docId]
+        //);
+
+        $res = DB::connection('sqlsrv')->select("
+                EXEC [dbo].[profitGetAgreementHeaderProc] @agrId = :id
+            ", ['id' => $docId]
+        );
+
+        return $res[0];
+    }
+
+
     public function getDocContents($docId, $withAddon = 0)
     {
         $res = DB::connection('sqlsrv')->select("
@@ -143,7 +211,6 @@ class ProfitRepository extends BaseRepository
         return $res;
     }
 
-
     public function getDocHeader($docId)
     {
         $res = DB::connection('sqlsrv')->select("
@@ -152,6 +219,7 @@ class ProfitRepository extends BaseRepository
         );
         return $res[0];
     }
+
 
     public function getWorkCardHeader($docId)
     {
@@ -196,32 +264,6 @@ class ProfitRepository extends BaseRepository
             ", ['id' => $docId]
         );
         return $res;
-    }
-
-
-    public function getDoc($docId, $docTypeId)
-    {
-        $results = array();
-        if ($docTypeId == 1002) {
-            $results['header'] = $this->getWorkCardHeader($docId);
-            $results['contents'] = array();
-            $results['actions'] = $this->getWorkCardActions($docId);
-            $results['materials'] = $this->getWorkCardMaterials($docId);
-            $results['services'] = $this->getWorkCardServices($docId);
-            $documents = array();
-            $docs = $this->getWorkCardDoc($docId);
-            foreach ($docs as $d) {
-                if ((int)$d->doc_id > 0) {
-                    $h = $this->getDocHeader($d->doc_id);
-                    $documents[] = $h;
-                }
-            }
-            $results['documents'] = $documents;
-        } else {
-            $results['header'] = $this->getDocHeader($docId);
-            $results['contents'] = $this->getDocContents($docId, 0);
-        }
-        return $results;
     }
 
 
@@ -459,6 +501,7 @@ class ProfitRepository extends BaseRepository
         return $res;
     }
 
+
     public function getContractDevices($agrId)
     {
         $res = DB::connection('sqlsrv')->select("
@@ -539,63 +582,6 @@ class ProfitRepository extends BaseRepository
     }
 
 
-    public function getProfit($profitType, $agrId, $devId = null, $dFrom = null, $dTo = null)
-    {
-
-        $results = array();
-        // zwrot parametrów początkowych - kontrolnie
-        $p = [
-            'profitType' => $profitType,
-            'agrId' => $agrId,
-            'devId' => $devId,
-            'dFrom' => $dFrom,
-            'dTo' => $dTo,
-        ];
-
-        $profit = 0;                // zysk
-        $gp = 0; //                 // % zysk
-        $income = 0;                // przychód
-        $cost = 0;                  // koszty
-        $incomeAdditional = 0;      // dodatkowy przychód - wartość artykułów z płatnych zleceń ZL->WZ->FS
-        $incomeAddItems = array();  // lista artykułów z płatnych zleceń ZL->WZ->FS
-
-        $workCards = array();
-        $agrWZ = array();
-        $agrWZitems = array();
-        $agrWZsummary = array();
-        $agrFS = array();
-        $agrFSitems = array();
-        $agrFSsummary = array();
-        $summary = array();
-
-
-        switch ($profitType) {
-            case 1: // device
-                break;
-            case 2: // contract
-                // wejście
-
-                break;
-            default:
-        }
-
-
-        //----------------------------------------------
-        $results['param'] = $p;
-        $results['workCards'] = $workCards;                             // zlecenia do umowy
-        $results['agrWZ'] = $agrWZ;                                     // dokumenty kosztowe do umowy
-        $results['agrWZitems'] = $agrWZitems;                           // elementy dokumentów kosztowych do umów
-        $results['agrWZsummary'] = $agrWZsummary;                       // podsumowanie elementów wydań wg artykułów
-        $results['agrFS'] = $agrFS;                                     // faktury wystawione do umowy
-        $results['agrFSitems'] = $agrFSitems;                           // elementy faktur do umów
-        $results['agrFSsummary'] = $agrFSsummary;                       // podsumowanie elementów faktur wg usług
-        $results['incomeAddItems'] = $incomeAddItems;
-        $results['summary'] = $summary;                                 // podsumowanie kosztów i zysków urządzenia
-
-        return $results;
-    }
-
-
     public function getDeviceProfitCalc($devId, $agrId, $dFrom, $dTo)
     {
         $res = DB::connection('sqlsrv')->select("
@@ -648,6 +634,7 @@ class ProfitRepository extends BaseRepository
         return $results;
     }
 
+
     public function breakAgreementCounter($counterId)
     {
         $results = DB::connection('sqlsrv')->update("
@@ -668,189 +655,67 @@ class ProfitRepository extends BaseRepository
     }
 
 
-    public function getDeviceProfitCalcOLD($devId, $agrId, $dFrom, $dTo)
+
+
+    public function getCustomersList($parameters = [])
     {
+        $p = $parameters;
         $results = array();
-        $profit = 0; // zysk
-        $gp = 0; //
-        $income = 0; // przychód
-        $cost = 0;
-        $incomeAdditional = 0; // wartość artykułów z płatnych zleceń ZL->WZ->FS
-        $incomeAddItems = array(); // lista artykułów z płatnych zleceń ZL->WZ->FS
 
-        //----------------------------------------------
-
-        // --- konwersja dat, walidacja
-        $p = $this->getProfitParameter($devId, $dFrom, $dTo);
-        $dateFrom = $p->dateFrom;
-        $dateTo = $p->dateTo;
-
-        // --- dane urządzenia i umowy
-        $device = $this->getDeviceData($devId, $agrId);
-        $deviceId = $device->dev_id;
-        $devSerialNo = $device->dev_serial_no;
-        $customerId = $device->customer_id;
-
-        // --- lista zleceń wykonanych w czasie trwanie danej umowy
-        //$workCards = $this->getWorkCards($deviceId, $customerId, $dateFrom, $dateTo);
-
-        // --- lista dokumentów kosztowych powiązanych
-        // ze zleceniami wykonanymi w czasie trwania danej umowy
-        $agrWZ = $this->getCostDoc($deviceId, $customerId, $dateFrom, $dateTo);
-        //$agrWZ = array();
-
-        // --- artykuły z WZ
-        //$agrWZitems = array();
-
-        //$agrWZsummaryV = array();
-        //$agrWZsummaryQ = array();
-        //$agrWZServName = array();
-        //$agrWZsummary = array();
-
-        foreach ($agrWZ as $d) {
-
-            // ---- liczymy koszty
-            $contents = $this->getDocContents($d->wz_id, 0);
-
-            foreach ($contents as $item) {
-                //$item->item_quantity = (float)$item->item_quantity;
-                //$item->item_price = (float)$item->item_price;
-                //$item->item_value = (float)$item->item_value;
-                //$item->item_purchase_price = (float)$item->item_purchase_price;
-                //$item->item_purchase_value = (float)$item->item_purchase_value;
-
-                // gdy WZ ma FS dokument zalicza się do przychodu
-                if ($d->fs_id > 0) {
-                    $incomeAddItems[] = $item;
-                    $incomeAdditional += (float)$item->item_value - (float)$item->item_purchase_value;
-                    //$incomeAdditional += (float)$item->item_value; // bez odliczania kosztów zakupu
-                } else {
-                    $agrWZitems[] = $item;
-                    $cost += (float)$item->item_purchase_value;
-                }
-
-                // tabela podsumowująca artykuły
-                //$artCode = $item->art_code;
-                //if (array_key_exists($artCode, $agrWZsummaryV)) {
-                //    $agrWZsummaryV[$artCode] += $item->item_value;
-                //    $agrWZsummaryQ[$artCode] += $item->item_quantity;
-                //} else {
-                //    $agrWZsummaryV[$artCode] = $item->item_value;
-                //    $agrWZsummaryQ[$artCode] = $item->item_quantity;
-                //    $agrWZServName[$artCode] = $item->art_name;
-                //}
-            }
-        }
-
-        //foreach ($agrWZServName as $key => $val) {
-        //    $agrWZsummary[] = (object)[
-        //        'art_code' => $key,
-        //        'art_name' => $val,
-        //        'item_quantity' => $agrWZsummaryQ[$key],
-        //        'item_value' => $agrWZsummaryV[$key]
-        //    ];
-        //}
-
-
-        // ---
-        $agrFS = $this->getAgreementInvoices($agrId, $dateFrom, $dateTo);
-
-        // ---
-        //$agrFSitems = array();
-
-        //$agrFSsummaryV = array();
-        //$agrFSsummaryQ = array();
-        //$agrServName = array();
-        //$agrFSsummary = array();
-
-        foreach ($agrFS as $doc) {
-            $id = $doc->doc_id;
-            $contents = $this->getDocContents($id, 1);
-            // ogarniamy dane do wyświetlenie w tabeli
-            foreach ($contents as $item) {
-                if ($devSerialNo == $item->dev_serial_no) { // && $item->art_id != 11543
-                    //
-                    //$item->item_quantity = (float)$item->item_quantity;
-                    //$item->item_price = (float)$item->item_price;
-                    //$item->item_value = (float)$item->item_value;
-                    //$item->item_purchase_price = (float)$item->item_purchase_price;
-                    //$item->item_purchase_value = (float)$item->item_purchase_value;
-                    //$agrFSitems[] = $item;
-
-                    // przychód bez CNU id:11543
-                    if ($item->art_id != 11543) {
-                        $income += (float)$item->item_value;
-                    }
-
-                    // tabela podsumowująca usługi
-                    //$artCode = $item->art_code;
-                    //if (array_key_exists($artCode, $agrFSsummaryV)) {
-                    //    $agrFSsummaryV[$artCode] += $item->item_value;
-                    //    $agrFSsummaryQ[$artCode] += $item->item_quantity;
-                    //} else {
-                    //    $agrFSsummaryV[$artCode] = $item->item_value;
-                    //    $agrFSsummaryQ[$artCode] = $item->item_quantity;
-                    //    $agrServName[$artCode] = $item->art_name;
-                    //}
-
-                }
-            }
-        }
-
-//        foreach ($agrServName as $key => $val) {
-//            $agrFSsummary[] = (object)[
-//                'art_code' => $key,
-//                'art_name' => $val,
-//                'item_quantity' => $agrFSsummaryQ[$key],
-//                'item_value' => $agrFSsummaryV[$key]
-//            ];
-//        }
-
-        //----------------------------------------------
-        $incomeAll = $income + $incomeAdditional;
-        $profit = $incomeAll - $cost;
-
-        if ($incomeAll != 0) {
-            $gp = (($incomeAll - $cost) / $incomeAll) * 100;
+        if (!count($p)) {
+            $p = [
+                'txtSearch' => '',
+                'Type' => 'dev_name',
+                'customerType' => 1,
+            ];
         } else {
-            $gp = 100;
+            $p['txtSearch'] = array_key_exists('txtSearch', $p) ? $p['txtSearch'] : '';
+            $p['Type'] = array_key_exists('Type', $p) ? $p['Type'] : 'dev_name';
+            $p['customerType'] = array_key_exists('customerType', $p) ? $p['customerType'] : 1;
         }
 
-        $summary = [
-            (object)[
-                'name' => 'income',
-                'value' => $income,
-            ],
-            (object)[
-                'name' => 'incomeAdditional',
-                'value' => $incomeAdditional,
-            ],
-            (object)[
-                'name' => 'cost',
-                'value' => $cost,
-            ],
-            (object)[
-                'name' => 'profit',
-                'value' => $profit,
-            ],
-            (object)[
-                'name' => 'gp',
-                'value' => $gp,
-            ],
-        ];
+        $res = DB::connection('sqlsrv')->select(
+            "EXEC [dbo].[profitGetCustomerList]
+		            @txtSearch = :ts,
+		            @Type = :t,
+		            @customerType = :ct
+            ", [
+                'ts' => $p["txtSearch"],
+                't' => $p["Type"],
+                'ct' => $p["customerType"],
+            ]
+        );
 
-        //----------------------------------------------
-        $results['param'] = $p;
-        //$results['workCards'] = $workCards;                             // zlecenia do umowy
-        //$results['agrWZ'] = $agrWZ;                                     // dokumenty kosztowe do umowy
-        //$results['agrWZitems'] = $agrWZitems;                           // elementy dokumentów kosztowych do umów
-        //$results['agrWZsummary'] = $agrWZsummary;                       // podsumowanie elementów wydań wg artykułów
-        //$results['agrFS'] = $agrFS;                                     // faktury wystawione do umowy
-        //$results['agrFSitems'] = $agrFSitems;                           // elementy faktur do umów
-        //$results['agrFSsummary'] = $agrFSsummary;                       // podsumowanie elementów faktur wg usług
-        //$results['incomeAddItems'] = $incomeAddItems;
-        $results['summary'] = $summary;                                 // podsumowanie kosztów i zysków urządzenia
+        $results['p'] = $p;
+        $results['customers'] = $res;
         return $results;
+    }
+
+
+    public function getCustomer($custId)
+    {
+        $res = DB::connection('sqlsrv')->select("
+                SELECT * FROM [dbo].[profitCustomersList] where [customer_id] = :id
+            ", ['id' => $custId]
+        );
+        return $res[0];
+    }
+
+    public function getPurchaserAgreementsList($custId){
+        $res = DB::connection('sqlsrv')->select("
+                SELECT * FROM [dbo].[profitPurchaserAgreementsList] where [customer_id] = :id
+            ", ['id' => $custId]
+        );
+        return $res;
+    }
+
+
+    public function getRecipientAgreementsList($custId){
+        $res = DB::connection('sqlsrv')->select("
+                SELECT * FROM [dbo].[profitRecipientAgreementsList] where [customer_id] = :id
+            ", ['id' => $custId]
+        );
+        return $res;
     }
 
 

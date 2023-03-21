@@ -103,6 +103,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/profits/contracts/upcount', [ProfitController::class, 'updateContractCounter']);
         Route::post('/profits/contracts/brcount', [ProfitController::class, 'breakContractCounter']);
 
+
+
+        Route::get('/profits/customers/list', [ProfitController::class, 'showCustomersList'])->name('profits.customers.list');
+        Route::post('/profits/customers/list', [ProfitController::class, 'getCustomersList']);
+
+        Route::get('/profits/customers/profit/{custid}/{custtype}', [ProfitController::class, 'showCustomerProfit'])->name('profits.customers.profit');
+        Route::post('/profits/customers/profit', [ProfitController::class, 'getCustomerProfit']);
+
+
         /*
          * end profit
          */
