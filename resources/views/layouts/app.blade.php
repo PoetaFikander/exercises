@@ -38,7 +38,7 @@
 
     <!-- ------------------ MODALE ------------------------------  -->
 
-    @include('modals.agreement') <!-- Modal umowa serwisowa -->
+@include('modals.agreement') <!-- Modal umowa serwisowa -->
 
 
     <!-- Modal agreement profit progress -->
@@ -690,6 +690,13 @@
                         <a class="nav-link" href="{{ route('profits.index') }}">Profitowość</a>
                     @endcanany
 
+                    @canany(['isAdmin'])
+                        <a class="nav-link" href="{{ route('coordination.index') }}">Koordynacja</a>
+                        <a class="nav-link" href="{{ route('bok.index') }}">BOK</a>
+                        <a class="nav-link" href="{{ route('it.index') }}">IT</a>
+                    @endcanany
+
+
                     @can('isAdmin')
                         <a class="nav-link" href="{{ route('users.list') }}">Użytkownicy</a>
                     @endcan
@@ -732,6 +739,7 @@
                         </li>
                     @endguest
                 </ul>
+
             </div>
         </div>
     </nav>
@@ -741,14 +749,21 @@
     </main>
 </div>
 
+<!-- js other -->
 <script src="{{ asset('DataTables/datatables.min.js') }}" defer></script>
 <script src="{{ asset('Datepicker/bootstrap-datepicker.min.js') }}" defer></script>
-<script src="{{ asset('js/main.js') }}" defer></script>
 
-<script type="module">
+<!-- js my global -->
+<script src="{{ asset('js/init.js') }}" type="module"></script> <!-- inicjuje globalne parametry -->
+
+<script src="{{ asset('js/myapp.js') }}" type="module"></script> <!-- testowy plik główny -->
+
+<script src="{{ asset('js/main.js') }}" defer></script> <!-- do przebudowy -->
+
+<!-- js for module -->
+@hasSection('js')
     @yield('js')
-</script>
-@yield('js-files')
+@endif
 
 </body>
 </html>

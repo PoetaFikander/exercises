@@ -14,10 +14,11 @@
                             <a class="nav-link active" href="{{ route('profits.devices.list') }}">Urządzenia</a>
                         </li>
 
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ route('profits.contracts.list') }}">Umowy</a>
+                        </li>
+
                         @can('isAdmin')
-                            <li class="nav-item">
-                                <a class="nav-link active" href="{{ route('profits.contracts.list') }}">Umowy</a>
-                            </li>
                             <li class="nav-item">
                                 <a class="nav-link active" href="{{ route('profits.customers.list') }}">Kontrahenci</a>
                             </li>

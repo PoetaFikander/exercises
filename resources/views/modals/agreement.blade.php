@@ -235,49 +235,292 @@
 
                                     <div class="tab-pane fade" id="parameters">
 
-
                                         <div class="row mt-2">
                                             <fieldset class="border rounded-2 p-3">
                                                 <legend class="float-none w-auto px-3 fs-6">Stawki</legend>
+
+                                                    <div class="table-responsive">
+                                                        <table class="table table-striped table-sm table-hover" id="agreementRatesTable">
+                                                            <thead>
+                                                            <tr>
+                                                                <th scope="col">Lp</th>
+                                                                <th scope="col">Kod usługi</th>
+                                                                <th scope="col">Cena netto</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody></tbody>
+                                                        </table>
+                                                    </div>
+
                                             </fieldset>
                                         </div>
 
                                         <div class="row mt-2">
-                                            <fieldset class="border rounded-2 p-3">
+                                            <fieldset class="border rounded-2 p-0">
                                                 <legend class="float-none w-auto px-3 fs-6">Ogólne</legend>
+
+                                                <div class="row">
+                                                    <div class="col-sm-5">
+
+                                                        <div class="row mb-1">
+                                                            <label for="ServiceCompanyUnit" class="col-sm-6 col-form-label">Oddział obsługujący urządzenia</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="ServiceCompanyUnit" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-1">
+                                                            <label for="DKSPerson" class="col-sm-6 col-form-label">Osoba odpowiedzialna DKS</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="DKSPerson" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-1">
+                                                            <label for="DKSTechPerson" class="col-sm-6 col-form-label">Technik</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="DKSTechPerson" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+
+                                                    </div>
+                                                    <div class="col-sm-7">
+
+                                                        <div class="row mb-1">
+                                                            <label for="InstallationAddress" class="col-sm-4 col-form-label">Adres instalacji urządzeń</label>
+                                                            <div class="col-sm-8">
+                                                                <input type="text" id="InstallationAddress" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-1">
+                                                            <label for="ClientPerson" class="col-sm-4 col-form-label">Osoba odp. po stronie klienta</label>
+                                                            <div class="col-sm-8">
+                                                                <input type="text" id="ClientPerson" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-1">
+                                                            <label for="ClientPersonToner" class="col-sm-4 col-form-label">Osoba odp. za odbiór tonerów</label>
+                                                            <div class="col-sm-8">
+                                                                <input type="text" id="ClientPersonToner" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
                                             </fieldset>
                                         </div>
 
                                         <div class="row mt-2">
-                                            <fieldset class="border rounded-2 p-3">
+                                            <fieldset class="border rounded-2 p-0">
                                                 <legend class="float-none w-auto px-3 fs-6">Serwisowe</legend>
+
+                                                <div class="row">
+
+                                                    <div class="col-sm-6">
+
+                                                        <div class="row mb-1">
+                                                            <label for="dipStatus" class="col-sm-6 col-form-label">Status instalacji</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="dipStatus" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-1">
+                                                            <label for="CountersCheckType" class="col-sm-6 col-form-label">Sposób odczytu liczników</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="CountersCheckType" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+                                                    <div class="col-sm-6">
+
+                                                        <div class="row mb-1">
+                                                            <label for="TestCopyAmount" class="col-sm-6 col-form-label">Kopie testowe</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="TestCopyAmount" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-1">
+                                                            <label for="BillingIfNoCounter" class="col-sm-6 col-form-label">Fakturowanie gdy brak licznika</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="BillingIfNoCounter" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
                                             </fieldset>
                                         </div>
 
                                         <div class="row mt-2">
-                                            <fieldset class="border rounded-2 p-3">
+                                            <fieldset class="border rounded-2 p-0">
                                                 <legend class="float-none w-auto px-3 fs-6">SLA</legend>
+
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+
+                                                        <div class="row mb-1">
+                                                            <label for="ReactionTime" class="col-sm-6 col-form-label">Czas reakcji (roboczogodziny)</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="ReactionTime" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-1">
+                                                            <label for="RepairTime" class="col-sm-6 col-form-label">Czas naprawy</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="RepairTime" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-1">
+                                                            <label for="ReplacementPartsKind" class="col-sm-6 col-form-label">Rodzaj części</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="ReplacementPartsKind" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="col-sm-6">
+
+                                                        <div class="row mb-1">
+                                                            <label for="ClientWorkTime" class="col-sm-6 col-form-label">Godziny pracy klienta</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="ClientWorkTime" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-1">
+                                                            <label for="ClientActualWorkTime" class="col-sm-6 col-form-label">Faktyczny czas pracy klienta</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="ClientActualWorkTime" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
                                             </fieldset>
                                         </div>
 
                                         <div class="row mt-2">
-                                            <fieldset class="border rounded-2 p-3">
+                                            <fieldset class="border rounded-2 p-0">
                                                 <legend class="float-none w-auto px-3 fs-6">Gwarancyjne</legend>
+
+                                                <div class="row">
+                                                    <div class="col-sm-6">
+
+                                                        <div class="row mb-1">
+                                                            <label for="PrintAmount" class="col-sm-6 col-form-label">Ilość wydruków</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="PrintAmount" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-1">
+                                                            <label for="CopyLimit" class="col-sm-6 col-form-label">Limit kopii gwarancyjnych</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="CopyLimit" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-1">
+                                                            <label for="MonthsInCycle" class="col-sm-6 col-form-label">Ilość miesięcy w cyklu</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="MonthsInCycle" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="col-sm-6">
+
+                                                        <div class="row mb-1">
+                                                            <label for="GuaranteeDateDKS" class="col-sm-6 col-form-label">Data gwarancji DKS</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="GuaranteeDateDKS" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="row mb-1">
+                                                            <label for="GuaranteeDateProducent" class="col-sm-6 col-form-label">Data gwarancji producenta</label>
+                                                            <div class="col-sm-6">
+                                                                <input type="text" id="GuaranteeDateProducent" class="form-control form-control-sm" disabled/>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+
                                             </fieldset>
                                         </div>
 
                                     </div> <!-- end parameters -->
 
                                     <div class="tab-pane fade" id="devices">
+
+                                        <div class="table-responsive mt-2">
+                                            <table class="table table-striped table-sm table-hover" id="agreementDevicesTable">
+                                                <thead>
+                                                <tr>
+                                                    <th scope="col">Nazwa</th>
+                                                    <th scope="col">Numer urządzenia</th>
+                                                    <th scope="col">Numer seryjny</th>
+                                                    <th scope="col">Status</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+
+
                                     </div> <!-- end devices -->
 
                                     <div class="tab-pane fade" id="attachments">
                                     </div> <!-- end attachments -->
 
                                     <div class="tab-pane fade" id="invoices">
+
+                                        <div class="table-responsive mt-2">
+                                            <table class="table table-striped table-sm table-hover" id="agreementInvoicesTable">
+                                                <thead>
+                                                <tr>
+                                                    <th scope="col">Od</th>
+                                                    <th scope="col">Do</th>
+                                                    <th scope="col">Numer FS</th>
+                                                    <th scope="col">Wartość</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+
                                     </div> <!-- end invoices -->
 
                                     <div class="tab-pane fade" id="history">
+
+                                        <div class="table-responsive mt-2">
+                                            <table class="table table-striped table-sm table-hover" id="agreementHistoryTable">
+                                                <thead>
+                                                <tr>
+                                                    <th scope="col">Typ obiektu</th>
+                                                    <th scope="col">Typ zmian</th>
+                                                    <th scope="col">Dane dodatkowe</th>
+                                                    <th scope="col">Operator</th>
+                                                    <th scope="col">Data</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody></tbody>
+                                            </table>
+                                        </div>
+
                                     </div> <!-- end history -->
 
 

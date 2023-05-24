@@ -1,8 +1,8 @@
-$.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-    }
-});
+// $.ajaxSetup({
+//     headers: {
+//         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+//     }
+// });
 
 $(document).ready(function () {
     // -----------------------------------------------------------------
@@ -631,6 +631,9 @@ $(document).ready(function () {
      * ------------------- dokumenty w modalach -------------------------
      */
 
+    /**
+     * --------- modal DataTable init
+     */
         // ---- tabele w modalu zlecenia ------------------------------------
     const $wcActionTable = $('#wcActionTable');
     const wcActionTable = $wcActionTable.DataTable(
@@ -704,8 +707,73 @@ $(document).ready(function () {
     );
     // ---- end tabele w modalu zlecenia --------------------------------
 
+
+    //---------- tabela z urządzeniami modal umowy
+    const $agreementDevicesTable = $('#agreementDevicesTable');
+    const agreementDevicesTable = $agreementDevicesTable.DataTable(
+        {
+            autoWidth: false,
+            columns: [
+                {'data': 'dev_name'},
+                {'data': 'dev_serial_name'},
+                {'data': 'dev_serial_no'},
+                {'data': 'dev_status'},
+            ]
+        }
+    );
+    agreementDevicesTable.clear().draw();
+
+    //---------- tabela ze stawkami
+    const $agreementRatesTable = $('#agreementRatesTable');
+    const agreementRatesTable = $agreementRatesTable.DataTable(
+        {
+            autoWidth: false,
+            info: false,
+            paging: false,
+            sort: false,
+            searching: false,
+            columns: [
+                {'data': 'rate_position'},
+                {'data': 'art_code'},
+                {'data': 'rate_rate', className: 'text-end'},
+            ]
+        }
+    );
+    agreementRatesTable.clear().draw();
+
+    //---------- tabela z fakturami do umowy
+    const $agreementInvoicesTable = $('#agreementInvoicesTable');
+    const agreementInvoicesTable = $agreementInvoicesTable.DataTable(
+        {
+            autoWidth: false,
+            columns: [
+                {'data': 'billing_from'},
+                {'data': 'billing_to'},
+                {'data': 'doc_number_string'},
+                {'data': 'doc_net_value', className: 'text-end'},
+            ],
+        }
+    );
+    agreementInvoicesTable.clear().draw();
+
+    const $agreementHistoryTable = $('#agreementHistoryTable');
+    const agreementHistoryTable = $agreementHistoryTable.DataTable(
+        {
+            autoWidth: false,
+            columns: [
+                {'data': 'object_type'},
+                {'data': 'change_type'},
+                {'data': 'additional_data'},
+                {'data': 'employee_name'},
+                {'data': 'date'},
+            ]
+        }
+    );
+    agreementHistoryTable.clear().draw();
+
+
     /**
-     * profit.blade
+     * --------- END modal DataTable init
      */
 
 
@@ -904,11 +972,11 @@ $(document).ready(function () {
     const showAgreement = function (data) {
         //console.log(data);
         const h = data.doc.header;      // nagłówek dokumentu
-        const c = data.doc.contents;    // zawartość dokumentu
-        //const actions = data.doc.actions;
-        //const materials = data.doc.materials;
-        //const services = data.doc.services;
-        //const documents = data.doc.documents;
+        const p = data.doc.itemPar;    // zakładka parametry
+        const r = data.doc.rates;    // zakładka parametry tabela stawki
+        const d = data.doc.devices;    // tabela urządzenia
+        const i = data.doc.invoices;    // tabela faktury
+        const hi = data.doc.history;    // tabela historia
 
         const modalEl = document.querySelector('#showAgreementModal');
         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
@@ -916,6 +984,60 @@ $(document).ready(function () {
         const $modal = $('#showAgreementModal');
         const $modalLabel = $('#showAgreementModalLabel');
         $modalLabel.text(h.agr_internal_no + ' - ' + h.agr_status_name);
+
+
+        //---------- tabela z historią
+        if (hi.length) {
+            for (let n in hi) {
+                let item = hi[n];
+                //item.rate_rate = Number(item.rate_rate).toFixed(4);
+            }
+            agreementHistoryTable.clear();
+            agreementHistoryTable.rows.add(hi).draw();
+        }
+
+        //---------- tabela z fakturami
+        if (d.length) {
+            for (let n in i) {
+                let item = i[n];
+                item.doc_net_value = Number(item.doc_net_value).toFixed(2);
+                item.doc_number_string = '<button type="button" class="border-0" data-doctypeid="8" data-id="' + item.doc_id + '">' + item.doc_number_string + '</button>';
+            }
+            agreementInvoicesTable.clear();
+            agreementInvoicesTable.rows.add(i).draw();
+        }
+
+        // ------ end odświerzanie eventów po paginacji
+        agreementInvoicesTable.on('page', function () {
+            console.log('page changed');
+            $agreementInvoicesTable.off('click', 'button');
+            $agreementInvoicesTable.on('click', 'button', getDocContents);
+        });
+        // ------ dodawanie eventów wyswietlających zawartość dokumentów
+        $agreementInvoicesTable.off('click', 'button');
+        $agreementInvoicesTable.on('click', 'button', getDocContents);
+
+
+        //---------- tabela z urządzeniami
+        if (d.length) {
+            for (let n in d) {
+                let item = d[n];
+                //item.rate_rate = Number(item.rate_rate).toFixed(4);
+            }
+            agreementDevicesTable.clear();
+            agreementDevicesTable.rows.add(d).draw();
+        }
+
+        //---------- tabela ze stawkami
+        if (r.length) {
+            for (let n in r) {
+                let item = r[n];
+                item.rate_rate = Number(item.rate_rate).toFixed(4);
+            }
+            agreementRatesTable.clear();
+            agreementRatesTable.rows.add(r).draw();
+        }
+
 
         // ---- nagłówek
         $('#externalNumber', $modal).val(h.agr_external_number);
@@ -942,6 +1064,32 @@ $(document).ready(function () {
         $('#printoutName', $modal).val(h.agr_print_name);
         $('#isValorization', $modal).prop('checked', !!(parseInt(h.agr_valorization)));
         $('#nextValorizationDate', $modal).val(h.agr_next_valorization_date);
+
+        // ---- parametry --------------
+        // ogólne
+        $('#ServiceCompanyUnit', $modal).val(p.ServiceCompanyUnit);
+        $('#DKSPerson', $modal).val(p.DKSPerson);
+        $('#DKSTechPerson', $modal).val(p.DKSTechPerson);
+        $('#InstallationAddress', $modal).val(p.InstallationAddress);
+        $('#ClientPerson', $modal).val(p.ClientPerson);
+        $('#ClientPersonToner', $modal).val(p.ClientPersonToner);
+        //------ sla
+        $('#ReactionTime', $modal).val(p.ReactionTime);
+        $('#RepairTime', $modal).val(p.RepairTime);
+        $('#ReplacementPartsKind', $modal).val(p.ReplacementPartsKind);
+        $('#ClientWorkTime', $modal).val(p.ClientWorkTime);
+        $('#ClientActualWorkTime', $modal).val(p.ClientActualWorkTime);
+        //------ serwis
+        $('#dipStatus', $modal).val(p.dipStatus);
+        $('#CountersCheckType', $modal).val(p.CountersCheckType);
+        $('#TestCopyAmount', $modal).val(p.TestCopyAmount);
+        $('#BillingIfNoCounter', $modal).val(p.BillingIfNoCounter);
+        //------ gwarancyjne
+        $('#PrintAmount', $modal).val(p.PrintAmount);
+        $('#CopyLimit', $modal).val(p.CopyLimit);
+        $('#MonthsInCycle', $modal).val(p.MonthsInCycle);
+        $('#GuaranteeDateDKS', $modal).val(p.GuaranteeDateDKS);
+        $('#GuaranteeDateProducent', $modal).val(p.GuaranteeDateProducent);
 
         modal.show();
     };
@@ -1095,6 +1243,19 @@ $(document).ready(function () {
 
     };
 
+    /**
+     *
+     * END modale z dokumentami
+     *
+     *
+     */
+
+
+
+
+    /**
+     * profit.blade
+     */
 
     if ($('#profit').length) {
 
@@ -1370,6 +1531,7 @@ $(document).ready(function () {
         };
 
         const getContractProfit = function (parameters) {
+            console.log('getContractProfit param: ');
             console.log(parameters);
 
             let devQuantity = 0;

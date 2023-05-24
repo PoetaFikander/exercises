@@ -137,6 +137,7 @@ class ProfitRepository extends BaseRepository
     {
         $results = array();
         switch ($docTypeId){
+
             case 1002: // work card
                 $results['header'] = $this->getWorkCardHeader($docId);
                 $results['contents'] = array();
@@ -153,8 +154,14 @@ class ProfitRepository extends BaseRepository
                 }
                 $results['documents'] = $documents;
                 break;
+
             case 1003: // agreement
                 $results['header'] = $this->getAgreementHeader($docId);
+                $results['itemPar'] = $this->getAgreementDefaultItemParameters($docId);
+                $results['rates'] = $this->getAgreementHeaderRates($docId);
+                $results['devices'] = $this->getAgreementDevicesList($docId);
+                $results['invoices'] = $this->getAgreementInvoices($docId, null, null);
+                $results['history'] = $this->getAgreementsTrackingHistory($docId);
                 break;
 
             default: // altum native
@@ -162,43 +169,54 @@ class ProfitRepository extends BaseRepository
                 $results['contents'] = $this->getDocContents($docId, 0);
         }
 
-
-//        if ($docTypeId == 1002) {
-//            $results['header'] = $this->getWorkCardHeader($docId);
-//            $results['contents'] = array();
-//            $results['actions'] = $this->getWorkCardActions($docId);
-//            $results['materials'] = $this->getWorkCardMaterials($docId);
-//            $results['services'] = $this->getWorkCardServices($docId);
-//            $documents = array();
-//            $docs = $this->getWorkCardDoc($docId);
-//            foreach ($docs as $d) {
-//                if ((int)$d->doc_id > 0) {
-//                    $h = $this->getDocHeader($d->doc_id);
-//                    $documents[] = $h;
-//                }
-//            }
-//            $results['documents'] = $documents;
-//        } else {
-//            $results['header'] = $this->getDocHeader($docId);
-//            $results['contents'] = $this->getDocContents($docId, 0);
-//        }
-
         return $results;
     }
 
+
+
     public function getAgreementHeader($docId)
     {
-        //$res = DB::connection('sqlsrv')->select("
-        //    SELECT * FROM [dbo].[profitGetAgreementHeader] ( :id )
-        //    ", ['id' => $docId]
-        //);
-
         $res = DB::connection('sqlsrv')->select("
                 EXEC [dbo].[profitGetAgreementHeaderProc] @agrId = :id
             ", ['id' => $docId]
         );
-
         return $res[0];
+    }
+
+    public function getAgreementDefaultItemParameters($docId)
+    {
+        $res = DB::connection('sqlsrv')->select("
+                SELECT * FROM [dbo].[agreementDefaultItemParameters] ( :id )
+            ", ['id' => $docId]
+        );
+        return $res[0];
+    }
+
+    public function getAgreementHeaderRates($docId)
+    {
+        $res = DB::connection('sqlsrv')->select("
+                SELECT * FROM [dbo].[agreementHeaderRates] ( :id )
+            ", ['id' => $docId]
+        );
+        return $res;
+    }
+
+    public function getAgreementDevicesList($docId)
+    {
+        $res = DB::connection('sqlsrv')->select("
+                EXEC [dbo].[getAgreementDevicesList] @agrId = :id , @devStatus = 1
+            ", ['id' => $docId]
+        );
+        return $res;
+    }
+
+    public function getAgreementsTrackingHistory($docId)
+    {
+        $res = DB::connection('sqlsrv')->select("
+                EXEC [dbo].[agreementsTrackingHistoryProc] @agrId = :id
+            ", ['id' => $docId]
+        );
+        return $res;
     }
 
 
@@ -601,6 +619,7 @@ class ProfitRepository extends BaseRepository
     }
 
 
+
     public function setAgreementCounter($counterId, $devQuantity)
     {
         $results = DB::connection('sqlsrv')->insert("
@@ -653,7 +672,6 @@ class ProfitRepository extends BaseRepository
     	    ", ['i' => $counterId]);
         return $results[0];
     }
-
 
 
 

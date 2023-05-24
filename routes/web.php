@@ -4,6 +4,9 @@ use App\Http\Controllers\ProfitController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\HpReportController;
+use App\Http\Controllers\CoordinationController;
+use App\Http\Controllers\ItController;
+use App\Http\Controllers\BokController;
 
 /*
 |--------------------------------------------------------------------------
@@ -69,13 +72,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
         */
         Route::get('/profits/index', [ProfitController::class, 'index'])->name('profits.index');
 
+        Route::post('/profits/doc', [ProfitController::class, 'getDoc']);
+
         Route::get('/profits/devices/list', [ProfitController::class, 'showDevicesList'])->name('profits.devices.list');
         Route::post('/profits/devices/list', [ProfitController::class, 'getDevicesList']);
-
         Route::get('/profits/devices/profit/{devid}/{agrid}', [ProfitController::class, 'showDeviceProfit'])->name('profits.devices.profit');
         Route::post('/profits/devices/profit', [ProfitController::class, 'getDeviceProfit']);
+        Route::post('/profits/devices/profit/calc/{id?}', [ProfitController::class, 'getDeviceProfitCalc']);
 
-        Route::post('/profits/doc', [ProfitController::class, 'getDoc']);
+        Route::get('/profits/contracts/list', [ProfitController::class, 'showContractsList'])->name('profits.contracts.list');
+        Route::post('/profits/contracts/list', [ProfitController::class, 'getContractsList']);
+        Route::get('/profits/contracts/profit/{agrid}', [ProfitController::class, 'showContractProfit'])->name('profits.contracts.profit');
+        Route::post('/profits/contracts/profit', [ProfitController::class, 'getContractProfit']);
+        Route::post('/profits/contracts/devices', [ProfitController::class, 'getContractDevices']);
+        Route::post('/profits/contracts/setcount', [ProfitController::class, 'setContractCounter']);
+        Route::post('/profits/contracts/getcount', [ProfitController::class, 'getContractCounter']);
+        Route::post('/profits/contracts/upcount', [ProfitController::class, 'updateContractCounter']);
+        Route::post('/profits/contracts/brcount', [ProfitController::class, 'breakContractCounter']);
 
         /*
          * end profit
@@ -85,29 +98,67 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware(['can:isAdmin'])->group(function () {
 
+
+        /*
+         * IT TODO
+        */
+
+        Route::get('/it/index', [ItController::class, 'index'])->name('it.index');
+
+        /*
+         * end IT
+        */
+
+        /*
+         * BOK TODO
+        */
+
+        Route::get('/bok/index', [BokController::class, 'index'])->name('bok.index');
+        Route::get('/bok/contracts/index', [BokController::class, 'contractsIndex'])->name('bok.contracts.index');
+        Route::get('/bok/devices/index', [BokController::class, 'devicesIndex'])->name('bok.devices.index');
+        Route::get('/bok/technician/index', [BokController::class, 'technicianIndex'])->name('bok.technician.index');
+
+        // ajax
+        Route::post('/bok/contracts/getAgreementId', [BokController::class, 'getAgreementId']);
+
+        /*
+
+        */
+
+        /*
+         * end BOK
+        */
+
+        /*
+         * koordynacja TODO
+        */
+
+        Route::get('/coordination/index', [CoordinationController::class, 'index'])->name('coordination.index');
+
+        /*
+         * end koordynacja
+        */
+
         /*
          * profit TODO
         */
 
-        Route::get('/profits/contracts/list', [ProfitController::class, 'showContractsList'])->name('profits.contracts.list');
-        Route::post('/profits/contracts/list', [ProfitController::class, 'getContractsList']);
-
-        Route::get('/profits/contracts/profit/{agrid}', [ProfitController::class, 'showContractProfit'])->name('profits.contracts.profit');
-        Route::post('/profits/contracts/profit', [ProfitController::class, 'getContractProfit']);
-        Route::post('/profits/contracts/devices', [ProfitController::class, 'getContractDevices']);
-
-        Route::post('/profits/devices/profit/calc/{id?}', [ProfitController::class, 'getDeviceProfitCalc']);
-
-        Route::post('/profits/contracts/setcount', [ProfitController::class, 'setContractCounter']);
-        Route::post('/profits/contracts/getcount', [ProfitController::class, 'getContractCounter']);
-        Route::post('/profits/contracts/upcount', [ProfitController::class, 'updateContractCounter']);
-        Route::post('/profits/contracts/brcount', [ProfitController::class, 'breakContractCounter']);
-
-
+//        Route::get('/profits/contracts/list', [ProfitController::class, 'showContractsList'])->name('profits.contracts.list');
+//        Route::post('/profits/contracts/list', [ProfitController::class, 'getContractsList']);
+//
+//        Route::get('/profits/contracts/profit/{agrid}', [ProfitController::class, 'showContractProfit'])->name('profits.contracts.profit');
+//        Route::post('/profits/contracts/profit', [ProfitController::class, 'getContractProfit']);
+//        Route::post('/profits/contracts/devices', [ProfitController::class, 'getContractDevices']);
+//
+//        Route::post('/profits/devices/profit/calc/{id?}', [ProfitController::class, 'getDeviceProfitCalc']);
+//
+//        Route::post('/profits/contracts/setcount', [ProfitController::class, 'setContractCounter']);
+//        Route::post('/profits/contracts/getcount', [ProfitController::class, 'getContractCounter']);
+//        Route::post('/profits/contracts/upcount', [ProfitController::class, 'updateContractCounter']);
+//        Route::post('/profits/contracts/brcount', [ProfitController::class, 'breakContractCounter']);
 
         Route::get('/profits/customers/list', [ProfitController::class, 'showCustomersList'])->name('profits.customers.list');
         Route::post('/profits/customers/list', [ProfitController::class, 'getCustomersList']);
-
         Route::get('/profits/customers/profit/{custid}/{custtype}', [ProfitController::class, 'showCustomerProfit'])->name('profits.customers.profit');
         Route::post('/profits/customers/profit', [ProfitController::class, 'getCustomerProfit']);
 
