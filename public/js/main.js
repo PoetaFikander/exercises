@@ -1572,7 +1572,7 @@ $(document).ready(function () {
                         console.log(data);
                         // ------------------------
                         const profits = data.results.profits;
-                        //console.log(profits);
+                        console.log(profits);
                         for (let n in profits) {
                             let item = profits[n];
                             item.income_all = Number(item.income_all).toFixed(2);

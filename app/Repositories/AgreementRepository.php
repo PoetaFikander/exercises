@@ -14,13 +14,4 @@ class AgreementRepository extends BaseRepository
         $this->model = $model;
     }
 
-    public function getAgreementId($agrNo)
-    {
-        $res = DB::connection('sqlsrv')->select("
-                SELECT [dbo].[GetAgreementId] (:no) [agrId]
-            ", ['no' => $agrNo]
-        );
-        return $res[0];
-    }
-
 }

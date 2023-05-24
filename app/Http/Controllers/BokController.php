@@ -38,20 +38,25 @@ class BokController extends Controller
 
     // ----------- Agreements ----------------------------
 
-    public function getAgreementId(AgreementRepository $agreementRepository, Request $request)
+    public function getAgreementId(Request $request)
     {
-        if ($request->ajax()) {
-            $json = json_decode(htmlspecialchars_decode($request->input('json')));
-            $agrId = $agreementRepository->getAgreementId($json->agrNo);
-            $json->agrId = $agrId;
-            return Response::json($json);
-        } else {
-            //todo zrobić ogólną stronę błędów
-            return view('auth.login');
-        }
+        $json = jsonDecode($request->input('json'));
+        $agrId = AgreementController::getAgreementId($json->agrNo);
+        $data = (object)$agrId;
+        return Response::json($data);
     }
 
+    public function getAgreementDevices(Request $request)
+    {
+        $json = jsonDecode($request->input('json'));
+        $data = AgreementController::getAgreementDevices($json->agrId);
+        return Response::json($data);
+    }
 
-
+    public function updateAgreementDevicesFGBL(Request $request){
+        $json = jsonDecode($request->input('json'));
+        $data = AgreementController::updateAgreementDevicesFGBL($json->data);
+        return Response::json($data);
+    }
 
 }

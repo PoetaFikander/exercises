@@ -129,6 +129,7 @@
                                             <span class="fs-5">Urządzenia</span>
                                         </button>
                                     </h2>
+
                                     <div id="collapseDevice" class="accordion-collapse collapse" aria-labelledby="headingDevice"
                                          data-bs-parent="#accordionDevices">
                                         <div class="accordion-body">
@@ -175,6 +176,7 @@
 
                                         </div>
                                     </div>
+
                                 </div>
 
                             </div>

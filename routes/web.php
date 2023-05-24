@@ -120,6 +120,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // ajax
         Route::post('/bok/contracts/getAgreementId', [BokController::class, 'getAgreementId']);
+        Route::post('/bok/contracts/getAgreementDevices', [BokController::class, 'getAgreementDevices']);
+        Route::post('/bok/contracts/updateAgreementDevicesFGBL', [BokController::class, 'updateAgreementDevicesFGBL']);
+
 
         /*
 
