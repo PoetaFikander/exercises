@@ -34,14 +34,9 @@ class Agreement extends Model
         foreach ($data as $dev) {
             $r = DB::connection('sqlsrv')->select("
                     EXEC [dbo].[updateAgreementDevicesFGBL] @agrId = :aid , @itemId = :iid, @fgbl = :fgbl
-                ", ['aid' => $dev->agrId, 'iid' => $dev->itemId, 'fgbl'=>$dev->fgbl]
+                ", ['aid' => $dev->agrId, 'iid' => $dev->itemId, 'fgbl' => $dev->fgbl]
             );
-            $res[] = (object)[
-                'agr_id' => $dev->agrId,
-                'agr_item_id' => $dev->itemId,
-                'fgbl' => $dev->fgbl,
-                'result' => $r
-            ];
+            $res[] = $r[0];
         }
         return $res;
     }

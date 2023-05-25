@@ -23,14 +23,17 @@ function ax(o, url, callback, type = "POST") {
     });
 }
 
+//Lodash is a modern JavaScript utility library that can perform many JavaScript functionalities with very basic syntax.
+const isObjectEmpty = (objectName) => {
+    return _.isEmpty(objectName);
+};
 
 
 
 
 
 
-
-export { ax }
+export { ax, isObjectEmpty }
 
 
 // ---------------------      testy
