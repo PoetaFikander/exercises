@@ -2,6 +2,20 @@ html {
     font-size: 0.9rem;
 }
 
+i {
+    font-size: 0.9rem;
+}
+
+/* ----- dataTables ----- */
+div.dataTables_wrapper  div.dataTables_filter {
+    text-align: left !important;
+}
+
+div.dataTables_wrapper  div.dataTables_filter input {
+    min-width: 25rem !important;
+}
+/* ----- end dataTables ----- */
+
 .thead-dark-grey th {
     background-color: #b02a37;
 }
@@ -36,6 +50,9 @@ html {
     overflow-wrap: break-word !important;
 }
 
+.dataTables-search-w {
+    width: 400px !important;
+}
 
 .my-table {
 
@@ -50,8 +67,12 @@ html {
     overflow: scroll;
 }
 
-.custCodeInp{
+.custCodeInp {
     max-width: 85px;
+}
+
+.filter-select-w {
+    width: 150px !important;
 }
 
 .deviceFilterSelect {
@@ -88,15 +109,13 @@ div.ltop label {
 
 #showDocModal textarea,
 #showWorkCardModal textarea,
-#showAgreementModal textarea
-{
+#showAgreementModal textarea {
     background-color: #ebebeb;
 }
 
 #showDocModal input,
 #showWorkCardModal input,
-#showAgreementModal input
-{
+#showAgreementModal input {
     font-size: .95rem;
     font-weight: bold;
     background-color: #ebebeb;
@@ -104,17 +123,14 @@ div.ltop label {
 
 #showDocModal input[type=checkbox],
 #showWorkCardModal input[type=checkbox],
-#showAgreementModal input[type=checkbox]
-{
+#showAgreementModal input[type=checkbox] {
     margin-top: .7em;
 }
 
 
-#showAgreementModal label
-{
+#showAgreementModal label {
     padding-right: 5px;
 }
-
 
 
 .pointer {
@@ -127,16 +143,18 @@ div.ltop label {
     top: 0;
     z-index: 100;
     width: 100%;
-    height:100%;
+    height: 100%;
     display: none;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.6);
 }
+
 .cv-spinner {
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
 }
+
 .spinner {
     width: 40px;
     height: 40px;
@@ -152,6 +170,6 @@ div.ltop label {
     }
 }
 
-.is-hide{
-    display:none;
+.is-hide {
+    display: none;
 }

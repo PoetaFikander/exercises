@@ -23,10 +23,4 @@ class AgreementController extends Controller
         return Agreement::getAgreementDevices($agrId);
     }
 
-    static function updateAgreementDevicesFGBL($data)
-    {
-        return Agreement::updateAgreementDevicesFGBL($data);
-    }
-
-
 }

@@ -122,6 +122,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/bok/contracts/getAgreementId', [BokController::class, 'getAgreementId']);
         Route::post('/bok/contracts/getAgreementDevices', [BokController::class, 'getAgreementDevices']);
         Route::post('/bok/contracts/updateAgreementDevicesFGBL', [BokController::class, 'updateAgreementDevicesFGBL']);
+        Route::post('/bok/contracts/getDeviceReplacementParts', [BokController::class, 'getDeviceReplacementParts']);
+        Route::post('/bok/contracts/updateAgreementDevicesRPK', [BokController::class, 'updateAgreementDevicesRPK']);
+
+        Route::post('/bok/devices/getDeviceBySerial', [BokController::class, 'getDeviceBySerial']);
+        Route::post('/bok/devices/getDeviceProducers', [BokController::class, 'getDeviceProducers']);
+        Route::post('/bok/devices/getDeviceTypes', [BokController::class, 'getDeviceTypes']);
+        Route::post('/bok/devices/getDeviceKinds', [BokController::class, 'getDeviceKinds']);
+        Route::post('/bok/devices/getDeviceModels', [BokController::class, 'getDeviceModels']);
+        Route::post('/bok/devices/updateDeviceModel', [BokController::class, 'updateDeviceModel']);
 
 
         /*

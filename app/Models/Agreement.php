@@ -13,7 +13,7 @@ class Agreement extends Model
     static function getAgreementId($agrNo)
     {
         $res = DB::connection('sqlsrv')->select("
-                SELECT [dbo].[GetAgreementId] (:no) [agrId]
+                SELECT [dbo].[getAgreementId] (:no) [agrId]
             ", ['no' => $agrNo]
         );
         return $res[0];
@@ -25,19 +25,6 @@ class Agreement extends Model
                 EXEC [dbo].[getAgreementDevicesList] @agrId = :id , @devStatus = :ds
             ", ['id' => $agrId, 'ds' => $devStatus]
         );
-        return $res;
-    }
-
-    static function updateAgreementDevicesFGBL($data)
-    {
-        $res = array();
-        foreach ($data as $dev) {
-            $r = DB::connection('sqlsrv')->select("
-                    EXEC [dbo].[updateAgreementDevicesFGBL] @agrId = :aid , @itemId = :iid, @fgbl = :fgbl
-                ", ['aid' => $dev->agrId, 'iid' => $dev->itemId, 'fgbl' => $dev->fgbl]
-            );
-            $res[] = $r[0];
-        }
         return $res;
     }
 
