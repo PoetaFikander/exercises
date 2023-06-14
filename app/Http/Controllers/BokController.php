@@ -29,14 +29,20 @@ class BokController extends Controller
         $deviceProducers = DeviceController::getDeviceProducers();
         $deviceTypes = DeviceController::getDeviceTypes();
         $deviceKinds = DeviceController::getDeviceKinds();
-        //$deviceModels = DeviceController::getDeviceModels();
+        $departments = ToolController::getDepartments();
+        $technicians = ToolController::getTechnicians();
+        $models = DeviceController::getDeviceModels([]); // ['kind'=>619] typ nieokreślony
+
         $deviceModels = [];
         return view('bok.devices.index', [
             'deviceReplacementParts' => $deviceReplacementParts,
             'deviceProducers' => $deviceProducers,
             'deviceTypes' => $deviceTypes,
             'deviceKinds' => $deviceKinds,
-            'deviceModels' => $deviceModels
+            'deviceModels' => $deviceModels,
+            'models' => $models,
+            'departments' => $departments,
+            'technicians' => $technicians
         ]);
     }
 
@@ -45,6 +51,13 @@ class BokController extends Controller
         //
         return view('bok.technician.index');
     }
+
+    public function reviewIndex()
+    {
+        //
+        return view('bok.review.index');
+    }
+
 
     // ===== AJAX =====
 
@@ -78,14 +91,39 @@ class BokController extends Controller
         return Response::json($data);
     }
 
-    public function updateAgreementDevicesRPK(Request $request)
+
+    // ----------- Devices ----------------------------
+
+    public function updateDevicesRPK(Request $request)
     {
         $json = jsonDecode($request->input('json'));
         $data = DeviceController::updateDevicesRPK($json->data);
         return Response::json($data);
     }
 
-    // ----------- Devices ----------------------------
+    public function getDevices(Request $request)
+    {
+        $json = jsonDecode($request->input('json'));
+        $parameters = array();
+        foreach ($json as $key => $val) {
+            $parameters[$key] = $val;
+        }
+        $data = DeviceController::getDevices($parameters);
+        return Response::json($data);
+    }
+
+    public function getDevicesWithoutInstallationAddress(Request $request)
+    {
+        $json = jsonDecode($request->input('json'));
+        $parameters = array();
+        foreach ($json as $key => $val) {
+            $parameters[$key] = $val;
+        }
+        $data = DeviceController::getDevicesWithoutInstallationAddress($parameters);
+        return Response::json($data);
+    }
+
+
     public function getDeviceBySerial(Request $request)
     {
         $json = jsonDecode($request->input('json'));
@@ -96,7 +134,11 @@ class BokController extends Controller
     public function getDeviceModels(Request $request)
     {
         $json = jsonDecode($request->input('json'));
-        $data = DeviceController::getDeviceModels($json->data);
+        $parameters = array();
+        foreach ($json as $key => $val) {
+            $parameters[$key] = $val;
+        }
+        $data = DeviceController::getDeviceModels($parameters);
         return Response::json($data);
     }
 
@@ -125,6 +167,35 @@ class BokController extends Controller
         return Response::json($data);
     }
 
+    public function updateDevicesTechnician(Request $request)
+    {
+        $json = jsonDecode($request->input('json'));
+        $data = DeviceController::updateDevicesTechnician($json->data);
+        return Response::json($data);
+    }
 
+    public function updateDevicesTechByTech(Request $request)
+    {
+        $json = jsonDecode($request->input('json'));
+        $data = DeviceController::updateDevicesTechByTech($json->data);
+        return Response::json($data);
+    }
+
+    public function getDeviceAddresses(Request $request)
+    {
+        $data = array();
+        $json = jsonDecode($request->input('json'));
+        $data['dev'] = DeviceController::getDeviceByAgrItemId($json->agrItemId);
+        $custId = $data['dev']->cust_id;
+        $data['addr'] = CustomerController::getCustomerAddresses($custId);
+        return Response::json($data);
+    }
+
+    public function updateDeviceInstallationAddress(Request $request)
+    {
+        $json = jsonDecode($request->input('json'));
+        $data = DeviceController::updateDeviceInstallationAddress($json->data);
+        return Response::json($data);
+    }
 
 }

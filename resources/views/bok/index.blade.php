@@ -16,8 +16,13 @@
                         <li class="nav-item">
                             <a class="nav-link active" href="{{ route('bok.devices.index') }}">Urządzenia</a>
                         </li>
+                        {{--
                         <li class="nav-item">
                             <a class="nav-link active" href="{{ route('bok.technician.index') }}">Technicy</a>
+                        </li>
+                        --}}
+                        <li class="nav-item">
+                            <a class="nav-link active" href="{{ route('bok.review.index') }}">Przeglądy</a>
                         </li>
 
                     </ul>

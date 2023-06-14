@@ -683,16 +683,25 @@
                         <a class="nav-link" href="{{ route('hpreport.index') }}">Raport HP</a>
                         <!-- The current user can update, view, or delete the post... -->
                         {{--@elsecanany(['create'], \App\Models\Post::class)--}}
-                    <!-- The current user can create a post... -->
+                        <!-- The current user can create a post... -->
                     @endcanany
 
                     @canany(['isAdmin', 'isProfits'])
                         <a class="nav-link" href="{{ route('profits.index') }}">Profitowość</a>
                     @endcanany
 
+                    @canany(['isAdmin', 'isBOK'])
+                        <a class="nav-link" href="{{ route('bok.index') }}">BOK</a>
+                    @endcanany
+
+                    @canany(['is_BOK_Profits'])
+                        <a class="nav-link" href="{{ route('profits.index') }}">Profitowość</a>
+                        <a class="nav-link" href="{{ route('bok.index') }}">BOK</a>
+                    @endcanany
+
+
                     @canany(['isAdmin'])
                         <a class="nav-link" href="{{ route('coordination.index') }}">Koordynacja</a>
-                        <a class="nav-link" href="{{ route('bok.index') }}">BOK</a>
                         <a class="nav-link" href="{{ route('it.index') }}">IT</a>
                     @endcanany
 

@@ -28,12 +28,21 @@ const isObjectEmpty = (objectName) => {
     return _.isEmpty(objectName);
 };
 
+// wyświetla komunikaty np. ajax
+function showMessage($box, message, c = 'alert alert-success'){
+    $box.addClass(c);
+    $box.text(message);
+    $box.show("slow").delay(5000).hide("slow", ()=>{
+        $box.text('');
+        $box.removeClass(c);
+    });
+}
 
 
 
 
 
-export { ax, isObjectEmpty }
+export { ax, isObjectEmpty, showMessage }
 
 
 // ---------------------      testy

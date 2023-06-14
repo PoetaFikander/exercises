@@ -8,13 +8,30 @@ use Illuminate\Http\Request;
 class DeviceController extends Controller
 {
     //
+
+    static function getDevices($parameters)
+    {
+        return Device::getDevices($parameters);
+    }
+
+    static function getDevicesWithoutInstallationAddress($parameters)
+    {
+        return Device::getDevicesWithoutInstallationAddress($parameters);
+    }
+
     static function getDeviceBySerial($serialNo)
     {
         return Device::getDeviceBySerial($serialNo);
     }
 
-    static function getDeviceModels($params = null){
-        return Device::getDeviceModels($params);
+    static function getDeviceByAgrItemId($agrItemId)
+    {
+        return Device::getDeviceByAgrItemId($agrItemId);
+    }
+
+    static function getDeviceModels($parameters)
+    {
+        return Device::getDeviceModels($parameters);
     }
 
     static function getDeviceReplacementParts()
@@ -50,6 +67,21 @@ class DeviceController extends Controller
     static function updateDeviceModel($data)
     {
         return Device::updateDeviceModel($data);
+    }
+
+    static function updateDevicesTechnician($data)
+    {
+        return Device::updateDevicesTechnician($data);
+    }
+
+    static function updateDevicesTechByTech($data)
+    {
+        return Device::updateDevicesTechByTech($data);
+    }
+
+    static function updateDeviceInstallationAddress($data)
+    {
+        return Device::updateDeviceInstallationAddress($data);
     }
 
 }

@@ -37,12 +37,26 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         Gate::define('isHPReports', function (User $user){
-            return ($user->type_id == 1 || $user->type_id == 5);
+            //return ($user->type_id == 1 || $user->type_id == 5);
+            return ($user->type_id == 5);
         });
 
         Gate::define('isProfits', function (User $user){
-            return ($user->type_id == 1 || $user->type_id == 6);
+            //return ($user->type_id == 1 || $user->type_id == 6);
+            return ($user->type_id == 6);
         });
+
+        Gate::define('isBOK', function (User $user){
+            //return ($user->type_id == 1 || $user->type_id == 7);
+            return ($user->type_id == 7);
+        });
+
+        Gate::define('is_BOK_Profits', function (User $user){
+            //return ($user->type_id == 1 || $user->type_id == 8);
+            return ($user->type_id == 8);
+        });
+
+
 
         //$this->defineUserRoleGate('isAdmin',1);
         //$this->defineUserRoleGate('isUser',2);
