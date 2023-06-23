@@ -17,6 +17,7 @@ import {
     ExchangeTechnicianByTechnician,
     UpdateDevicesTechnician,
     UpdateInstallationAddress,
+    DeviceMaintenanceService,
 } from "./bok-functions.js";
 
 
@@ -40,3 +41,6 @@ const udt = new UpdateDevicesTechnician('accordionBokDevices','changeDeviceTechn
 
 // ===== obsługa zakładki 'Brak adresu instalacji' =====
 const uia = new UpdateInstallationAddress('accordionBokDevices','noInstallationAddressItem');
+
+// ===== obsługa modułu 'Przeglądy' =====
+const dms = new DeviceMaintenanceService('bok-review','review-container');

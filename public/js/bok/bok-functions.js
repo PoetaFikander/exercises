@@ -1,4 +1,4 @@
-import {ax, isObjectEmpty, showMessage} from "../functions.js";
+import {ax, isObjectEmpty, showMessage, digitForm, showWorkCard} from "../functions.js";
 
 
 // ##### global functions #####
@@ -10,6 +10,9 @@ const $overlaySpinner = $("#overlay-spinner");
 // pudełka na komunikaty
 const $devMessageBox = $(".result-message", $('#bok-devices'));
 $devMessageBox.hide();
+
+const $reviewMessageBox = $(".result-message", $('#bok-review'));
+$reviewMessageBox.hide();
 
 
 function agreementDevices(agrNo, dTable, callback) {
@@ -307,6 +310,7 @@ class ReplacementPartsKindOnAgreement {
                 {data: data},
                 '/bok/devices/updateDevicesRPK',
                 function (data) {
+                    //console.log(data);
                     if (!isObjectEmpty(data)) {
                         // aktualizujemy tabelę urządzeń
                         for (let n in data) {
@@ -1017,6 +1021,305 @@ class UpdateInstallationAddress {
 
 }
 
+
+// ##### Review #####
+
+class DeviceMaintenanceService {
+
+    constructor(moduleId, containerId) {
+        const deviceInfo = this.deviceInfo;
+        this.$module = $('#' + moduleId);
+        this.$container = $('#' + containerId, this.$module);
+        this.$isSetGuaranteeDateRadio = $('input[id=radio-yes-1]', this.$container);
+        this.$isUnderWarrantyRadio = $('input[id=radio-yes-2]', this.$container);
+        this.$departmentSelect = $('select[name=department]', this.$container);
+        this.$agrTypeSelect = $('select[name=agr-type]', this.$container);
+        this.$technicianSelect = $('select[name=technician]', this.$container);
+        this.$yearSelect = $('select[name=year]', this.$container);
+        this.$monthSelect = $('select[name=month]', this.$container);
+        this.$btnSearch = $('#btn-search', this.$container);
+
+        const $monthSelect = this.$monthSelect;
+        const $yearSelect = this.$yearSelect;
+
+        this.$deviceTable = $('#deviceTable', this.$container);
+        this.deviceTable = this.$deviceTable.DataTable(
+            {
+                paging: true,
+                autoWidth: false,
+                searching: true,
+                ordering: true,
+                rowId: 'dev_id',
+                columns: [
+                    {'data': 'dev_name'},
+                    {'data': 'dev_serial_no'},
+                    {'data': 'cust_name', 'className': 'ellipis text-nowrap'},
+                    //{'data': 'dev_tech_person_name'},
+                    {'data': 'dev_service_company_unit_name'},
+                    {'data': 'dev_guarantee_date_dks'},
+                    {'data': 'dev_last_review_date'},
+                    {'data': 'dev_days_at_last_review'},
+                    {'data': 'dev_next_review_date'},
+                    {'data': 'dev_active_review_wc_no'},
+
+                ],
+                'createdRow': function (row, data, dataIndex) {
+                    const $row = $(row);
+                    $row.addClass('active-row');
+                    $row.off('click');
+                    $row.on('click', deviceInfo);
+                }
+            }
+        );
+
+        this.$yearSelect.on('change',function () {
+            if (parseInt($(this).val()) === 0) {
+                $monthSelect.val(0);
+            }
+        });
+        this.$monthSelect.on('change', function () {
+            if (parseInt($(this).val()) !== 0 && parseInt($yearSelect.val()) === 0) {
+                $yearSelect.val(2020);
+            }
+        });
+
+        this.$btnSearch.on('click', this.showDevices.bind(this));
+    }
+
+    showDevices = function () {
+        console.log('showDevices');
+        const dTable = this.deviceTable;
+        const params = {
+            departmentId: Number(this.$departmentSelect.val()),
+            agrTypeId: Number(this.$agrTypeSelect.val()),
+            technicianId: Number(this.$technicianSelect.val()),
+            isSetGuaranteeDate: this.$isSetGuaranteeDateRadio.is(':checked') ? 1 : 0,
+            isUnderWarranty: this.$isUnderWarrantyRadio.is(':checked') ? 1 : 0,
+            calculatedReviewDateYear: Number(this.$yearSelect.val()),
+            calculatedReviewDateMonth: Number(this.$monthSelect.val()),
+        };
+        $overlaySpinner.fadeIn(300);
+        console.log(params);
+        ax(
+            params,
+            '/bok/review/getDevicesToReview',
+            function (devices) {
+                console.log(devices);
+                dTable.clear();
+                dTable.rows.add(devices).draw();
+                $overlaySpinner.fadeOut(300);
+            }
+        );
+    };
+
+    deviceInfo = function () {
+        console.log('deviceInfo');
+
+        const row = this;
+        const $row = $(this);
+        const devId = Number($row.attr('id'));
+
+        const modalEl = document.querySelector('#modal-deviceInfo');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        const $modal = $('#modal-deviceInfo');
+
+        const $modalHeaderText = $('#modal-header-text', $modal);
+        const $modelString = $('div[title=model]', $modal);
+        const $tab0 = $('#di-tab-0', $modal);
+        const $tab1 = $('#di-tab-1', $modal);
+        const $tab2 = $('#di-tab-2', $modal);
+        const $tab3 = $('#di-tab-3', $modal);
+        const $tab4 = $('#di-tab-4', $modal);
+        const $tab5 = $('#di-tab-5', $modal);
+
+        const $contactTable = $('#contactTable', $tab1);
+        const contactTable = $contactTable.DataTable(
+            {
+                paging: false,
+                autoWidth: false,
+                searching: false,
+                ordering: false,
+                info: false,
+                rowId: 'adr_id',
+                columns: [
+                    {'data': 'cont_type_name'},
+                    {'data': 'cont_number'},
+                    {'data': 'cont_description'},
+                ],
+                'createdRow': function (row, data, dataIndex) {
+                    const $row = $(row);
+                    $row.addClass('fw-bold');
+                }
+
+            }
+        );
+
+        const $rateTable = $('#rateTable', $tab3);
+        const rateTable = $rateTable.DataTable(
+            {
+                paging: false,
+                autoWidth: false,
+                searching: false,
+                ordering: false,
+                info: false,
+                rowId: 'dev_id',
+                columns: [
+                    {'data': 'service_lp'},
+                    {'data': 'service_code'},
+                    {'data': 'service_rate'},
+                    {'data': 'service_free_copies_in_cnu'},
+                    {'data': 'service_is_lump_sum'},
+                    {'data': 'service_company_unit_name'},
+                    {'data': 'service_notes'},
+                ]
+            }
+        );
+
+        const $counterTable = $('#counterTable', $tab4);
+        const counterTable = $counterTable.DataTable(
+            {
+                paging: true,
+                autoWidth: false,
+                searching: true,
+                ordering: true,
+                info: false,
+                rowId: 'dev_id',
+                columns: [
+                    {'data': 'counter_service_code'},
+                    {'data': 'counter_value', className: 'text-end'},
+                    {'data': 'counter_date_of_issue', className: 'text-center'},
+                    {'data': 'counter_source'},
+                    {'data': 'agr_no'},
+                ],
+                order: [[2, 'desc']],
+            }
+        );
+
+        const $workCardTable = $('#workCardTable', $tab5);
+        const workCardTable = $workCardTable.DataTable(
+            {
+                paging: true,
+                autoWidth: false,
+                searching: true,
+                ordering: true,
+                info: false,
+                rowId: 'wc_id',
+                columns: [
+                    {'data': 'wc_no'},
+                    {'data': 'wc_technician_name'},
+                    {'data': 'wc_status_name'},
+                    {'data': 'wc_register_date'},
+                    {'data': 'wc_last_modification_date'},
+                ],
+                order: [[3, 'asc']],
+                'createdRow': function (row, data, dataIndex) {
+                    const $row = $(row);
+                    $row.addClass('active-row');
+                    $row.off('click');
+                    $row.on('click', function () {
+                        //console.log('showWc');
+                        const $row = $(this);
+                        const wcId = Number($row.attr('id'));
+                        showWorkCard({wcId: wcId}, modal, null);
+                    });
+                },
+            }
+        );
+
+        const modalClean = function () {
+            console.log('modal hidden');
+            modalEl.removeEventListener('hidden.bs.modal', modalClean);
+            rateTable.destroy();
+            counterTable.destroy();
+            workCardTable.destroy();
+            contactTable.destroy();
+        };
+
+        modalEl.addEventListener('hidden.bs.modal', modalClean);
+
+        $overlaySpinner.fadeIn(300);
+        ax(
+            {devId: devId},
+            '/bok/review/getDeviceData',
+            function (res) {
+                console.log(res);
+
+                const d = res.data;
+                const r = res.rates;
+                const c = res.counters;
+                const wc = res.wc;
+                const ct = res.contacts;
+
+                // ------ tab0
+                let headerTex = '\xa0\xa0\xa0\xa0\xa0urządzenie:\xa0' + d.dev_model_name;
+                headerTex += '\xa0\xa0\xa0\xa0\xa0nr ser.\xa0' + d.dev_serial_no;
+                headerTex += '\xa0\xa0\xa0\xa0\xa0status:\xa0' + d.dev_status;
+                $('.modal-title', $modalHeaderText).text(headerTex);
+
+                $modelString.find('span').each(function () {
+                        const $this = $(this);
+                        $this.text(d[$this.attr('title')]);
+                    }
+                );
+                $tab0.find('input[type=text]').each(function () {
+                        const $this = $(this);
+                        $this.val(d[$this.attr('name')]);
+                    }
+                );
+                $tab0.find('textarea').each(function () {
+                        const $this = $(this);
+                        $this.val(d[$this.attr('name')]);
+                    }
+                );
+                // ------ tab1
+                contactTable.clear();
+                contactTable.rows.add(ct).draw();
+                $tab1.find('input[type=text]').each(function () {
+                        const $this = $(this);
+                        $this.val(d[$this.attr('name')]);
+                    }
+                );
+                $tab1.find('textarea').each(function () {
+                        const $this = $(this);
+                        $this.val(d[$this.attr('name')]);
+                    }
+                );
+                // ------ tab2
+                $tab2.find('input[type=text]').each(function () {
+                        const $this = $(this);
+                        $this.val(d[$this.attr('name')]);
+                    }
+                );
+                // ------ tab3
+                for (let n in r) {
+                    let item = r[n];
+                    item.service_rate = digitForm(Number(item.service_rate).toFixed(2));
+                    item.service_is_lump_sum = parseInt(item.service_is_lump_sum) === 1 ? 'tak' : 'nie';
+                }
+                rateTable.clear();
+                rateTable.rows.add(r).draw();
+                // ------ tab4
+                for (let n in c) {
+                    let item = c[n];
+                    item.counter_value = Number(item.counter_value).toFixed(0);
+                }
+                counterTable.clear();
+                counterTable.rows.add(c).draw();
+                // ------ tab5
+                workCardTable.clear();
+                workCardTable.rows.add(wc).draw();
+
+                // ----------------------------------------------
+                $overlaySpinner.fadeOut(300);
+                modal.show();
+            }
+        );
+
+    }
+
+}
+
+
 // --------------------------------------------------------------
 export {
     BillingIfNoCounter,
@@ -1026,7 +1329,14 @@ export {
     ExchangeTechnicianByTechnician,
     UpdateDevicesTechnician,
     UpdateInstallationAddress,
+    DeviceMaintenanceService,
 }
+
+
+
+
+
+
 // // --------------------------------------------------------------
 // $('#table1').dataTable({
 //     destroy: true,
@@ -1051,3 +1361,4 @@ export {
 //     select:true ,
 //     columns: [{"data":"id"},{"data":"name"},{"data":"lastName"},{"data":"age"},{"data":"birthDate"},{"data":"isVIP"},{"data":"gender"},{"data":"title"},{"data":"email"}]
 // });
+

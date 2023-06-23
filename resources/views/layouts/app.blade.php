@@ -672,25 +672,35 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <!-- Left Side Of Navbar -->
                 <ul class="navbar-nav me-auto">
+                    @auth
 
-                    {{--@can('isAdmin','isHPReports')
-                    @can('isHPReports')
-                        <a class="nav-link" href="{{ route('hpreport.index') }}">Raport HP</a>
-                    @endcan
-                    --}}
+                        @if (Auth::user()->hasRole('director'))
+                            <a class="nav-link" href="{{ route('profits.index') }}">Profitowość</a>
+                            <a class="nav-link" href="{{ route('bok.index') }}">BOK</a>
+                        @endif
 
-                    @canany(['isAdmin', 'isHPReports'])
+
+                        @if (Auth::user()->hasRole('admin'))
+                            <a class="nav-link" href="{{ route('hpreport.index') }}">Raport HP</a>
+                            <a class="nav-link" href="{{ route('profits.index') }}">Profitowość</a>
+                            <a class="nav-link" href="{{ route('bok.index') }}">BOK</a>
+                            <a class="nav-link" href="{{ route('coordination.index') }}">Koordynacja</a>
+                            <a class="nav-link" href="{{ route('it.index') }}">IT</a>
+                            <a class="nav-link" href="{{ route('users.list') }}">Użytkownicy</a>
+                        @endif
+
+                    @endauth
+
+                    {{--
+                    @canany(['isHPReports'])
                         <a class="nav-link" href="{{ route('hpreport.index') }}">Raport HP</a>
-                        <!-- The current user can update, view, or delete the post... -->
-                        {{--@elsecanany(['create'], \App\Models\Post::class)--}}
-                        <!-- The current user can create a post... -->
                     @endcanany
 
-                    @canany(['isAdmin', 'isProfits'])
+                    @canany(['isProfits'])
                         <a class="nav-link" href="{{ route('profits.index') }}">Profitowość</a>
                     @endcanany
 
-                    @canany(['isAdmin', 'isBOK'])
+                    @canany(['isBOK'])
                         <a class="nav-link" href="{{ route('bok.index') }}">BOK</a>
                     @endcanany
 
@@ -700,16 +710,47 @@
                     @endcanany
 
 
-                    @canany(['isAdmin'])
+                    @canany(['isAdmin','isProfits'])
+                        <a class="nav-link" href="{{ route('hpreport.index') }}">Raport HP</a>
+                        <a class="nav-link" href="{{ route('profits.index') }}">Profitowość</a>
+                        <a class="nav-link" href="{{ route('bok.index') }}">BOK</a>
                         <a class="nav-link" href="{{ route('coordination.index') }}">Koordynacja</a>
                         <a class="nav-link" href="{{ route('it.index') }}">IT</a>
-                    @endcanany
-
-
-                    @can('isAdmin')
                         <a class="nav-link" href="{{ route('users.list') }}">Użytkownicy</a>
+                    @endcanany
+                    --}}
+                    {{--
+                    @if (Auth::user()->hasRole('director'))
+                        <a class="nav-link" href="{{ route('profits.index') }}">Profitowość</a>
+                        <a class="nav-link" href="{{ route('bok.index') }}">BOK</a>
+                    @endif
+                    --}}
+
+                    {{--
+                    @can('isAdmin')
+
+                        <a class="nav-link" href="{{ route('hpreport.index') }}">Raport HP</a>
+                        <a class="nav-link" href="{{ route('profits.index') }}">Profitowość</a>
+                        <a class="nav-link" href="{{ route('bok.index') }}">BOK</a>
+                        <a class="nav-link" href="{{ route('coordination.index') }}">Koordynacja</a>
+                        <a class="nav-link" href="{{ route('it.index') }}">IT</a>
+                        <a class="nav-link" href="{{ route('users.list') }}">Użytkownicy</a>
+
                     @endcan
-                    {{--<a class="nav-link" href="{{ route('users.list') }}">{{ __('Użytkownicy') }}</a>--}}
+                     --}}
+
+                    {{--@can('isAdmin','isHPReports')
+                    @can('isHPReports')
+                        <a class="nav-link" href="{{ route('hpreport.index') }}">Raport HP</a>
+                    @endcan
+                    @canany(['isAdmin', 'isHPReports'])
+                        <a class="nav-link" href="{{ route('hpreport.index') }}">Raport HP</a>
+                        <!-- The current user can update, view, or delete the post... -->
+                        <!--@elsecanany(['create'], \App\Models\Post::class)-->
+                        <!-- The current user can create a post... -->
+                    @endcanany
+                    --}}
+
                 </ul>
 
                 <!-- Right Side Of Navbar -->

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Agreement;
+use App\Models\Altum;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 
@@ -55,7 +57,64 @@ class BokController extends Controller
     public function reviewIndex()
     {
         //
-        return view('bok.review.index');
+        $departments = ToolController::getDepartments();
+        $technicians = ToolController::getTechnicians();
+        $agrTypes = Agreement::getAgreementTypes();
+
+
+        return view('bok.review.index', [
+            'departments' => $departments,
+            'technicians' => $technicians,
+            'agrTypes' => $agrTypes,
+
+        ]);
+    }
+
+
+    //---------------------------------------------------------------
+//    public function getDeviceRates($devId)
+//    {
+//        $data = DeviceController::getDeviceRates($devId);
+//        return $data;
+//    }
+//
+//    public function getDeviceCounters($devId)
+//    {
+//        $data = DeviceController::getDeviceCounters($devId);
+//        return $data;
+//    }
+//
+//    public function getDeviceWorkCards($devId)
+//    {
+//        $p = ['devId'=>$devId];
+//        $data = DeviceController::getDeviceWorkCards($p);
+//        return $data;
+//    }
+
+    //---------------------------------------------------------------
+    public function getDeviceData(Request $request)
+    {
+        $json = jsonDecode($request->input('json'));
+        $res = (object)array();
+        $devId = $json->devId;
+
+        $data = DeviceController::getDeviceById($devId);
+        $rates = DeviceController::getDeviceRates($devId);
+        $counters = DeviceController::getDeviceCounters($devId);
+
+        $p = ['devId'=>$devId];
+        $wc = DeviceController::getDeviceWorkCards($p);
+
+        $addrId = $data->dev_installation_address_id;
+        $contacts = Altum::getAddressContacts($addrId);
+
+        $res->data = $data;
+        $res->rates = $rates;
+        $res->counters = $counters;
+        $res->wc = $wc;
+        $res->contacts = $contacts;
+
+        return Response::json($res);
     }
 
 
@@ -91,7 +150,6 @@ class BokController extends Controller
         return Response::json($data);
     }
 
-
     // ----------- Devices ----------------------------
 
     public function updateDevicesRPK(Request $request)
@@ -112,6 +170,18 @@ class BokController extends Controller
         return Response::json($data);
     }
 
+    public function getDevicesToReview(Request $request)
+    {
+        $json = jsonDecode($request->input('json'));
+        $parameters = array();
+        foreach ($json as $key => $val) {
+            $parameters[$key] = $val;
+        }
+        $data = DeviceController::getDevicesToReview($parameters);
+        return Response::json($data);
+    }
+
+
     public function getDevicesWithoutInstallationAddress(Request $request)
     {
         $json = jsonDecode($request->input('json'));
@@ -128,6 +198,13 @@ class BokController extends Controller
     {
         $json = jsonDecode($request->input('json'));
         $data = DeviceController::getDeviceBySerial($json->serialNo);
+        return Response::json($data);
+    }
+
+    public function getDeviceById(Request $request)
+    {
+        $json = jsonDecode($request->input('json'));
+        $data = DeviceController::getDeviceById($json->devId);
         return Response::json($data);
     }
 
@@ -197,5 +274,13 @@ class BokController extends Controller
         $data = DeviceController::updateDeviceInstallationAddress($json->data);
         return Response::json($data);
     }
+
+
+    public function getAgreementTypes()
+    {
+        $data = AgreementController::getAgreementTypes();
+        return Response::json($data);
+    }
+
 
 }

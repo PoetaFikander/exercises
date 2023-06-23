@@ -21,9 +21,11 @@
                             <a class="nav-link active" href="{{ route('bok.technician.index') }}">Technicy</a>
                         </li>
                         --}}
+                        @can('isAdmin')
                         <li class="nav-item">
                             <a class="nav-link active" href="{{ route('bok.review.index') }}">Przeglądy</a>
                         </li>
+                        @endcan
 
                     </ul>
                 </div>

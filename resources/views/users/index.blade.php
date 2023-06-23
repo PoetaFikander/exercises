@@ -26,6 +26,7 @@
                     <th scope="col">E-mail</th>
                     <th scope="col">Telefon</th>
                     <th scope="col">Typ</th>
+                    <th scope="col">Role</th>
                     <th scope="col">Oddział</th>
                     <th scope="col">Aktywny</th>
                     <th scope="col" class="">Akcje</th>
@@ -40,6 +41,7 @@
                         <td>{{ $user->email }}</td>
                         <td>{{ $user->phone }}</td>
                         <td>{{ $user->type->name }}</td>
+                        <td>{{ implode(', ',$userRoles[$user->id]) }} </td>
                         <td>{{ $user->department->name }}</td>
                         <td>{{ $user->is_active ? 'Tak' : 'Nie' }}</td>
                         <td>

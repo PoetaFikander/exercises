@@ -10,6 +10,8 @@ class Device extends Model
 {
     use HasFactory;
 
+
+
     static function getDevices($parameters = [])
     {
         $p = $parameters;
@@ -73,6 +75,44 @@ class Device extends Model
         return $res;
     }
 
+    static function getDevicesToReview($parameters = [])
+    {
+        $p = $parameters;
+        if (!count($p)) {
+            $p = [
+                'departmentId' => 0,
+                'technicianId' => 0,
+                'isSetGuaranteeDate' => 1,
+                'agrTypeId' => 0,
+                'isUnderWarranty' => 1,
+                'calculatedReviewDateYear' => 0,
+                'calculatedReviewDateMonth' => 0,
+            ];
+        } else {
+            $p['departmentId'] = array_key_exists('departmentId', $p) ? $p['departmentId'] : 0;
+            $p['technicianId'] = array_key_exists('technicianId', $p) ? $p['technicianId'] : 0;
+            $p['isSetGuaranteeDate'] = array_key_exists('isSetGuaranteeDate', $p) ? $p['isSetGuaranteeDate'] : 1;
+            $p['agrTypeId'] = array_key_exists('agrTypeId', $p) ? $p['agrTypeId'] : 0;
+            $p['isUnderWarranty'] = array_key_exists('isUnderWarranty', $p) ? $p['isUnderWarranty'] : 1;
+            $p['calculatedReviewDateYear'] = array_key_exists('calculatedReviewDateYear', $p) ? $p['calculatedReviewDateYear'] : 0;
+            $p['calculatedReviewDateMonth'] = array_key_exists('calculatedReviewDateMonth', $p) ? $p['calculatedReviewDateMonth'] : 0;
+        }
+
+        $res = DB::connection('sqlsrv')->select(
+            "EXECUTE [dbo].[getDevicesToReview] :d, :t, :i, :a, :iu, :y, :m",
+            [
+                'd' => $p['departmentId'],
+                't' => $p['technicianId'],
+                'i' => $p['isSetGuaranteeDate'],
+                'a' => $p['agrTypeId'],
+                'iu' => $p['isUnderWarranty'],
+                'y' => $p['calculatedReviewDateYear'],
+                'm' => $p['calculatedReviewDateMonth'],
+            ]
+        );
+        return $res;
+    }
+
     static function getDevicesWithoutInstallationAddress($parameters = [])
     {
         $p = $parameters;
@@ -98,6 +138,34 @@ class Device extends Model
         return $res;
     }
 
+    static function getDeviceWorkCards($parameters = [])
+    {
+        $p = $parameters;
+        if (!count($p)) {
+            $p = [
+                'devId' => 0,
+                'customerId' => 0,
+                'stateId' => 0,
+                'serviceId' => 0,
+            ];
+        } else {
+            $p['devId'] = array_key_exists('devId', $p) ? $p['devId'] : 0;
+            $p['customerId'] = array_key_exists('customerId', $p) ? $p['customerId'] : 0;
+            $p['stateId'] = array_key_exists('stateId', $p) ? $p['stateId'] : 0;
+            $p['serviceId'] = array_key_exists('serviceId', $p) ? $p['serviceId'] : 0;
+        }
+        $res = DB::connection('sqlsrv')->select(
+            "EXECUTE [dbo].[getDeviceWorkCards] :d, :c, :s, :p",
+            [
+                'd' => $p['devId'],
+                'c' => $p['customerId'],
+                's' => $p['stateId'],
+                'p' => $p['serviceId'],
+            ]
+        );
+        return $res;
+    }
+
     static function getDeviceBySerial($serialNo)
     {
         $res = DB::connection('sqlsrv')->select("SELECT * FROM [dbo].[getDeviceBySerial] (:s)", ['s' => $serialNo]);
@@ -110,6 +178,23 @@ class Device extends Model
         return $res[0];
     }
 
+    static function getDeviceById($devId)
+    {
+        $res = DB::connection('sqlsrv')->select("EXECUTE [dbo].[getDeviceById] :i", ['i' => $devId]);
+        return $res[0];
+    }
+
+    static function getDeviceRates($devId)
+    {
+        $res = DB::connection('sqlsrv')->select("SELECT * FROM [dbo].[getDeviceRates] (:i)", ['i' => $devId]);
+        return $res;
+    }
+
+    static function getDeviceCounters($devId)
+    {
+        $res = DB::connection('sqlsrv')->select("SELECT * FROM [dbo].[getDeviceCounters] (:i)", ['i' => $devId]);
+        return $res;
+    }
 
     static function getDeviceModels($parameters = [])
     {
@@ -162,6 +247,8 @@ class Device extends Model
         $res = DB::connection('sqlsrv')->select("SELECT * FROM [dbo].[getDeviceKinds] () order by [dic_field_name]");
         return $res;
     }
+
+
 
     static function updateDeviceModel($data)
     {
@@ -228,6 +315,39 @@ class Device extends Model
         );
         return $res[0];
     }
+
+
+
+    static function getWorkCardHeader($wcId)
+    {
+        $res = DB::connection('sqlsrv')->select("SELECT * FROM [dbo].[getWorkCardHeader] (:i)", ['i' => $wcId]);
+        return $res[0];
+    }
+
+    static function getWorkCardActions($wcId)
+    {
+        $res = DB::connection('sqlsrv')->select("SELECT * FROM [dbo].[getWorkCardActions] (:i)", ['i' => $wcId]);
+        return $res;
+    }
+
+    static function getWorkCardMaterials($wcId)
+    {
+        $res = DB::connection('sqlsrv')->select("SELECT * FROM [dbo].[getWorkCardMaterials] (:i)", ['i' => $wcId]);
+        return $res;
+    }
+
+    static function getWorkCardServices($wcId)
+    {
+        $res = DB::connection('sqlsrv')->select("SELECT * FROM [dbo].[getWorkCardServices] (:i)", ['i' => $wcId]);
+        return $res;
+    }
+
+    static function getWorkCardDocs($wcId)
+    {
+        $res = DB::connection('sqlsrv')->select("SELECT * FROM [dbo].[getWorkCardDocs] (:i)", ['i' => $wcId]);
+        return $res;
+    }
+
 
 
 }

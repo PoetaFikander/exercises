@@ -71,7 +71,6 @@ class ProfitRepository extends BaseRepository
         return $results;
     }
 
-
     public function getDeviceData($devId, $agrId)
     {
         $results = DB::connection('sqlsrv')->select("
@@ -79,7 +78,6 @@ class ProfitRepository extends BaseRepository
 	    ", ['devid' => $devId, 'agrid' => $agrId]);
         return $results[0];
     }
-
 
     public function getProfitParameter($devId, $dFrom, $dTo)
     {
@@ -106,7 +104,6 @@ class ProfitRepository extends BaseRepository
         return $res;
     }
 
-
     public function getCostDoc($id, $customerId, $dateFrom, $dateTo)
     {
         $res = DB::connection('sqlsrv')->select("
@@ -131,7 +128,6 @@ class ProfitRepository extends BaseRepository
         );
         return $res;
     }
-
 
     public function getDoc($docId, $docTypeId)
     {
@@ -171,8 +167,6 @@ class ProfitRepository extends BaseRepository
 
         return $results;
     }
-
-
 
     public function getAgreementHeader($docId)
     {

@@ -28,5 +28,9 @@ class Agreement extends Model
         return $res;
     }
 
+    static function getAgreementTypes()
+    {
+        return DB::connection('sqlsrv')->select("SELECT * FROM [dbo].[getAgreementTypes] ()");
+    }
 
 }

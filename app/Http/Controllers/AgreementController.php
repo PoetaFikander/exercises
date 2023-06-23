@@ -23,4 +23,9 @@ class AgreementController extends Controller
         return Agreement::getAgreementDevices($agrId);
     }
 
+    static function getAgreementTypes()
+    {
+        return Agreement::getAgreementTypes();
+    }
+
 }

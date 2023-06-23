@@ -49,6 +49,29 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at' => 'datetime',
     ];
 
+
+    public function isAdmin()
+    {
+        return $this->roles()->where('name', 'admin')->exists();
+    }
+
+    public function hasRole($role)
+    {
+        return $this->roles()->where('name', $role)->exists();
+    }
+
+    public function userRoles($userId)
+    {
+        $roles = array();
+        $ur = $this->roles()->where('user_id', $userId)->get();
+        foreach ($ur as $r) {
+            array_push($roles, ['id' => $r->id, 'name' => $r->name]);
+        }
+        return $roles;
+        //return $this->roles()->where('user_id', $userId)->get();
+    }
+
+    // ----- relacje
     public function type()
     {
         return $this->belongsTo(UserType::class);
@@ -57,6 +80,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function department()
     {
         return $this->belongsTo(Department::class);
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'user_roles');
     }
 
 }

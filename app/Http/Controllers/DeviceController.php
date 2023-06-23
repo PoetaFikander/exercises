@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AltumDoc;
 use App\Models\Device;
 use Illuminate\Http\Request;
 
@@ -14,9 +15,19 @@ class DeviceController extends Controller
         return Device::getDevices($parameters);
     }
 
+    static function getDevicesToReview($parameters)
+    {
+        return Device::getDevicesToReview($parameters);
+    }
+
     static function getDevicesWithoutInstallationAddress($parameters)
     {
         return Device::getDevicesWithoutInstallationAddress($parameters);
+    }
+
+    static function getDeviceWorkCards($parameters)
+    {
+        return Device::getDeviceWorkCards($parameters);
     }
 
     static function getDeviceBySerial($serialNo)
@@ -27,6 +38,21 @@ class DeviceController extends Controller
     static function getDeviceByAgrItemId($agrItemId)
     {
         return Device::getDeviceByAgrItemId($agrItemId);
+    }
+
+    static function getDeviceById($devId)
+    {
+        return Device::getDeviceById($devId);
+    }
+
+    static function getDeviceRates($devId)
+    {
+        return Device::getDeviceRates($devId);
+    }
+
+    static function getDeviceCounters($devId)
+    {
+        return Device::getDeviceCounters($devId);
     }
 
     static function getDeviceModels($parameters)
@@ -53,6 +79,8 @@ class DeviceController extends Controller
     {
         return Device::getDeviceKinds();
     }
+
+
 
     static function updateDevicesFGBL($data)
     {
@@ -83,5 +111,27 @@ class DeviceController extends Controller
     {
         return Device::updateDeviceInstallationAddress($data);
     }
+
+
+
+    static function getWorkCard($wcId)
+    {
+        $results = array();
+        $results['header'] = Device::getWorkCardHeader($wcId);
+        $results['actions'] = Device::getWorkCardActions($wcId);
+        $results['materials'] = Device::getWorkCardMaterials($wcId);
+        $results['services'] = Device::getWorkCardServices($wcId);
+        $documents = array();
+        $wcDocs = Device::getWorkCardDocs($wcId);
+        foreach ($wcDocs as $d) {
+            if ((int)$d->doc_id > 0) {
+                $h = AltumDoc::getDocHeader($d->doc_id);
+                $documents[] = $h;
+            }
+        }
+        $results['documents'] = $documents;
+        return $results;
+    }
+
 
 }

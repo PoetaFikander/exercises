@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Models\Department;
+use App\Models\Role;
 use App\Models\User;
+use App\Models\UserRole;
 use App\Models\UserType;
 use Exception;
 use Illuminate\Http\Request;
@@ -22,7 +24,17 @@ class UserController extends Controller
     {
         //
         $users = User::all();
-        return view('users.index', ['users' => $users]);
+        $userRoles = array();
+        foreach($users as $user){
+            $ur = $user->userRoles($user->id);
+            $roles = array();
+            //tylko nazwy, id nie potrzebne
+            foreach ($ur as $r){
+                array_push($roles, $r['name']);
+            }
+            $userRoles[$user->id] = $roles;
+        }
+        return view('users.index', ['users' => $users, 'userRoles' => $userRoles]);
     }
 
     /**
